@@ -12,7 +12,7 @@ endif
 
 ifdef USE_WITH_BOOTLOADER
 # Optimization flags release (note - we use -funwind-tables so our app fault handler can reverse engineer the PC of the caller when unsupplied)
-OPT = -Os -g3
+OPT = -Os -ggdb
 else
 # Optimization flags debug (important to get line numbers for faults - warning this adds about 40KB to flash size!)
 OPT = -O0 -g3 -DDEBUG_NRF -DDEBUG

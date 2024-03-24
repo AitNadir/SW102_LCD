@@ -23,6 +23,8 @@ extern uint8_t app_uart_get(void);
 
 #define UART_IRQ_PRIORITY                       APP_IRQ_PRIORITY_LOW
 
+#define FRAME_MAX_BYTES                         9u
+
 /**
  *@breif UART configuration structure
  */
@@ -35,7 +37,7 @@ static const app_uart_comm_params_t comm_params =
     //Below values are defined in ser_config.h common for application and connectivity
     .flow_control = APP_UART_FLOW_CONTROL_DISABLED,
     .use_parity   = false,
-    .baud_rate    = UART_BAUDRATE_BAUDRATE_Baud19200
+    .baud_rate    = UART_BAUDRATE_BAUDRATE_Baud9600
 };
 
 uint8_t ui8_rx_buffer[UART_NUMBER_DATA_BYTES_TO_RECEIVE];
@@ -69,7 +71,7 @@ void uart_evt_callback(app_uart_evt_t * uart_evt)
   static uint8_t ui8_rx[UART_NUMBER_DATA_BYTES_TO_RECEIVE];
   static uint8_t ui8_rx_cnt = 0;
   uint8_t ui8_i;
-  uint16_t ui16_crc_rx;
+  uint16_t checksum = 0;
 
   switch (uart_evt->evt_type)
   {
@@ -87,33 +89,24 @@ void uart_evt_callback(app_uart_evt_t * uart_evt)
           ui8_state_machine = 0;
         }
 
-        ui8_rx_cnt = 0;
+        ui8_rx_cnt = 1;
         break;
 
         case 1:
-          ui8_rx[1] = ui8_byte_received;
-          ui8_state_machine = 2;
-        break;
-
-        case 2:
-        ui8_rx[ui8_rx_cnt + 2] = ui8_byte_received;
-        ++ui8_rx_cnt;
+        ui8_rx[ui8_rx_cnt++] = ui8_byte_received;
 
         // reset if it is the last byte of the package and index is out of bounds
-        if (ui8_rx_cnt >= ui8_rx[1])
+        if (ui8_rx_cnt >= FRAME_MAX_BYTES)
         {
           ui8_state_machine = 0;
 
-          // just to make easy next calculations
-          ui16_crc_rx = 0xffff;
-          for (ui8_i = 0; ui8_i < ui8_rx[1]; ui8_i++)
+          for (ui8_i = 0; ui8_i < FRAME_MAX_BYTES - 1; ui8_i++)
           {
-            crc16(ui8_rx[ui8_i], &ui16_crc_rx);
+            checksum += ui8_rx[ui8_i];
           }
 
-          // if CRC is correct read the package
-          if (((((uint16_t) ui8_rx[ui8_rx[1] + 1]) << 8) +
-                ((uint16_t) ui8_rx[ui8_rx[1]])) == ui16_crc_rx)
+          // if Checksum is correct read the package
+          if ((checksum & 0xFF) == ui8_rx[FRAME_MAX_BYTES - 1])
           {
             // copy to the other buffer only if we processed already the last package
             if(!ui8_received_package_flag)
@@ -121,7 +114,7 @@ void uart_evt_callback(app_uart_evt_t * uart_evt)
               ui8_received_package_flag = 1;
 
               // store the received data to rx_buffer
-              memcpy(ui8_rx_buffer, ui8_rx, ui8_rx[1] + 2);
+              memcpy(ui8_rx_buffer, ui8_rx, FRAME_MAX_BYTES);
             }
           }
         }
