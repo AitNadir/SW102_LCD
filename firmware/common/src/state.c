@@ -183,12 +183,12 @@ void rt_send_tx_package(frame_type_t type) {
       ui8_usart1_tx_buffer[1] = 0x00;
       // Set the light
       ui8_usart1_tx_buffer[1] |= 0;
-      // Set the asssit level
-      ui8_usart1_tx_buffer[1] |= (1 << assist_level_bitpos[rt_vars.ui8_assist_level]);
       // Set the walk assit
-      if(rt_vars.ui8_walk_assist)
-      {
+      if (rt_vars.ui8_walk_assist) {
         ui8_usart1_tx_buffer[1] |= (1 << 5);
+      } else {
+        // Set assist level
+        ui8_usart1_tx_buffer[1] |= (1 << assist_level_bitpos[rt_vars.ui8_assist_level]);
       }
 
       // Test params 1
@@ -214,7 +214,7 @@ void rt_send_tx_package(frame_type_t type) {
 
 	// prepare crc of the package
 	uint16_t checksum = 0;
-	for(uint8_t idx = 0; idx < 6; ++idx) {
+	for (uint8_t idx = 0; idx < 6; ++idx) {
     checksum += ui8_usart1_tx_buffer[idx];
   }
   ui8_usart1_tx_buffer[6] = checksum & 0xFF;
