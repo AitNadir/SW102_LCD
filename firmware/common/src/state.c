@@ -171,177 +171,57 @@ void parse_simmotor() {
 }
 
 void rt_send_tx_package(frame_type_t type) {
-  uint8_t crc_len = 3; // minimun is 3
 	uint8_t *ui8_usart1_tx_buffer = uart_get_tx_buffer();
-
+  const uint8_t assist_level_bitpos[6] = {4, 7, 6, 1, 2, 3};
 	/************************************************************************************************/
 	// send tx package
 	// start up byte
 	ui8_usart1_tx_buffer[0] = 0x59;
-  ui8_usart1_tx_buffer[1] = crc_len;
-  // type of the frame
-	ui8_usart1_tx_buffer[2] = (uint8_t) type;
 
 	switch (type) {
 	  case FRAME_TYPE_PERIODIC:
-      if (rt_vars.ui8_walk_assist) {
-        // walk assist level is specified in duty cycle units -> do not adjust
-        ui8_usart1_tx_buffer[3] = (uint8_t) rt_vars.ui8_walk_assist_level_factor[((rt_vars.ui8_assist_level) - 1)];
-        ui8_usart1_tx_buffer[4] = 0;
-      } else if (rt_vars.ui8_assist_level) {
-        uint16_t ui16_temp = rt_vars.ui16_assist_level_factor[((rt_vars.ui8_assist_level) - 1)];
-        // the assist level is specified for the reference motor voltage
-        // adjust by current battery voltage
-        // Ignore battery voltage cut-off voltage, this can normally happen during the first
-        // seconds after startup, when the 'filtered' battery voltage is still converging.
-        if(rt_vars.ui16_battery_voltage_filtered_x10 >= rt_vars.ui16_battery_low_voltage_cut_off_x10)
-          ui16_temp = (unsigned int)ui16_temp * (rt_vars.ui8_motor_type ? 360 : 480) / rt_vars.ui16_battery_voltage_filtered_x10;
-
-        ui8_usart1_tx_buffer[3] = (uint8_t) (ui16_temp & 0xff);
-        ui8_usart1_tx_buffer[4] = (uint8_t) (ui16_temp >> 8);
-      } else {
-        // if rt_vars.ui8_assist_level = 0, send 0!! always disable motor when assist level is 0
-        ui8_usart1_tx_buffer[3] = 0;
-        ui8_usart1_tx_buffer[4] = 0;
-      }
-
-      ui8_usart1_tx_buffer[5] = (rt_vars.ui8_lights & 1) | ((rt_vars.ui8_walk_assist & 1) << 1);
-
-      // battery power limit
-      if (rt_vars.ui8_street_mode_enabled)
+      ui8_usart1_tx_buffer[1] = 0x00;
+      // Set the light
+      ui8_usart1_tx_buffer[1] |= 0;
+      // Set the asssit level
+      ui8_usart1_tx_buffer[1] |= (1 << assist_level_bitpos[rt_vars.ui8_assist_level]);
+      // Set the walk assit
+      if(rt_vars.ui8_walk_assist)
       {
-        ui8_usart1_tx_buffer[6] = rt_vars.ui8_street_mode_power_limit_div25;
-      }
-      else
-      {
-        ui8_usart1_tx_buffer[6] = rt_vars.ui8_target_max_battery_power_div25;
+        ui8_usart1_tx_buffer[1] |= (1 << 5);
       }
 
-      // startup motor power boost
-      uint16_t ui16_temp = (uint8_t) rt_vars.ui16_startup_motor_power_boost_factor[((rt_vars.ui8_assist_level) - 1)];
-      ui8_usart1_tx_buffer[7] = (uint8_t) (ui16_temp & 0xff);
-      ui8_usart1_tx_buffer[8] = (uint8_t) (ui16_temp >> 8);
-
-      // wheel max speed
-      if (rt_vars.ui8_street_mode_enabled)
-      {
-        ui8_usart1_tx_buffer[9] = rt_vars.ui8_street_mode_speed_limit;
-      }
-      else
-      {
-        ui8_usart1_tx_buffer[9] = rt_vars.ui8_wheel_max_speed;
-      }
-
-      // motor temperature limit function or throttle
-      if (rt_vars.ui8_street_mode_enabled &&
-          rt_vars.ui8_street_mode_throttle_enabled)
-      {
-        ui8_usart1_tx_buffer[10] = rt_vars.ui8_temperature_limit_feature_enabled & 1;
-      }
-      else
-      {
-        ui8_usart1_tx_buffer[10] = rt_vars.ui8_temperature_limit_feature_enabled & 3;
-      }
-
-      // virtual throttle
-      ui8_usart1_tx_buffer[11] = (uint8_t) ((((uint16_t) rt_vars.ui8_throttle_virtual) * 255) / 100);
-
-      crc_len = 13;
-      ui8_usart1_tx_buffer[1] = crc_len;
+      // Test params 1
+      ui8_usart1_tx_buffer[2] = 0x00;
+      // Wheel diameter
+      ui8_usart1_tx_buffer[3] = 0x1A;
+      // Test params 2
+      ui8_usart1_tx_buffer[4] = 0x00;
+      // Speed Limit
+      ui8_usart1_tx_buffer[5] = 0x19;
 	    break;
 
     // set configurations
 	  case FRAME_TYPE_CONFIGURATIONS:
-      // battery low voltage cut-off
-      ui8_usart1_tx_buffer[3] = (uint8_t) (rt_vars.ui16_battery_low_voltage_cut_off_x10 & 0xff);
-      ui8_usart1_tx_buffer[4] = (uint8_t) (rt_vars.ui16_battery_low_voltage_cut_off_x10 >> 8);
-
-      // wheel perimeter
-      ui8_usart1_tx_buffer[5] = (uint8_t) (rt_vars.ui16_wheel_perimeter & 0xff);
-      ui8_usart1_tx_buffer[6] = (uint8_t) (rt_vars.ui16_wheel_perimeter >> 8);
-
-      // battery max current
-      ui8_usart1_tx_buffer[7] = rt_vars.ui8_battery_max_current;
-
-      ui8_usart1_tx_buffer[8] = rt_vars.ui8_startup_motor_power_boost_feature_enabled |
-          (rt_vars.ui8_startup_motor_power_boost_always << 1) |
-          (rt_vars.ui8_startup_motor_power_boost_limit_power << 2) |
-          (rt_vars.ui8_torque_sensor_calibration_feature_enabled << 3) |
-          (rt_vars.ui8_torque_sensor_calibration_pedal_ground << 4) |
-          (rt_vars.ui8_motor_assistance_startup_without_pedal_rotation << 5) |
-          ((rt_vars.ui8_motor_type & 1) << 6);
-
-      // motor max current
-      ui8_usart1_tx_buffer[9] = rt_vars.ui8_motor_max_current;
-      // startup motor power boost time
-      ui8_usart1_tx_buffer[10] = rt_vars.ui8_startup_motor_power_boost_time;
-      // startup motor power boost fade time
-      ui8_usart1_tx_buffer[11] = rt_vars.ui8_startup_motor_power_boost_fade_time;
-
-      // motor over temperature min and max values to limit
-      ui8_usart1_tx_buffer[12] = rt_vars.ui8_motor_temperature_min_value_to_limit;
-      ui8_usart1_tx_buffer[13] = rt_vars.ui8_motor_temperature_max_value_to_limit;
-
-      ui8_usart1_tx_buffer[14] = rt_vars.ui8_ramp_up_amps_per_second_x10;
-
-      // TODO
-      // target speed for cruise
-      ui8_usart1_tx_buffer[15] = 0;
-
-      // torque sensor calibration tables
-      uint8_t j = 16;
-      for (uint8_t i = 0; i < 8; i++) {
-        ui8_usart1_tx_buffer[j++] = (uint8_t) rt_vars.ui16_torque_sensor_calibration_table_left[i][0];
-        ui8_usart1_tx_buffer[j++] = (uint8_t) (rt_vars.ui16_torque_sensor_calibration_table_left[i][0] >> 8);
-        ui8_usart1_tx_buffer[j++] = (uint8_t) rt_vars.ui16_torque_sensor_calibration_table_left[i][1];
-        ui8_usart1_tx_buffer[j++] = (uint8_t) (rt_vars.ui16_torque_sensor_calibration_table_left[i][1] >> 8);
-      }
-
-      for (uint8_t i = 0; i < 8; i++) {
-        ui8_usart1_tx_buffer[j++] = (uint8_t) rt_vars.ui16_torque_sensor_calibration_table_right[i][0];
-        ui8_usart1_tx_buffer[j++] = (uint8_t) (rt_vars.ui16_torque_sensor_calibration_table_right[i][0] >> 8);
-        ui8_usart1_tx_buffer[j++] = (uint8_t) rt_vars.ui16_torque_sensor_calibration_table_right[i][1];
-        ui8_usart1_tx_buffer[j++] = (uint8_t) (rt_vars.ui16_torque_sensor_calibration_table_right[i][1] >> 8);
-      }
-
-      // battery current min ADC
-      ui8_usart1_tx_buffer[79] = rt_vars.ui8_motor_current_min_adc;
-      ui8_usart1_tx_buffer[80] = (rt_vars.ui8_pedal_cadence_fast_stop |
-          (rt_vars.ui8_field_weakening << 1) |
-          (rt_vars.ui8_coast_brake_enable << 2) |
-          (rt_vars.ui8_motor_current_control_mode << 3));
-      ui8_usart1_tx_buffer[81] = rt_vars.ui8_coast_brake_adc;
-      ui8_usart1_tx_buffer[82] = rt_vars.ui8_adc_lights_current_offset;
-      ui8_usart1_tx_buffer[83] = rt_vars.ui8_torque_sensor_filter;
-      ui8_usart1_tx_buffer[84] = rt_vars.ui8_torque_sensor_adc_threshold;
-
-      crc_len = 86;
-      ui8_usart1_tx_buffer[1] = crc_len;
+	  case FRAME_TYPE_STATUS:
+	  case FRAME_TYPE_FIRMWARE_VERSION:
+	    // nothing to add to the package
 	    break;
-
-	    case FRAME_TYPE_STATUS:
-	    case FRAME_TYPE_FIRMWARE_VERSION:
-	      // nothing to add to the package
-	      break;
 
 	    default:
 	      break;
 	}
 
 	// prepare crc of the package
-	uint16_t ui16_crc_tx = 0xffff;
-	for (uint8_t ui8_i = 0; ui8_i < crc_len; ui8_i++) {
-		crc16(ui8_usart1_tx_buffer[ui8_i], &ui16_crc_tx);
-	}
-	ui8_usart1_tx_buffer[crc_len] =
-			(uint8_t) (ui16_crc_tx & 0xff);
-	ui8_usart1_tx_buffer[crc_len + 1] =
-			(uint8_t) (ui16_crc_tx >> 8) & 0xff;
-	ui8_usart1_tx_buffer[crc_len + 2] = 0; // workaround for UART parsing bug in motor firmware 1.1.1
+	uint16_t checksum = 0;
+	for(uint8_t idx = 0; idx < 6; ++idx) {
+    checksum += ui8_usart1_tx_buffer[idx];
+  }
+  ui8_usart1_tx_buffer[6] = checksum & 0xFF;
 
 	// send the full package to UART
 	if (g_motor_init_state != MOTOR_INIT_SIMULATING) // If we are simulating received packets never send real packets
-		uart_send_tx_buffer(ui8_usart1_tx_buffer, ui8_usart1_tx_buffer[1] + 3);
+		uart_send_tx_buffer(ui8_usart1_tx_buffer, 7);
 }
 
 void rt_low_pass_filter_battery_voltage_current_power(void) {

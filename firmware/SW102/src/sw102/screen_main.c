@@ -289,7 +289,7 @@ static void main_button(int but)
 {
 	ui_vars_t *ui = get_ui_vars();
 	if(but & UP_CLICK) {
-		if(ui->ui8_assist_level < ui->ui8_number_of_assist_levels) 
+		if(ui->ui8_assist_level < 5) 
 			ui->ui8_assist_level++;
 	}
 
