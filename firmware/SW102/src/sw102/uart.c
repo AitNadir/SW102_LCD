@@ -81,43 +81,43 @@ void uart_evt_callback(app_uart_evt_t * uart_evt)
       switch (ui8_state_machine)
       {
         case 0:
-        if (ui8_byte_received == 0x43) { // see if we get start package byte
-          ui8_rx[0] = ui8_byte_received;
-          ui8_state_machine = 1;
-        }
-        else {
-          ui8_state_machine = 0;
-        }
+          if (ui8_byte_received == 0x43) { // see if we get start package byte
+            ui8_rx[0] = ui8_byte_received;
+            ui8_state_machine = 1;
+          }
+          else {
+            ui8_state_machine = 0;
+          }
 
-        ui8_rx_cnt = 1;
+          ui8_rx_cnt = 1;
         break;
 
         case 1:
-        ui8_rx[ui8_rx_cnt++] = ui8_byte_received;
+          ui8_rx[ui8_rx_cnt++] = ui8_byte_received;
 
-        // reset if it is the last byte of the package and index is out of bounds
-        if (ui8_rx_cnt >= FRAME_MAX_BYTES)
-        {
-          ui8_state_machine = 0;
-
-          for (ui8_i = 0; ui8_i < FRAME_MAX_BYTES - 1; ui8_i++)
+          // reset if it is the last byte of the package and index is out of bounds
+          if (ui8_rx_cnt >= FRAME_MAX_BYTES)
           {
-            checksum += ui8_rx[ui8_i];
-          }
+            ui8_state_machine = 0;
 
-          // if Checksum is correct read the package
-          if ((checksum & 0xFF) == ui8_rx[FRAME_MAX_BYTES - 1])
-          {
-            // copy to the other buffer only if we processed already the last package
-            if(!ui8_received_package_flag)
+            for (ui8_i = 0; ui8_i < FRAME_MAX_BYTES - 1; ui8_i++)
             {
-              ui8_received_package_flag = 1;
+              checksum += ui8_rx[ui8_i];
+            }
 
-              // store the received data to rx_buffer
-              memcpy(ui8_rx_buffer, ui8_rx, FRAME_MAX_BYTES);
+            // if Checksum is correct read the package
+            if ((checksum & 0xFF) == ui8_rx[FRAME_MAX_BYTES - 1])
+            {
+              // copy to the other buffer only if we processed already the last package
+              if(!ui8_received_package_flag)
+              {
+                ui8_received_package_flag = 1;
+
+                // store the received data to rx_buffer
+                memcpy(ui8_rx_buffer, ui8_rx, FRAME_MAX_BYTES);
+              }
             }
           }
-        }
         break;
 
         default:
