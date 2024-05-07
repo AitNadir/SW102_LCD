@@ -173,6 +173,8 @@ void parse_simmotor() {
 void rt_send_tx_package(frame_type_t type) {
 	uint8_t *ui8_usart1_tx_buffer = uart_get_tx_buffer();
   const uint8_t assist_level_bitpos[6] = {4, 7, 6, 1, 2, 3};
+  float f_wheel_diameter = 0.0f;
+
 	/************************************************************************************************/
 	// send tx package
 	// start up byte
@@ -194,7 +196,8 @@ void rt_send_tx_package(frame_type_t type) {
       // Test params 1
       ui8_usart1_tx_buffer[2] = 0x00;
       // Wheel diameter
-      ui8_usart1_tx_buffer[3] = 0x1A;
+      f_wheel_diameter = (float)(rt_vars.ui16_wheel_perimeter) / 79.756f; // Convert circumference to diameter in inches
+      ui8_usart1_tx_buffer[3] = roundf(f_wheel_diameter);
       // Test params 2
       ui8_usart1_tx_buffer[4] = 0x00;
       // Speed Limit
@@ -333,6 +336,30 @@ void reset_wh(void) {
   rt_vars.ui32_wh_sum_x5 = 0;
   rt_vars.ui32_wh_sum_counter = 0;
   m_reset_wh_flag = false;
+}
+
+static void rt_calc_speed(void) {
+  float circ_in_m = 0.0f;
+  float rotations = 0.0f;
+
+  // Convert to meters
+  circ_in_m = (float)(rt_vars.ui16_wheel_perimeter) / 1000;
+
+  // Calculate time units
+  rotations = (float)(rt_vars.ui32_wheel_speed_sensor_tick_counter) * 2.04f;
+
+  if (rotations) {
+    // Calculate rotations per second
+    rotations = 1000 / rotations;
+
+    // Calculate the speed meters per second
+    rotations = rotations * circ_in_m;
+
+    // Calculate the speed km per hour x 10
+    rt_vars.ui16_wheel_speed_x10 = rotations * 36;
+  } else {
+    rt_vars.ui16_wheel_speed_x10 = 0;
+  }
 }
 
 static void rt_calc_odometer(void) {
@@ -746,6 +773,7 @@ void communications(void) {
       // now process rx data
       g_motor_init_state = MOTOR_INIT_READY;
 
+      rt_vars.ui32_wheel_speed_sensor_tick_counter = ((uint16_t)p_rx_buffer[7] << 8) | p_rx_buffer[6];
       // ui8_frame = (frame_type_t) p_rx_buffer[2];
 
       // switch (g_motor_init_state) {
@@ -856,6 +884,7 @@ void rt_processing(void)
   rt_low_pass_filter_pedal_cadence();
   rt_calc_battery_voltage_soc();
   rt_calc_odometer();
+  rt_calc_speed();
   rt_calc_trips();
   rt_calc_wh();
   rt_graph_process();
