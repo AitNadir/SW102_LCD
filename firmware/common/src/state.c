@@ -344,12 +344,11 @@ static void rt_calc_speed(void) {
 
   // Convert to meters
   circ_in_m = (float)(rt_vars.ui16_wheel_perimeter) / 1000;
-
-  if (rt_vars.ui32_wheel_speed_sensor_tick_counter < 1750) {
   // Calculate time units
-    rotations = (float)(rt_vars.ui32_wheel_speed_sensor_tick_counter) * 2.04f;
+  rotations = (float)(rt_vars.ui32_wheel_speed_sensor_tick_counter) * 2.04f;
 
-  //if (rotations) {
+  if ((rt_vars.ui32_wheel_speed_sensor_tick_counter < 1750) && rotations) {
+
     // Calculate rotations per second
     rotations = 1000 / rotations;
 
