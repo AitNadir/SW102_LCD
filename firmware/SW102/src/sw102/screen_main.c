@@ -202,9 +202,9 @@ static void draw_misc_indicators(ui_vars_t *ui)
 
 static void draw_assist_indicator(ui_vars_t *ui)
 {
-	int bar_height = 100 / ui->ui8_number_of_assist_levels;
-	int bar_bottom = 14 + ui->ui8_number_of_assist_levels * bar_height;
-	int bar_fill = bar_height - (bar_height > 16 ? 2 : 1);
+	int bar_height = 400 / ui->ui8_number_of_assist_levels;
+	int bar_bottom = 114;
+	int bar_fill = bar_height - 1;
 	int i;
 
 	for(i=0;i < ui->ui8_assist_level;i++) 
