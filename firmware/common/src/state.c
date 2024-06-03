@@ -39,6 +39,7 @@ volatile uint8_t m_get_tsdz2_firmware_version; // true if we are simulating a mo
 volatile motor_init_state_t g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
 volatile motor_init_state_config_t g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
 volatile motor_init_status_t ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
+volatile uint8_t motor_check_counter = 0;
 
 tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 
@@ -341,6 +342,10 @@ void reset_wh(void) {
 static void rt_calc_speed(void) {
   float circ_in_m = 0.0f;
   float rotations = 0.0f;
+
+  if(uart_get_motor_type() != MOTOR_TSDZ8) {
+    return;
+  }
 
   // Convert to meters
   circ_in_m = (float)(rt_vars.ui16_wheel_perimeter) / 1000;
@@ -771,90 +776,94 @@ void communications(void) {
       parse_simmotor();
     else if (p_rx_buffer) {
       // now process rx data
-      g_motor_init_state = MOTOR_INIT_READY;
 
-      rt_vars.ui32_wheel_speed_sensor_tick_counter = ((uint16_t)p_rx_buffer[7] << 8) | p_rx_buffer[6];
-      // ui8_frame = (frame_type_t) p_rx_buffer[2];
+      if(uart_get_motor_type() == MOTOR_TSDZ8) {
+        g_motor_init_state = MOTOR_INIT_READY;
+        rt_vars.ui32_wheel_speed_sensor_tick_counter = ((uint16_t)p_rx_buffer[7] << 8) | p_rx_buffer[6];
+      }
+      else {
+        ui8_frame = (frame_type_t) p_rx_buffer[2];
 
-      // switch (g_motor_init_state) {
-      //   case MOTOR_INIT_WAIT_MOTOR_ALIVE:
-      //     if (ui8_frame == FRAME_TYPE_ALIVE)
-      //       g_motor_init_state = MOTOR_INIT_GET_MOTOR_FIRMWARE_VERSION;
-      //     break;
+        switch (g_motor_init_state) {
+          case MOTOR_INIT_WAIT_MOTOR_ALIVE:
+            if (ui8_frame == FRAME_TYPE_ALIVE)
+              g_motor_init_state = MOTOR_INIT_GET_MOTOR_FIRMWARE_VERSION;
+            break;
 
-      //   case MOTOR_INIT_WAIT_MOTOR_FIRMWARE_VERSION:
-      //     if (ui8_frame == FRAME_TYPE_FIRMWARE_VERSION)
-      //       process_frame = 1;
-      //     break;
+          case MOTOR_INIT_WAIT_MOTOR_FIRMWARE_VERSION:
+            if (ui8_frame == FRAME_TYPE_FIRMWARE_VERSION)
+              process_frame = 1;
+            break;
 
-      //   case MOTOR_INIT_WAIT_CONFIGURATIONS_OK:
-      //   case MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK:
-      //     if (ui8_frame == FRAME_TYPE_STATUS)
-      //       process_frame = 1;
-      //     break;
+          case MOTOR_INIT_WAIT_CONFIGURATIONS_OK:
+          case MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK:
+            if (ui8_frame == FRAME_TYPE_STATUS)
+              process_frame = 1;
+            break;
 
-      //   case MOTOR_INIT_READY:
-      //       process_frame = 1;
-      //     break;
-      // }
+          case MOTOR_INIT_READY:
+              process_frame = 1;
+            break;
+        }
 
-      // if (process_frame) {
-      //   switch (ui8_frame) {
-      //     case FRAME_TYPE_STATUS:
-      //       ui8_g_motor_init_status = p_rx_buffer[3];
-      //       break;
+        if (process_frame) {
+          switch (ui8_frame) {
+            case FRAME_TYPE_STATUS:
+              ui8_g_motor_init_status = p_rx_buffer[3];
+              break;
 
-      //     case FRAME_TYPE_PERIODIC:
-      //       rt_vars.ui16_adc_battery_voltage = p_rx_buffer[3] | (((uint16_t) (p_rx_buffer[4] & 0x30)) << 4);
-      //       rt_vars.ui8_battery_current_x5 = p_rx_buffer[5];
-      //       ui16_temp = ((uint16_t) p_rx_buffer[6]) | (((uint16_t) p_rx_buffer[7] << 8));
-      //       rt_vars.ui16_wheel_speed_x10 = ui16_temp & 0x7ff; // 0x7ff = 204.7km/h as the other bits are used for other things
+            case FRAME_TYPE_PERIODIC:
+              rt_vars.ui16_adc_battery_voltage = p_rx_buffer[3] | (((uint16_t) (p_rx_buffer[4] & 0x30)) << 4);
+              rt_vars.ui8_battery_current_x5 = p_rx_buffer[5];
+              ui16_temp = ((uint16_t) p_rx_buffer[6]) | (((uint16_t) p_rx_buffer[7] << 8));
+              rt_vars.ui16_wheel_speed_x10 = ui16_temp & 0x7ff; // 0x7ff = 204.7km/h as the other bits are used for other things
 
-      //       uint8_t ui8_temp = p_rx_buffer[8];
-      //       rt_vars.ui8_braking = ui8_temp & 1;
-      //       rt_vars.ui8_motor_hall_sensors = (ui8_temp >> 1) & 7;
-      //       rt_vars.ui8_pas_pedal_right = (ui8_temp >> 4) & 1;
-      //       rt_vars.ui8_adc_throttle = p_rx_buffer[9];
+              uint8_t ui8_temp = p_rx_buffer[8];
+              rt_vars.ui8_braking = ui8_temp & 1;
+              rt_vars.ui8_motor_hall_sensors = (ui8_temp >> 1) & 7;
+              rt_vars.ui8_pas_pedal_right = (ui8_temp >> 4) & 1;
+              rt_vars.ui8_adc_throttle = p_rx_buffer[9];
 
-      //       if (rt_vars.ui8_temperature_limit_feature_enabled) {
-      //         rt_vars.ui8_motor_temperature = p_rx_buffer[10];
-      //       } else {
-      //         rt_vars.ui8_throttle = p_rx_buffer[10];
-      //       }
+              if (rt_vars.ui8_temperature_limit_feature_enabled) {
+                rt_vars.ui8_motor_temperature = p_rx_buffer[10];
+              } else {
+                rt_vars.ui8_throttle = p_rx_buffer[10];
+              }
 
-      //       rt_vars.ui16_adc_pedal_torque_sensor = ((uint16_t) p_rx_buffer[11]) | (((uint16_t) (p_rx_buffer[7] & 0xC0)) << 2);
-      //       rt_vars.ui8_pedal_weight_with_offset = p_rx_buffer[12];
-      //       rt_vars.ui8_pedal_weight = p_rx_buffer[13];
+              rt_vars.ui16_adc_pedal_torque_sensor = ((uint16_t) p_rx_buffer[11]) | (((uint16_t) (p_rx_buffer[7] & 0xC0)) << 2);
+              rt_vars.ui8_pedal_weight_with_offset = p_rx_buffer[12];
+              rt_vars.ui8_pedal_weight = p_rx_buffer[13];
 
-      //       rt_vars.ui8_pedal_cadence = p_rx_buffer[14];
+              rt_vars.ui8_pedal_cadence = p_rx_buffer[14];
 
-      //       rt_vars.ui8_duty_cycle = p_rx_buffer[15];
+              rt_vars.ui8_duty_cycle = p_rx_buffer[15];
 
-      //       rt_vars.ui16_motor_speed_erps = ((uint16_t) p_rx_buffer[16]) | ((uint16_t) p_rx_buffer[17] << 8);
-      //       rt_vars.ui8_foc_angle = p_rx_buffer[18];
-      //       rt_vars.ui8_error_states = p_rx_buffer[19];
-      //       rt_vars.ui8_motor_current_x5 = p_rx_buffer[20];
+              rt_vars.ui16_motor_speed_erps = ((uint16_t) p_rx_buffer[16]) | ((uint16_t) p_rx_buffer[17] << 8);
+              rt_vars.ui8_foc_angle = p_rx_buffer[18];
+              rt_vars.ui8_error_states = p_rx_buffer[19];
+              rt_vars.ui8_motor_current_x5 = p_rx_buffer[20];
 
-      //       uint32_t ui32_wheel_speed_sensor_tick_temp;
-      //       ui32_wheel_speed_sensor_tick_temp = ((uint32_t) p_rx_buffer[21]) |
-      //           (((uint32_t) p_rx_buffer[22]) << 8) | (((uint32_t) p_rx_buffer[23]) << 16);
-      //       rt_vars.ui32_wheel_speed_sensor_tick_counter = ui32_wheel_speed_sensor_tick_temp;
+              uint32_t ui32_wheel_speed_sensor_tick_temp;
+              ui32_wheel_speed_sensor_tick_temp = ((uint32_t) p_rx_buffer[21]) |
+                  (((uint32_t) p_rx_buffer[22]) << 8) | (((uint32_t) p_rx_buffer[23]) << 16);
+              rt_vars.ui32_wheel_speed_sensor_tick_counter = ui32_wheel_speed_sensor_tick_temp;
 
-      //       rt_vars.ui16_pedal_power_x10 = ((uint16_t) p_rx_buffer[24]) | ((uint16_t) p_rx_buffer[25] << 8);
+              rt_vars.ui16_pedal_power_x10 = ((uint16_t) p_rx_buffer[24]) | ((uint16_t) p_rx_buffer[25] << 8);
 
-      //       ui16_temp = (uint16_t) p_rx_buffer[26];
-      //       rt_vars.ui16_adc_battery_current = ui16_temp | ((uint16_t) ((p_rx_buffer[7] & 0x18) << 5));
-      //       break;
+              ui16_temp = (uint16_t) p_rx_buffer[26];
+              rt_vars.ui16_adc_battery_current = ui16_temp | ((uint16_t) ((p_rx_buffer[7] & 0x18) << 5));
+              break;
 
-      //     case FRAME_TYPE_FIRMWARE_VERSION:
-      //       rt_vars.ui8_error_states = p_rx_buffer[3];
-      //       g_tsdz2_firmware_version.major = p_rx_buffer[4];
-      //       g_tsdz2_firmware_version.minor = p_rx_buffer[5];
-      //       g_tsdz2_firmware_version.patch = p_rx_buffer[6];
-      //       g_motor_init_state = MOTOR_INIT_GOT_MOTOR_FIRMWARE_VERSION;
-      //       break;
-      //   }
-      // }
+            case FRAME_TYPE_FIRMWARE_VERSION:
+              rt_vars.ui8_error_states = p_rx_buffer[3];
+              g_tsdz2_firmware_version.major = p_rx_buffer[4];
+              g_tsdz2_firmware_version.minor = p_rx_buffer[5];
+              g_tsdz2_firmware_version.patch = p_rx_buffer[6];
+              g_motor_init_state = MOTOR_INIT_GOT_MOTOR_FIRMWARE_VERSION;
+              break;
+          }
+        }
+      }
     }
 
     // let's wait for 10 packages, seems that first ADC battery voltages have incorrect values
@@ -891,6 +900,12 @@ void rt_processing(void)
   /************************************************************************************************/
   rt_first_time_management();
   rt_calc_battery_soc();
+
+  if((uart_get_motor_type() == MOTOR_NONE) && (++motor_check_counter >= 5))
+  {
+    motor_check_counter = 0;
+    uart_switch_config(); 
+  }
 }
 
 void prepare_torque_sensor_calibration_table(void) {
