@@ -99,8 +99,8 @@ static void uart_tsdz8_recv_handler(uint8_t byte)
   switch (ui8_state_machine)
   {
     case 0:
-      if (ui8_byte_received == 0x43) { // see if we get start package byte
-        ui8_rx[0] = ui8_byte_received;
+      if (byte == 0x43) { // see if we get start package byte
+        ui8_rx[0] = byte;
         ui8_state_machine = 1;
       }
       else {
@@ -111,7 +111,7 @@ static void uart_tsdz8_recv_handler(uint8_t byte)
     break;
 
     case 1:
-      ui8_rx[ui8_rx_cnt++] = ui8_byte_received;
+      ui8_rx[ui8_rx_cnt++] = byte;
 
       // reset if it is the last byte of the package and index is out of bounds
       if (ui8_rx_cnt >= FRAME_MAX_BYTES)
@@ -157,8 +157,8 @@ static void uart_tsdz2_recv_handler(uint8_t byte)
   switch (ui8_state_machine)
   {
     case 0:
-    if (ui8_byte_received == 0x43) { // see if we get start package byte
-      ui8_rx[0] = ui8_byte_received;
+    if (byte == 0x43) { // see if we get start package byte
+      ui8_rx[0] = byte;
       ui8_state_machine = 1;
     }
     else {
@@ -169,12 +169,12 @@ static void uart_tsdz2_recv_handler(uint8_t byte)
     break;
 
     case 1:
-      ui8_rx[1] = ui8_byte_received;
+      ui8_rx[1] = byte;
       ui8_state_machine = 2;
     break;
 
     case 2:
-    ui8_rx[ui8_rx_cnt + 2] = ui8_byte_received;
+    ui8_rx[ui8_rx_cnt + 2] = byte;
     ++ui8_rx_cnt;
 
     // reset if it is the last byte of the package and index is out of bounds
@@ -208,7 +208,7 @@ static void uart_tsdz2_recv_handler(uint8_t byte)
     break;
 
     default:
-      ui8_state_machine = 0;
+      //ui8_state_machine = 0;
       break;
   }
 }
@@ -235,7 +235,7 @@ void uart_evt_callback(app_uart_evt_t * uart_evt)
       break;
 
     case APP_UART_COMMUNICATION_ERROR:
-        ui8_state_machine = 0;
+        //ui8_state_machine = 0;
       break;
 
     default:
@@ -254,7 +254,7 @@ void uart_init(void)
 
   buffers.tx_buf = tx_buf;
   buffers.tx_buf_size = sizeof (tx_buf);
-  err_code = _app_uart_init(current_config, &buffers, uart_evt_callback, UART_IRQ_PRIORITY);
+  err_code = _app_uart_init(motor_state.current_config, &buffers, uart_evt_callback, UART_IRQ_PRIORITY);
 
   APP_ERROR_CHECK(err_code);
 }
@@ -264,6 +264,8 @@ void uart_init(void)
 */
 void uart_switch_config(void)
 {
+  uint32_t err_code;
+
   if(TSDZ2_CONFIG())
   {
     motor_state.current_config = &tsdz8_comm_params;
@@ -273,9 +275,7 @@ void uart_switch_config(void)
     motor_state.current_config = &tsdz2_comm_params;
   }
 
-  err_code = _app_uart_init(motor_state.current_config, &buffers, uart_evt_callback, UART_IRQ_PRIORITY);
-
-  APP_ERROR_CHECK(err_code);  
+  uart_init();  
 }
 
 /**
