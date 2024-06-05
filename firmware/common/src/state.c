@@ -901,7 +901,7 @@ void rt_processing(void)
   rt_first_time_management();
   rt_calc_battery_soc();
 
-  if((uart_get_motor_type() == MOTOR_NONE) && (++motor_check_counter >= 5))
+  if((uart_get_motor_type() == MOTOR_NONE) && (++motor_check_counter >= 10))
   {
     motor_check_counter = 0;
     uart_switch_config(); 

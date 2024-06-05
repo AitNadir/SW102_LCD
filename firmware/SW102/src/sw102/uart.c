@@ -31,7 +31,7 @@ extern uint8_t app_uart_get(void);
 /**
  *@breif UART configuration structure
  */
-static const app_uart_comm_params_t tsdz2_comm_params =
+static const app_uart_comm_params_t tsdz8_comm_params =
 {
     .rx_pin_no  = UART_RX__PIN,
     .tx_pin_no  = UART_TX__PIN,
@@ -43,7 +43,7 @@ static const app_uart_comm_params_t tsdz2_comm_params =
     .baud_rate    = UART_BAUDRATE_BAUDRATE_Baud9600
 };
 
-static const app_uart_comm_params_t tsdz8_comm_params =
+static const app_uart_comm_params_t tsdz2_comm_params =
 {
     .rx_pin_no  = UART_RX__PIN,
     .tx_pin_no  = UART_TX__PIN,
