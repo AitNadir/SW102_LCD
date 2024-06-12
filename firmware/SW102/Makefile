@@ -35,7 +35,7 @@ ifeq ($(PLATFORM),windows)
   OPENOCD_PATH := E:/nrf5/Toolchain/OpenOCD/0.10.0-12-20190422-2015/bin/
   OPENOCD_BIN := openocd.exe
   NRFUTIL := $(SDK_ROOT)/external_tools/Windows/nrfutil.exe
-  SREC_PATH := E:/nrf5/Toolchain/srecord-1.63-win32/
+  SREC_PATH := D:\Projects\ebike\firmware\SW102\firmware\SW102\nRF5_SDK_12.3.0\components\serialization\common\srecord-1.63-win32/
 else
   # LINUX
   OPENOCD_PATH := /usr/local/share/openocd/bin/
