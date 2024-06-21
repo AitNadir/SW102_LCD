@@ -173,40 +173,53 @@ void parse_simmotor() {
 
 void rt_send_tx_package(frame_type_t type) {
   uint8_t crc_len = 3; // minimun is 3
-	uint8_t *ui8_usart1_tx_buffer = uart_get_tx_buffer();
-
-	/************************************************************************************************/
-	// send tx package
-	// start up byte
-	ui8_usart1_tx_buffer[0] = 0x59;
+  uint8_t *ui8_usart1_tx_buffer = uart_get_tx_buffer();
+  uint8_t ui8_temp;
+  const uint8_t assist_level_power[5] = {25, 50, 75, 100, 130};
+  const uint8_t assist_level_torque[5] = {50, 70, 90, 120, 140};
+  const uint8_t assist_level_walk[5] = {25, 25, 30, 30, 35};
+  /************************************************************************************************/
+  // send tx package
+  // start up byte
+  ui8_usart1_tx_buffer[0] = 0x59;
   ui8_usart1_tx_buffer[1] = crc_len;
   // type of the frame
-	ui8_usart1_tx_buffer[2] = (uint8_t) type;
+  ui8_usart1_tx_buffer[2] = (uint8_t) type;
 
-	switch (type) {
-	  case FRAME_TYPE_PERIODIC:
-      if (rt_vars.ui8_walk_assist) {
-        // walk assist level is specified in duty cycle units -> do not adjust
-        ui8_usart1_tx_buffer[3] = (uint8_t) rt_vars.ui8_walk_assist_level_factor[((rt_vars.ui8_assist_level) - 1)];
-        ui8_usart1_tx_buffer[4] = 0;
-      } else if (rt_vars.ui8_assist_level) {
-        uint16_t ui16_temp = rt_vars.ui16_assist_level_factor[((rt_vars.ui8_assist_level) - 1)];
-        // the assist level is specified for the reference motor voltage
-        // adjust by current battery voltage
-        // Ignore battery voltage cut-off voltage, this can normally happen during the first
-        // seconds after startup, when the 'filtered' battery voltage is still converging.
-        if(rt_vars.ui16_battery_voltage_filtered_x10 >= rt_vars.ui16_battery_low_voltage_cut_off_x10)
-          ui16_temp = (unsigned int)ui16_temp * (rt_vars.ui8_motor_type ? 360 : 480) / rt_vars.ui16_battery_voltage_filtered_x10;
+  switch (type) {
+    case FRAME_TYPE_PERIODIC:
+      if (rt_vars.ui8_assist_level) {
+            // control mode
+            if(!rt_vars.ui8_motor_current_control_mode) // power mode
+              ui8_temp = assist_level_power[(rt_vars.ui8_assist_level - 1)];
+            else // torque mode
+              ui8_temp = assist_level_torque[(rt_vars.ui8_assist_level - 1)];
 
-        ui8_usart1_tx_buffer[3] = (uint8_t) (ui16_temp & 0xff);
-        ui8_usart1_tx_buffer[4] = (uint8_t) (ui16_temp >> 8);
-      } else {
-        // if rt_vars.ui8_assist_level = 0, send 0!! always disable motor when assist level is 0
-        ui8_usart1_tx_buffer[3] = 0;
-        ui8_usart1_tx_buffer[4] = 0;
+
+            ui8_usart1_tx_buffer[3] = ui8_temp;
+            ui8_usart1_tx_buffer[4] = 0;
+
+            // walk assist parameter
+            ui8_usart1_tx_buffer[7] = assist_level_walk[(rt_vars.ui8_assist_level - 1)];
+      }
+      else {
+            // always disable motor when assist level is 0
+            ui8_usart1_tx_buffer[3] = 0;
+            ui8_usart1_tx_buffer[4] = 0;
+            ui8_usart1_tx_buffer[7] = 0;
       }
 
-      ui8_usart1_tx_buffer[5] = (rt_vars.ui8_lights & 1) | ((rt_vars.ui8_walk_assist & 1) << 1);
+      ui8_usart1_tx_buffer[8] = rt_vars.ui8_motor_current_control_mode + 1;
+
+      uint8_t ui8_walk_assist_state = 0;
+      if ((rt_vars.ui8_assist_level)&&(ui_vars.ui8_walk_assist_feature_enabled))
+         ui8_walk_assist_state = rt_vars.ui8_walk_assist;
+
+      uint8_t ui8_assist_level_state = 0;
+      if (rt_vars.ui8_assist_level)
+         ui8_assist_level_state = 1;
+
+      ui8_usart1_tx_buffer[5] = (rt_vars.ui8_lights & 1) | ((ui8_walk_assist_state & 1) << 1) | ((ui8_assist_level_state & 1) << 2);
 
       // battery power limit
       if (rt_vars.ui8_street_mode_enabled)
@@ -219,14 +232,18 @@ void rt_send_tx_package(frame_type_t type) {
       }
 
       // startup motor power boost
-      uint16_t ui16_temp = (uint8_t) rt_vars.ui16_startup_motor_power_boost_factor[((rt_vars.ui8_assist_level) - 1)];
-      ui8_usart1_tx_buffer[7] = (uint8_t) (ui16_temp & 0xff);
-      ui8_usart1_tx_buffer[8] = (uint8_t) (ui16_temp >> 8);
+      //uint16_t ui16_temp = (uint8_t) rt_vars.ui16_startup_motor_power_boost_factor[((rt_vars.ui8_assist_level) - 1)];
+      //ui8_usart1_tx_buffer[7] = (uint8_t) (ui16_temp & 0xff);
+      //ui8_usart1_tx_buffer[8] = (uint8_t) (ui16_temp >> 8);
 
       // wheel max speed
       if (rt_vars.ui8_street_mode_enabled)
       {
         ui8_usart1_tx_buffer[9] = rt_vars.ui8_street_mode_speed_limit;
+      }
+      else if (ui8_walk_assist_state)
+      {
+        ui8_usart1_tx_buffer[9] = 6;
       }
       else
       {
@@ -249,10 +266,10 @@ void rt_send_tx_package(frame_type_t type) {
 
       crc_len = 13;
       ui8_usart1_tx_buffer[1] = crc_len;
-	    break;
+      break;
 
     // set configurations
-	  case FRAME_TYPE_CONFIGURATIONS:
+    case FRAME_TYPE_CONFIGURATIONS:
       // battery low voltage cut-off
       ui8_usart1_tx_buffer[3] = (uint8_t) (rt_vars.ui16_battery_low_voltage_cut_off_x10 & 0xff);
       ui8_usart1_tx_buffer[4] = (uint8_t) (rt_vars.ui16_battery_low_voltage_cut_off_x10 >> 8);
@@ -318,31 +335,31 @@ void rt_send_tx_package(frame_type_t type) {
 
       crc_len = 86;
       ui8_usart1_tx_buffer[1] = crc_len;
-	    break;
+      break;
 
-	    case FRAME_TYPE_STATUS:
-	    case FRAME_TYPE_FIRMWARE_VERSION:
-	      // nothing to add to the package
-	      break;
+      case FRAME_TYPE_STATUS:
+      case FRAME_TYPE_FIRMWARE_VERSION:
+        // nothing to add to the package
+        break;
 
-	    default:
-	      break;
-	}
+      default:
+        break;
+  }
 
-	// prepare crc of the package
-	uint16_t ui16_crc_tx = 0xffff;
-	for (uint8_t ui8_i = 0; ui8_i < crc_len; ui8_i++) {
-		crc16(ui8_usart1_tx_buffer[ui8_i], &ui16_crc_tx);
-	}
-	ui8_usart1_tx_buffer[crc_len] =
-			(uint8_t) (ui16_crc_tx & 0xff);
-	ui8_usart1_tx_buffer[crc_len + 1] =
-			(uint8_t) (ui16_crc_tx >> 8) & 0xff;
-	ui8_usart1_tx_buffer[crc_len + 2] = 0; // workaround for UART parsing bug in motor firmware 1.1.1
+  // prepare crc of the package
+  uint16_t ui16_crc_tx = 0xffff;
+  for (uint8_t ui8_i = 0; ui8_i < crc_len; ui8_i++) {
+    crc16(ui8_usart1_tx_buffer[ui8_i], &ui16_crc_tx);
+  }
+  ui8_usart1_tx_buffer[crc_len] =
+      (uint8_t) (ui16_crc_tx & 0xff);
+  ui8_usart1_tx_buffer[crc_len + 1] =
+      (uint8_t) (ui16_crc_tx >> 8) & 0xff;
+  ui8_usart1_tx_buffer[crc_len + 2] = 0; // workaround for UART parsing bug in motor firmware 1.1.1
 
-	// send the full package to UART
-	if (g_motor_init_state != MOTOR_INIT_SIMULATING) // If we are simulating received packets never send real packets
-		uart_send_tx_buffer(ui8_usart1_tx_buffer, ui8_usart1_tx_buffer[1] + 3);
+  // send the full package to UART
+  if (g_motor_init_state != MOTOR_INIT_SIMULATING) // If we are simulating received packets never send real packets
+    uart_send_tx_buffer(ui8_usart1_tx_buffer, ui8_usart1_tx_buffer[1] + 3);
 }
 
 
@@ -992,6 +1009,8 @@ void communications(void) {
               rt_vars.ui8_battery_current_x5 = p_rx_buffer[5];
               ui16_temp = ((uint16_t) p_rx_buffer[6]) | (((uint16_t) p_rx_buffer[7] << 8));
               rt_vars.ui16_wheel_speed_x10 = ui16_temp & 0x7ff; // 0x7ff = 204.7km/h as the other bits are used for other things
+                    if (rt_vars.ui16_wheel_speed_x10 > 999)
+                          rt_vars.ui16_wheel_speed_x10 = 999; // max value to display field 99.9 km/h
 
               uint8_t ui8_temp = p_rx_buffer[8];
               rt_vars.ui8_braking = ui8_temp & 1;
