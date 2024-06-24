@@ -394,7 +394,14 @@ void rt_send_tx_package_tsdz8(frame_type_t type) {
       // Test params 2
       ui8_usart1_tx_buffer[4] = 0x00;
       // Speed Limit
-      ui8_usart1_tx_buffer[5] = 0x19;
+      if (rt_vars.ui8_street_mode_enabled)
+      {
+        ui8_usart1_tx_buffer[5] = rt_vars.ui8_street_mode_speed_limit;
+      }
+      else
+      {
+        ui8_usart1_tx_buffer[5] = rt_vars.ui8_wheel_max_speed;
+      }
 	    break;
 
     // set configurations
