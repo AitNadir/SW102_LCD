@@ -551,8 +551,7 @@ static void rt_calc_speed(void) {
   // Calculate time units
   rotations = (float)(rt_vars.ui32_wheel_speed_sensor_tick_counter) * 2.04f;
 
-  if ((rt_vars.ui32_wheel_speed_sensor_tick_counter < 1750) && rotations) {
-
+  if (rotations) {
     // Calculate rotations per second
     rotations = 1000 / rotations;
 
@@ -978,7 +977,11 @@ void communications(void) {
 
       if(uart_get_motor_type() == MOTOR_TSDZ8) {
         g_motor_init_state = MOTOR_INIT_READY;
-        rt_vars.ui32_wheel_speed_sensor_tick_counter = ((uint16_t)p_rx_buffer[7] << 8) | p_rx_buffer[6];
+        uint32_t tick_counter = ((uint16_t)p_rx_buffer[7] << 8) | p_rx_buffer[6];
+        if (tick_counter >= 1750) {
+          tick_counter = 0;
+        }
+        rt_vars.ui32_wheel_speed_sensor_tick_counter = tick_counter;
       }
       else {
         ui8_frame = (frame_type_t) p_rx_buffer[2];
