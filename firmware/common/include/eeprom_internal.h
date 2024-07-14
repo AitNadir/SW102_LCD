@@ -191,7 +191,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_MOTOR_MAX_CURRENT                             16 // 16 amps
 #define DEFAULT_VALUE_CURRENT_MIN_ADC                               1 // 1 unit, 0.156 A
 #define DEFAULT_VALUE_RAMP_UP_AMPS_PER_SECOND_X10                   80 // 8.0 amps per second ramp up
-#define DEFAULT_VALUE_TARGET_MAX_BATTERY_POWER                      60 // e.g. 20 = 20 * 25 = 500, 0 is disabled
+#define DEFAULT_VALUE_TARGET_MAX_BATTERY_POWER                      20 // e.g. 20 = 20 * 25 = 500, 0 is disabled
 #define DEFAULT_VALUE_BATTERY_LOW_VOLTAGE_CUT_OFF_X10               420 // 52v battery, LVC = 42.0 (3.0 * 14)
 #define DEFAULT_VALUE_MOTOR_CURRENT_CONTROL_MODE                    1 // 0 power; 1 torque
 #define DEFAULT_VALUE_MOTOR_TYPE                                    0 // 0 = 48V
@@ -292,7 +292,7 @@ typedef struct eeprom_data {
 #define DEFAULT_PEDAL_CADENCE_FAST_STOP_ENABLE                      0 // disabled
 #define DEFAULT_COAST_BRAKE_ADC                                     15 // 15: tested by plpetrov user on 28.04.2020:
 #define DEFAULT_FIELD_WEAKENING                                     1 // 1 enabled
-#define DEFAULT_ADC_LIGHTS_CURRENT_OFFSET                           1
+#define DEFAULT_ADC_LIGHTS_CURRENT_OFFSET                           0
 #define DEFAULT_THROTTLE_VIRTUAL_STEP                               5
 #define DEFAULT_TORQUE_SENSOR_FILTER                                20 // 20%
 #define DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD                         20
