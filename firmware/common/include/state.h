@@ -76,7 +76,11 @@ typedef struct rt_vars_struct {
 	uint32_t ui32_wh_sum_counter;
 	uint32_t ui32_wh_x10;
 	uint32_t ui32_wheel_speed_sensor_tick_counter_offset;
-
+    //add variables here
+	uint8_t ui8_assist_whit_error_enabled;
+	uint8_t ui8_throttle_feature_enabled;
+	uint8_t ui8_cruise_feature_enabled;
+	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
 	uint16_t ui16_wheel_perimeter;
@@ -209,7 +213,11 @@ typedef struct ui_vars_struct {
 	uint32_t ui32_wh_sum_x5;
 	uint32_t ui32_wh_sum_counter;
 	uint32_t ui32_wh_x10;
-
+    //add variables here
+	uint8_t ui8_assist_whit_error_enabled;
+	uint8_t ui8_throttle_feature_enabled;
+    uint8_t ui8_cruise_feature_enabled;
+	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
 	uint16_t ui16_wheel_perimeter;

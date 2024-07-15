@@ -172,11 +172,13 @@ void parse_simmotor() {
 }
 
 void rt_send_tx_package(frame_type_t type) {
-  uint8_t crc_len = 3; // minimun is 3
+  uint8_t crc_len = 3; // minimum is 3
   uint8_t *ui8_usart1_tx_buffer = uart_get_tx_buffer();
   uint8_t ui8_temp;
-  const uint8_t assist_level_power[5] = {25, 50, 75, 100, 130};
-  const uint8_t assist_level_torque[5] = {50, 70, 90, 120, 140};
+  const uint8_t assist_level_factor[4][5] = {{25, 50, 75, 100, 130},
+                                             {50, 70, 90, 120, 140},
+                                             {25, 50, 75, 100, 130},
+                                             {40, 70, 100, 130, 160}};
   const uint8_t assist_level_walk[5] = {25, 25, 30, 30, 35};
   /************************************************************************************************/
   // send tx package
@@ -190,20 +192,13 @@ void rt_send_tx_package(frame_type_t type) {
     case FRAME_TYPE_PERIODIC:
       if (rt_vars.ui8_assist_level) {
             // control mode
-            if(!rt_vars.ui8_motor_current_control_mode) // power mode
-              ui8_temp = assist_level_power[(rt_vars.ui8_assist_level - 1)];
-            else // torque mode
-              ui8_temp = assist_level_torque[(rt_vars.ui8_assist_level - 1)];
-
-            // riding mode parameters in Color LCD, 3 modes need to be added
-            //if(rt_vars.ui8_riding_mode < 5) // not hybrid mode
-              //ui8_temp = rt_vars.ui8_assist_level_factor[(rt_vars.ui8_riding_mode - 1)][(rt_vars.ui8_assist_level - 1)];
-            //else // hybrid mode
-              //ui8_temp = rt_vars.ui8_assist_level_factor[POWER_MODE][(rt_vars.ui8_assist_level - 1)];
-
+            if(rt_vars.ui8_motor_current_control_mode < 4) // not hybrid mode
+              ui8_temp = assist_level_factor[rt_vars.ui8_motor_current_control_mode][(rt_vars.ui8_assist_level - 1)];
+            else // hybrid mode
+              ui8_temp = assist_level_factor[0][(rt_vars.ui8_assist_level - 1)];
 
             ui8_usart1_tx_buffer[3] = ui8_temp;
-            ui8_usart1_tx_buffer[4] = assist_level_torque[(rt_vars.ui8_assist_level - 1)];
+            ui8_usart1_tx_buffer[4] = assist_level_factor[1][(rt_vars.ui8_assist_level - 1)];
 
             // walk assist parameter
             ui8_usart1_tx_buffer[7] = assist_level_walk[(rt_vars.ui8_assist_level - 1)];
@@ -376,7 +371,7 @@ void rt_send_tx_package(frame_type_t type) {
           0 << 1 |//(rt_vars.ui8_startup_boost_at_zero & 1) << 1 |//startupPower "Boost at zero": "cadence", "speed"
           1 << 2 |//(rt_vars.ui8_smooth_start_enabled & 1) << 2 |//startupPower "Smooth start":"disable", "enable"
           1 << 3 |//(rt_vars.ui8_torque_sensor_calibration_feature_enabled & 1) << 3 |//torqueCalibration "Calibrat":"disable", "enable"
-          0 << 4 |//(rt_vars.ui8_assist_whit_error_enabled & 1) << 4 |//bike "Assist with error":"no", "yes"
+          (rt_vars.ui8_assist_whit_error_enabled & 1) << 4 |//bike "Assist with error":"disable", "enable"
           0 << 5 |//(rt_vars.ui8_motor_assistance_startup_without_pedal_rotation & 1) << 5 |//torqueSensor "Assist w/o pedal":"disable", "enable"
           ((rt_vars.ui8_motor_type & 1) << 6) |
           1 << 7);//(rt_vars.ui8_eMTB_based_on_power & 1) << 7);//eMTBAssist "Based on":"torque", "power"
@@ -1059,6 +1054,10 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_filter = ui_vars.ui8_torque_sensor_filter;
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
+  //add variables here
+  rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
+  rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
+  rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
 }
 
 /// must be called from main() idle loop

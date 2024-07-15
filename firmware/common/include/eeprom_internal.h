@@ -25,7 +25,11 @@ typedef struct {
 
 typedef struct eeprom_data {
 	uint8_t eeprom_version; // Used to detect changes in eeprom encoding, if != EEPROM_VERSION we will not use it
-
+    //add variables here
+	uint8_t ui8_assist_whit_error_enabled;
+	uint8_t ui8_throttle_feature_enabled;
+	uint8_t ui8_cruise_feature_enabled;
+	//old variables
 	uint8_t ui8_assist_level;
 	uint16_t ui16_wheel_perimeter;
 	uint8_t ui8_wheel_max_speed;
@@ -178,6 +182,11 @@ typedef struct eeprom_data {
 
 // *************************************************************************** //
 // EEPROM memory variables default values
+//ADD DEFAULT_VALUE HERE
+#define DEFAULT_VALUE_ASSIST_WHIT_ERROR                             0
+#define DEFAULT_VALUE_THROTTLE                                      0
+#define DEFAULT_VALUE_CRUISE                                        0
+//Existing default value
 #define DEFAULT_VALUE_ASSIST_LEVEL                                  0
 #define DEFAULT_VALUE_NUMBER_OF_ASSIST_LEVELS                       20
 #define DEFAULT_VALUE_WHEEL_PERIMETER                               2100 // 27.5'' wheel: 2100mm perimeter
@@ -193,7 +202,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_RAMP_UP_AMPS_PER_SECOND_X10                   80 // 8.0 amps per second ramp up
 #define DEFAULT_VALUE_TARGET_MAX_BATTERY_POWER                      20 // e.g. 20 = 20 * 25 = 500, 0 is disabled
 #define DEFAULT_VALUE_BATTERY_LOW_VOLTAGE_CUT_OFF_X10               420 // 52v battery, LVC = 42.0 (3.0 * 14)
-#define DEFAULT_VALUE_MOTOR_CURRENT_CONTROL_MODE                    1 // 0 power; 1 torque
+#define DEFAULT_VALUE_MOTOR_CURRENT_CONTROL_MODE                    0 // 0 power; 1 torque; 2 cadence; 3 eMTB; 4 hybrid
 #define DEFAULT_VALUE_MOTOR_TYPE                                    0 // 0 = 48V
 #define DEFAULT_VALUE_MOTOR_ASSISTANCE_WITHOUT_PEDAL_ROTATION       0 // 0 to keep this feature disable
 #define DEFAULT_VALUE_ASSIST_LEVEL_FACTOR_1                         5 // 0.005 and each next increase +33%
