@@ -5,6 +5,24 @@
 
 #define ASSIST_LEVEL_NUMBER 20
 
+// optional ADC function
+#define NOT_IN_USE                           0
+#define TEMPERATURE_CONTROL                  1
+#define THROTTLE_CONTROL                     2
+
+// throttle and cruise
+#define DISABLED                             0
+#define PEDALING                             1
+// throttle only
+#define WP_6KM_H_ONLY                        2
+#define WP_6KM_H_AND_PEDALING                3
+#define UNCONDITIONAL                        4
+// cruise only
+#define WITHOUT_PEDALING                     2
+
+#define SPEED_LIMIT_WITHOUT_PEDALING_x10     60
+#define MAX_SPEED_WITHOUT_PEDALING_x10       70
+
 typedef enum {
   MOTOR_INIT_GET_MOTOR_ALIVE,
   MOTOR_INIT_WAIT_MOTOR_ALIVE,
@@ -80,6 +98,7 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_assist_whit_error_enabled;
 	uint8_t ui8_throttle_feature_enabled;
 	uint8_t ui8_cruise_feature_enabled;
+	uint8_t ui8_street_mode_cruise_enabled;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
@@ -216,7 +235,8 @@ typedef struct ui_vars_struct {
     //add variables here
 	uint8_t ui8_assist_whit_error_enabled;
 	uint8_t ui8_throttle_feature_enabled;
-    uint8_t ui8_cruise_feature_enabled;
+  uint8_t ui8_cruise_feature_enabled;
+  uint8_t ui8_street_mode_cruise_enabled;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;

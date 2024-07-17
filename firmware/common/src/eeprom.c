@@ -26,6 +26,7 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui8_assist_whit_error_enabled = DEFAULT_VALUE_ASSIST_WHIT_ERROR,
   .ui8_throttle_feature_enabled = DEFAULT_VALUE_THROTTLE,
   .ui8_cruise_feature_enabled = DEFAULT_VALUE_CRUISE,
+  .ui8_street_mode_cruise_enabled = DEFAULT_STREET_MODE_CRUISE_ENABLE,
   //old variables
   .ui8_assist_level = DEFAULT_VALUE_ASSIST_LEVEL,
   .ui16_wheel_perimeter = DEFAULT_VALUE_WHEEL_PERIMETER,
@@ -351,6 +352,7 @@ void eeprom_init_variables(void) {
 	ui_vars->ui8_assist_whit_error_enabled = m_eeprom_data.ui8_assist_whit_error_enabled;
 	ui_vars->ui8_throttle_feature_enabled = m_eeprom_data.ui8_throttle_feature_enabled;
 	ui_vars->ui8_cruise_feature_enabled = m_eeprom_data.ui8_cruise_feature_enabled;
+	ui_vars->ui8_street_mode_cruise_enabled = m_eeprom_data.ui8_street_mode_cruise_enabled;
 	//old
 	ui_vars->ui8_assist_level = m_eeprom_data.ui8_assist_level;
 	ui_vars->ui16_wheel_perimeter = m_eeprom_data.ui16_wheel_perimeter;
@@ -646,6 +648,7 @@ void eeprom_write_variables(void) {
 	m_eeprom_data.ui8_assist_whit_error_enabled = ui_vars->ui8_assist_whit_error_enabled;
 	m_eeprom_data.ui8_throttle_feature_enabled = ui_vars->ui8_throttle_feature_enabled;
 	m_eeprom_data.ui8_cruise_feature_enabled = ui_vars->ui8_cruise_feature_enabled;
+	m_eeprom_data.ui8_street_mode_cruise_enabled = ui_vars->ui8_street_mode_cruise_enabled;
 	//old
 	m_eeprom_data.ui8_assist_level = ui_vars->ui8_assist_level;
 	m_eeprom_data.ui16_wheel_perimeter = ui_vars->ui16_wheel_perimeter;

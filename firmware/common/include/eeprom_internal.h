@@ -29,6 +29,7 @@ typedef struct eeprom_data {
 	uint8_t ui8_assist_whit_error_enabled;
 	uint8_t ui8_throttle_feature_enabled;
 	uint8_t ui8_cruise_feature_enabled;
+	uint8_t ui8_street_mode_cruise_enabled;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint16_t ui16_wheel_perimeter;
@@ -183,9 +184,10 @@ typedef struct eeprom_data {
 // *************************************************************************** //
 // EEPROM memory variables default values
 //ADD DEFAULT_VALUE HERE
-#define DEFAULT_VALUE_ASSIST_WHIT_ERROR                             0
-#define DEFAULT_VALUE_THROTTLE                                      0
-#define DEFAULT_VALUE_CRUISE                                        0
+#define DEFAULT_VALUE_ASSIST_WHIT_ERROR                             0 //disabled
+#define DEFAULT_VALUE_THROTTLE                                      0 //disabled
+#define DEFAULT_VALUE_CRUISE                                        0 //disabled
+#define DEFAULT_STREET_MODE_CRUISE_ENABLE                           0 //disabled
 //Existing default value
 #define DEFAULT_VALUE_ASSIST_LEVEL                                  0
 #define DEFAULT_VALUE_NUMBER_OF_ASSIST_LEVELS                       20

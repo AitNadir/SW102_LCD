@@ -32,6 +32,8 @@ typedef enum {
 } frame_type_t;
 
 static uint8_t ui8_m_usart1_received_first_package = 0;
+uint8_t ui8_throttle_legal = 0;
+uint8_t ui8_cruise_legal = 0;
 uint8_t ui8_g_battery_soc;
 volatile uint8_t ui8_g_motorVariablesStabilized = 0;
 
@@ -220,31 +222,31 @@ void rt_send_tx_package(frame_type_t type) {
       if (rt_vars.ui8_assist_level)
          ui8_assist_level_state = 1;
 
-      //uint8_t ui8_cruise_state = rt_vars.ui8_walk_assist;
-      //if (((rt_vars.ui8_street_mode_enabled)&&(!rt_vars.ui8_street_mode_cruise_enabled))
-      //      ||(!rt_vars.ui8_cruise_feature_enabled)
-      //      ||(!rt_vars.ui8_assist_level))
-      //        ui8_cruise_state = 0;
+      uint8_t ui8_cruise_state = rt_vars.ui8_walk_assist;
+      if (((rt_vars.ui8_street_mode_enabled)&&(!rt_vars.ui8_street_mode_cruise_enabled))
+            ||(!rt_vars.ui8_cruise_feature_enabled)
+            ||(!rt_vars.ui8_assist_level))
+              ui8_cruise_state = 0;
 
       //uint8_t ui8_startup_assist_state = 0;
       //if ((rt_vars.ui8_assist_level)&&(rt_vars.ui8_startup_assist_feature_enabled))
       //ui8_startup_assist_state = rt_vars.ui8_startup_assist;
 
-      //uint8_t ui8_throttle_state = 0;
-      //if(((rt_vars.ui8_throttle_feature_enabled)
-      //      &&(!rt_vars.ui8_street_mode_enabled))
-      //      ||((rt_vars.ui8_street_mode_enabled)
-      //      &&(rt_vars.ui8_street_mode_throttle_enabled)))
-      //        ui8_throttle_state = 1;
+      uint8_t ui8_throttle_state = 0;
+      if(((rt_vars.ui8_throttle_feature_enabled)
+            &&(!rt_vars.ui8_street_mode_enabled))
+            ||((rt_vars.ui8_street_mode_enabled)
+            &&(rt_vars.ui8_street_mode_throttle_enabled)))
+              ui8_throttle_state = 1;
 
       ui8_usart1_tx_buffer[5] = ((rt_vars.ui8_lights & 1) |
           ((ui8_walk_assist_state & 1) << 1) |
           ((ui8_assist_level_state & 1) << 2) |
-          0 << 3 |//(ui8_cruise_state & 1) << 3 |
+          (ui8_cruise_state & 1) << 3 |
           0 << 4 |//(ui8_startup_assist_state & 1) << 4 |
-          0 << 5 |//(ui8_throttle_state & 1) << 5 |
-          0 << 6 |//(ui8_throttle_legal & 1) << 6 |
-          0 << 7);//(ui8_cruise_legal & 1) << 7);
+          (ui8_throttle_state & 1) << 5 |
+          (ui8_throttle_legal & 1) << 6 |
+          (ui8_cruise_legal & 1) << 7);
 
       // battery power limit
       if (rt_vars.ui8_street_mode_enabled)
@@ -270,60 +272,48 @@ void rt_send_tx_package(frame_type_t type) {
         ui8_usart1_tx_buffer[9] = rt_vars.ui8_wheel_max_speed;
       }
 
-      // motor temperature limit function or throttle
-      if (rt_vars.ui8_street_mode_enabled &&
-          rt_vars.ui8_street_mode_throttle_enabled)
-      {
-        ui8_usart1_tx_buffer[10] = rt_vars.ui8_temperature_limit_feature_enabled & 1;
-      }
-      else
-      {
-        ui8_usart1_tx_buffer[10] = rt_vars.ui8_temperature_limit_feature_enabled & 3;
+
+      // motor temperature limit function or throttle. TEMPERATURE_CONTROL=1; THROTTLE_CONTROL=2; NOT IN USE=0.
+      if (rt_vars.ui8_temperature_limit_feature_enabled == TEMPERATURE_CONTROL) {
+        ui8_usart1_tx_buffer[10] = TEMPERATURE_CONTROL;
+          }
+      else if (rt_vars.ui8_temperature_limit_feature_enabled == THROTTLE_CONTROL) {
+        ui8_usart1_tx_buffer[10] = THROTTLE_CONTROL;
+
+        if((!rt_vars.ui8_throttle_feature_enabled)
+          ||((!rt_vars.ui8_street_mode_enabled)
+          &&(rt_vars.ui8_throttle_feature_enabled == WP_6KM_H_ONLY)
+          &&(rt_vars.ui16_wheel_speed_x10 > MAX_SPEED_WITHOUT_PEDALING_x10))
+          ||((rt_vars.ui8_street_mode_enabled)
+          &&(!rt_vars.ui8_street_mode_throttle_enabled))
+          ||((rt_vars.ui8_street_mode_enabled)
+          &&(rt_vars.ui8_street_mode_throttle_enabled == WP_6KM_H_ONLY)
+          &&(rt_vars.ui16_wheel_speed_x10 > MAX_SPEED_WITHOUT_PEDALING_x10))
+          ||(!rt_vars.ui8_assist_level)) {
+            ui8_usart1_tx_buffer[10] = NOT_IN_USE;
+        }
+          }
+      else {
+        ui8_usart1_tx_buffer[10] = NOT_IN_USE;
       }
 
-      // motor temperature limit function or throttle in color LCD. TEMPERATURE_CONTROL=1; THROTTLE_CONTROL=2; NOT IN USE=0.
-      //if (rt_vars.ui8_optional_ADC_function == TEMPERATURE_CONTROL) {
-      //  ui8_usart1_tx_buffer[10] = TEMPERATURE_CONTROL;
-      //    }
-      //else if (rt_vars.ui8_optional_ADC_function == THROTTLE_CONTROL) {
-      //  ui8_usart1_tx_buffer[10] = THROTTLE_CONTROL;
-
-      //  if((!rt_vars.ui8_throttle_feature_enabled)
-      //    ||((!rt_vars.ui8_street_mode_enabled)
-      //    &&(rt_vars.ui8_throttle_feature_enabled == WP_6KM_H_ONLY)
-      //    &&(rt_vars.ui16_wheel_speed_x10 > MAX_SPEED_WITHOUT_PEDALING_x10))
-      //    ||((rt_vars.ui8_street_mode_enabled)
-      //    &&(!rt_vars.ui8_street_mode_throttle_enabled))
-      //    ||((rt_vars.ui8_street_mode_enabled)
-      //    &&(rt_vars.ui8_street_mode_throttle_enabled == WP_6KM_H_ONLY)
-      //    &&(rt_vars.ui16_wheel_speed_x10 > MAX_SPEED_WITHOUT_PEDALING_x10))
-      //    ||(!rt_vars.ui8_assist_level)) {
-      //      ui8_usart1_tx_buffer[10] = NOT_IN_USE;
-      //  }
-      //    }
-      //else {
-      //  ui8_usart1_tx_buffer[10] = NOT_IN_USE;
-      //}
 
       // virtual throttle
-      ui8_usart1_tx_buffer[11] = 0;//(uint8_t) ((((uint16_t) rt_vars.ui8_throttle_virtual) * 255) / 100);
-
-      // virtual throttle in color LCD
-      //    if((!rt_vars.ui8_throttle_feature_enabled)
-      //      ||((!rt_vars.ui8_street_mode_enabled)
-      //      &&(rt_vars.ui8_throttle_feature_enabled == WP_6KM_H_ONLY)
-      //      &&(rt_vars.ui16_wheel_speed_x10 > MAX_SPEED_WITHOUT_PEDALING_x10))
-      //     ||((rt_vars.ui8_street_mode_enabled)
-      //      &&(!rt_vars.ui8_street_mode_throttle_enabled))
-      //      ||((rt_vars.ui8_street_mode_enabled)
-      //      &&(rt_vars.ui8_street_mode_throttle_enabled == WP_6KM_H_ONLY)
-      //      &&(rt_vars.ui16_wheel_speed_x10 > MAX_SPEED_WITHOUT_PEDALING_x10))
-      //      ||(!rt_vars.ui8_assist_level)) {
-      //        ui8_usart1_tx_buffer[11] = 0;
-      //    }
-      //    else {
-      //        ui8_usart1_tx_buffer[11] = (uint8_t) ((((uint16_t) rt_vars.ui8_throttle_virtual) * 255) / 100);
-      //    }
+      if((!rt_vars.ui8_throttle_feature_enabled)
+            ||((!rt_vars.ui8_street_mode_enabled)
+            &&(rt_vars.ui8_throttle_feature_enabled == WP_6KM_H_ONLY)
+            &&(rt_vars.ui16_wheel_speed_x10 > MAX_SPEED_WITHOUT_PEDALING_x10))
+           ||((rt_vars.ui8_street_mode_enabled)
+            &&(!rt_vars.ui8_street_mode_throttle_enabled))
+            ||((rt_vars.ui8_street_mode_enabled)
+            &&(rt_vars.ui8_street_mode_throttle_enabled == WP_6KM_H_ONLY)
+            &&(rt_vars.ui16_wheel_speed_x10 > MAX_SPEED_WITHOUT_PEDALING_x10))
+            ||(!rt_vars.ui8_assist_level)) {
+              ui8_usart1_tx_buffer[11] = 0;
+          }
+      else {
+              ui8_usart1_tx_buffer[11] = (uint8_t) ((((uint16_t) rt_vars.ui8_throttle_virtual) * 255) / 100);
+          }
 
       crc_len = 13;
       ui8_usart1_tx_buffer[1] = crc_len;
@@ -343,29 +333,29 @@ void rt_send_tx_package(frame_type_t type) {
       ui8_usart1_tx_buffer[7] = rt_vars.ui8_battery_max_current;
 
       // throttle legal
-      // ui8_throttle_legal = 0;
-      //if(((rt_vars.ui8_throttle_feature_enabled == WP_6KM_H_AND_PEDALING)
-          // &&(rt_vars.ui16_wheel_speed_x10 > SPEED_LIMIT_WITHOUT_PEDALING_x10)
-        // &&(!rt_vars.ui8_street_mode_enabled))
-          // ||((rt_vars.ui8_throttle_feature_enabled == PEDALING)
-            // &&(!rt_vars.ui8_street_mode_enabled))
-        // ||((rt_vars.ui8_street_mode_throttle_enabled == WP_6KM_H_AND_PEDALING)
-            //  &&(rt_vars.ui16_wheel_speed_x10 > SPEED_LIMIT_WITHOUT_PEDALING_x10)
-         //&&(rt_vars.ui8_street_mode_enabled))
-         // ||((rt_vars.ui8_street_mode_throttle_enabled == PEDALING)
-            // &&(rt_vars.ui8_street_mode_enabled))) {
-        // ui8_throttle_legal = 1;
+      ui8_throttle_legal = 0;
+      if(((rt_vars.ui8_throttle_feature_enabled == WP_6KM_H_AND_PEDALING)
+           &&(rt_vars.ui16_wheel_speed_x10 > SPEED_LIMIT_WITHOUT_PEDALING_x10)
+         &&(!rt_vars.ui8_street_mode_enabled))
+           ||((rt_vars.ui8_throttle_feature_enabled == PEDALING)
+             &&(!rt_vars.ui8_street_mode_enabled))
+         ||((rt_vars.ui8_street_mode_throttle_enabled == WP_6KM_H_AND_PEDALING)
+              &&(rt_vars.ui16_wheel_speed_x10 > SPEED_LIMIT_WITHOUT_PEDALING_x10)
+         &&(rt_vars.ui8_street_mode_enabled))
+          ||((rt_vars.ui8_street_mode_throttle_enabled == PEDALING)
+             &&(rt_vars.ui8_street_mode_enabled))) {
+         ui8_throttle_legal = 1;
 
-          // }
+           }
 
-      // ui8_cruise_legal = 0;
+      ui8_cruise_legal = 0;
       // cruise legal (button pressed & pedaling required)
-      //if(((rt_vars.ui8_cruise_feature_enabled == PEDALING)
-          //&&(!rt_vars.ui8_street_mode_enabled))
-          //  || ((rt_vars.ui8_street_mode_cruise_enabled == PEDALING)
-            // &&(rt_vars.ui8_street_mode_enabled))) {
-        //    ui8_cruise_legal = 1;
-      //}
+      if(((rt_vars.ui8_cruise_feature_enabled == PEDALING)
+          &&(!rt_vars.ui8_street_mode_enabled))
+            || ((rt_vars.ui8_street_mode_cruise_enabled == PEDALING)
+             &&(rt_vars.ui8_street_mode_enabled))) {
+          ui8_cruise_legal = 1;
+      }
 
       ui8_usart1_tx_buffer[8] = (1 | //rt_vars.ui8_startup_motor_power_boost_feature_enabled | //startupPower "Feature": "disable", "enable"
           0 << 1 |//(rt_vars.ui8_startup_boost_at_zero & 1) << 1 |//startupPower "Boost at zero": "cadence", "speed"
@@ -1058,6 +1048,7 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
   rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
   rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
+  rt_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_street_mode_cruise_enabled;
 }
 
 /// must be called from main() idle loop
