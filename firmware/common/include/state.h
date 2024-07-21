@@ -5,6 +5,16 @@
 
 #define ASSIST_LEVEL_NUMBER 20
 
+// Torque sensor calibration from main.h v20.1C.4 TSDZ2-OSF
+#define ADC_TORQUE_SENSOR_CALIBRATION_OFFSET    	6
+#define ADC_TORQUE_SENSOR_MIDDLE_OFFSET_ADJ			20
+#define ADC_TORQUE_SENSOR_RANGE_TARGET	  			160
+#define ADC_TORQUE_SENSOR_RANGE_TARGET_MIN 			133
+#define PEDAL_TORQUE_PER_10_BIT_ADC_STEP_BASE_X100	34 // base adc step
+#define WEIGHT_ON_PEDAL_FOR_STEP_CALIBRATION		24 // Kg
+#define PERCENT_TORQUE_SENSOR_RANGE_WITH_WEIGHT		75 // % of torque sensor range target with weight
+#define ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT		(uint16_t)((ADC_TORQUE_SENSOR_RANGE_TARGET*PERCENT_TORQUE_SENSOR_RANGE_WITH_WEIGHT)/100)
+
 // optional ADC function
 #define NOT_IN_USE                           0
 #define TEMPERATURE_CONTROL                  1
@@ -19,7 +29,7 @@
 #define UNCONDITIONAL                        4
 // cruise only
 #define WITHOUT_PEDALING                     2
-
+#define SPEED_LIMIT_WITHOUT_PEDALING         6
 #define SPEED_LIMIT_WITHOUT_PEDALING_x10     60
 #define MAX_SPEED_WITHOUT_PEDALING_x10       70
 
@@ -99,6 +109,24 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_throttle_feature_enabled;
 	uint8_t ui8_cruise_feature_enabled;
 	uint8_t ui8_street_mode_cruise_enabled;
+	uint8_t ui8_startup_boost_at_zero;
+	uint8_t ui8_startup_assist_feature_enabled;
+	uint8_t ui8_smooth_start_enabled;
+    uint16_t ui16_startup_boost_torque_factor;
+    uint8_t ui8_startup_boost_cadence_step;
+    uint8_t ui8_smooth_start_counter_set;
+	uint8_t ui8_motor_acceleration_adjustment;
+	uint8_t ui8_motor_deceleration_adjustment;
+	uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
+	uint8_t ui8_pedal_torque_per_10_bit_ADC_step_adv_x100;
+	uint8_t ui8_adc_pedal_torque_offset_adj;
+	uint8_t ui8_adc_pedal_torque_range_adj;
+	uint8_t ui8_adc_pedal_torque_angle_adj_index;
+	uint16_t ui16_adc_pedal_torque_offset;
+	uint16_t ui16_adc_pedal_torque_max;
+	uint8_t ui8_weight_on_pedal;
+	uint16_t ui16_adc_pedal_torque_with_weight;
+	uint8_t ui8_pedal_torque_ADC_step_calc_x100;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
@@ -177,7 +205,7 @@ typedef struct rt_vars_struct {
 
   uint8_t ui8_pedal_cadence_fast_stop;
   uint8_t ui8_coast_brake_adc;
-  uint8_t ui8_adc_lights_current_offset;
+  uint8_t ui8_lights_configuration;
   uint16_t ui16_adc_battery_current;
   uint8_t ui8_throttle_virtual;
   uint8_t ui8_torque_sensor_filter;
@@ -235,8 +263,26 @@ typedef struct ui_vars_struct {
     //add variables here
 	uint8_t ui8_assist_whit_error_enabled;
 	uint8_t ui8_throttle_feature_enabled;
-  uint8_t ui8_cruise_feature_enabled;
-  uint8_t ui8_street_mode_cruise_enabled;
+    uint8_t ui8_cruise_feature_enabled;
+    uint8_t ui8_street_mode_cruise_enabled;
+    uint8_t ui8_startup_boost_at_zero;
+    uint8_t ui8_startup_assist_feature_enabled;
+    uint8_t ui8_smooth_start_enabled;
+    uint16_t ui16_startup_boost_torque_factor;
+    uint8_t ui8_startup_boost_cadence_step;
+    uint8_t ui8_smooth_start_counter_set;
+	uint8_t ui8_motor_acceleration_adjustment;
+	uint8_t ui8_motor_deceleration_adjustment;
+	uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
+	uint8_t ui8_pedal_torque_per_10_bit_ADC_step_adv_x100;
+	uint8_t ui8_adc_pedal_torque_offset_adj;
+	uint8_t ui8_adc_pedal_torque_range_adj;
+	uint8_t ui8_adc_pedal_torque_angle_adj_index;
+	uint16_t ui16_adc_pedal_torque_offset;
+	uint16_t ui16_adc_pedal_torque_max;
+	uint8_t ui8_weight_on_pedal;
+	uint16_t ui16_adc_pedal_torque_with_weight;
+	uint8_t ui8_pedal_torque_ADC_step_calc_x100;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
@@ -416,7 +462,7 @@ typedef struct ui_vars_struct {
 
   uint8_t ui8_pedal_cadence_fast_stop;
   uint8_t ui8_coast_brake_adc;
-  uint8_t ui8_adc_lights_current_offset;
+  uint8_t ui8_lights_configuration;
   uint16_t ui16_adc_battery_current;
   uint8_t ui8_throttle_virtual;
   uint8_t ui8_throttle_virtual_step;

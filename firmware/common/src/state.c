@@ -31,6 +31,12 @@ typedef enum {
   FRAME_TYPE_FIRMWARE_VERSION = 4,
 } frame_type_t;
 
+static uint8_t ui8_pedal_torque_ADC_step_adv_calc_x100 = 0;
+static uint16_t ui16_adc_pedal_torque_range = 0;
+static uint8_t ui8_adc_torque_calibration_offset = ADC_TORQUE_SENSOR_CALIBRATION_OFFSET;
+static uint8_t ui8_adc_torque_middle_offset_adj = ADC_TORQUE_SENSOR_MIDDLE_OFFSET_ADJ;
+static uint8_t ui8_adc_pedal_torque_angle_adj_array[41] = {160, 138, 120, 107, 96, 88, 80, 74, 70, 66, 63, 59, 56, 52,
+			50, 47, 44, 42, 39, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16 };
 static uint8_t ui8_m_usart1_received_first_package = 0;
 uint8_t ui8_throttle_legal = 0;
 uint8_t ui8_cruise_legal = 0;
@@ -228,9 +234,9 @@ void rt_send_tx_package(frame_type_t type) {
             ||(!rt_vars.ui8_assist_level))
               ui8_cruise_state = 0;
 
-      //uint8_t ui8_startup_assist_state = 0;
-      //if ((rt_vars.ui8_assist_level)&&(rt_vars.ui8_startup_assist_feature_enabled))
-      //ui8_startup_assist_state = rt_vars.ui8_startup_assist;
+      uint8_t ui8_startup_assist_state = 0;
+      if ((rt_vars.ui8_assist_level)&&(rt_vars.ui8_startup_assist_feature_enabled))
+      ui8_startup_assist_state = 0;//rt_vars.ui8_startup_assist;
 
       uint8_t ui8_throttle_state = 0;
       if(((rt_vars.ui8_throttle_feature_enabled)
@@ -243,7 +249,7 @@ void rt_send_tx_package(frame_type_t type) {
           ((ui8_walk_assist_state & 1) << 1) |
           ((ui8_assist_level_state & 1) << 2) |
           (ui8_cruise_state & 1) << 3 |
-          0 << 4 |//(ui8_startup_assist_state & 1) << 4 |
+          (ui8_startup_assist_state & 1) << 4 |
           (ui8_throttle_state & 1) << 5 |
           (ui8_throttle_legal & 1) << 6 |
           (ui8_cruise_legal & 1) << 7);
@@ -263,9 +269,28 @@ void rt_send_tx_package(frame_type_t type) {
       {
         ui8_usart1_tx_buffer[9] = rt_vars.ui8_street_mode_speed_limit;
       }
-      else if (ui8_walk_assist_state)
+      else if (((rt_vars.ui8_throttle_feature_enabled == WP_6KM_H_ONLY)
+          &&(!rt_vars.ui8_street_mode_enabled)
+          &&((rt_vars.ui8_throttle)||(rt_vars.ui8_throttle_virtual))
+          &&(!rt_vars.ui8_pedal_cadence))
+          ||((rt_vars.ui8_throttle_feature_enabled == WP_6KM_H_AND_PEDALING)
+          &&(rt_vars.ui16_wheel_speed_x10 > SPEED_LIMIT_WITHOUT_PEDALING_x10)
+          &&(!rt_vars.ui8_street_mode_enabled)
+          &&((rt_vars.ui8_throttle)||(rt_vars.ui8_throttle_virtual))
+          &&(!rt_vars.ui8_pedal_cadence))
+          ||((rt_vars.ui8_street_mode_throttle_enabled == WP_6KM_H_ONLY)
+          &&(rt_vars.ui8_street_mode_enabled)
+          &&((rt_vars.ui8_throttle)||(rt_vars.ui8_throttle_virtual))
+          &&(!rt_vars.ui8_pedal_cadence))
+          ||((rt_vars.ui8_street_mode_throttle_enabled == WP_6KM_H_AND_PEDALING)
+          &&(rt_vars.ui16_wheel_speed_x10 > SPEED_LIMIT_WITHOUT_PEDALING_x10)
+          &&(rt_vars.ui8_street_mode_enabled)
+          &&((rt_vars.ui8_throttle)||(rt_vars.ui8_throttle_virtual))
+          &&(!rt_vars.ui8_pedal_cadence))
+          ||((ui_vars.ui8_walk_assist)&&(!ui8_cruise_state))
+          ||0)//(ui_vars.ui8_startup_assist))
       {
-        ui8_usart1_tx_buffer[9] = 6;
+        ui8_usart1_tx_buffer[9] = SPEED_LIMIT_WITHOUT_PEDALING;
       }
       else
       {
@@ -357,12 +382,12 @@ void rt_send_tx_package(frame_type_t type) {
           ui8_cruise_legal = 1;
       }
 
-      ui8_usart1_tx_buffer[8] = (1 | //rt_vars.ui8_startup_motor_power_boost_feature_enabled | //startupPower "Feature": "disable", "enable"
-          0 << 1 |//(rt_vars.ui8_startup_boost_at_zero & 1) << 1 |//startupPower "Boost at zero": "cadence", "speed"
-          1 << 2 |//(rt_vars.ui8_smooth_start_enabled & 1) << 2 |//startupPower "Smooth start":"disable", "enable"
-          1 << 3 |//(rt_vars.ui8_torque_sensor_calibration_feature_enabled & 1) << 3 |//torqueCalibration "Calibrat":"disable", "enable"
+      ui8_usart1_tx_buffer[8] = (rt_vars.ui8_startup_motor_power_boost_feature_enabled | //startupPower "Feature": "disable", "enable"
+          (rt_vars.ui8_startup_boost_at_zero & 1) << 1 |//startupPower "Boost at zero": "cadence", "speed"
+          (rt_vars.ui8_smooth_start_enabled & 1) << 2 |//startupPower "Smooth start":"disable", "enable"
+          (rt_vars.ui8_torque_sensor_calibration_feature_enabled & 1) << 3 |//torqueSensor "Calibration":"disable", "enable"
           (rt_vars.ui8_assist_whit_error_enabled & 1) << 4 |//bike "Assist with error":"disable", "enable"
-          0 << 5 |//(rt_vars.ui8_motor_assistance_startup_without_pedal_rotation & 1) << 5 |//torqueSensor "Assist w/o pedal":"disable", "enable"
+          (rt_vars.ui8_motor_assistance_startup_without_pedal_rotation & 1) << 5 |//torqueSensor "Assist w/o pedal":"disable", "enable"
           ((rt_vars.ui8_motor_type & 1) << 6) |
           1 << 7);//(rt_vars.ui8_eMTB_based_on_power & 1) << 7);//eMTBAssist "Based on":"torque", "power"
 
@@ -370,63 +395,55 @@ void rt_send_tx_package(frame_type_t type) {
       ui8_usart1_tx_buffer[9] = 0;
 
       // startup boost torque factor
-      ui8_usart1_tx_buffer[10] = 300 >> 1;//(uint8_t) (rt_vars.ui16_startup_boost_torque_factor >> 1);//startupPower "Boost fact":"%", 1, 500
+      ui8_usart1_tx_buffer[10] = (uint8_t) (rt_vars.ui16_startup_boost_torque_factor >> 1);//startupPower "Boost fact":"%", 1, 500
 
       // startup boost cadence step
-      ui8_usart1_tx_buffer[11] = 20;//rt_vars.ui8_startup_boost_cadence_step;//startupPower "Boost step": "", 10, 50
+      ui8_usart1_tx_buffer[11] = rt_vars.ui8_startup_boost_cadence_step;//startupPower "Boost step": "", 10, 50
 
       // motor over temperature min and max values to limit
       ui8_usart1_tx_buffer[12] = rt_vars.ui8_motor_temperature_min_value_to_limit;
       ui8_usart1_tx_buffer[13] = rt_vars.ui8_motor_temperature_max_value_to_limit;
 
       // motor acceleration adjustment
-      ui8_usart1_tx_buffer[14] = 35;//rt_vars.ui8_motor_acceleration_adjustment;//motor "Motor acc":"%", 0, 100
+      ui8_usart1_tx_buffer[14] = rt_vars.ui8_motor_acceleration_adjustment;//motor "Motor acc":"%", 0, 100
 
       // motor deceleration adjustment
-      ui8_usart1_tx_buffer[15] = 5;//rt_vars.ui8_motor_deceleration_adjustment;//motor "Motor dec":"%", 0, 100
+      ui8_usart1_tx_buffer[15] = rt_vars.ui8_motor_deceleration_adjustment;//motor "Motor dec":"%", 0, 100
 
       // torque sensor offset, range and angle adjustment
-      ui8_usart1_tx_buffer[50] = 20;//rt_vars.ui8_adc_pedal_torque_offset_adj;
-      ui8_usart1_tx_buffer[51] = 20;//rt_vars.ui8_adc_pedal_torque_range_adj;
-      ui8_usart1_tx_buffer[52] = 36;//ui8_adc_pedal_torque_angle_adj_array[rt_vars.ui8_adc_pedal_torque_angle_adj_index];
-      ui8_usart1_tx_buffer[53] = 6;//ui8_adc_torque_calibration_offset;
-      ui8_usart1_tx_buffer[54] = 20;//ui8_adc_torque_middle_offset_adj;
+      ui8_usart1_tx_buffer[50] = rt_vars.ui8_adc_pedal_torque_offset_adj;//torqueSensor "Torque offset adj": "", 0, 34
+      ui8_usart1_tx_buffer[51] = rt_vars.ui8_adc_pedal_torque_range_adj;//torqueSensor "Torque range adj": "", 0, 40
+      ui8_usart1_tx_buffer[52] = ui8_adc_pedal_torque_angle_adj_array[rt_vars.ui8_adc_pedal_torque_angle_adj_index];//torqueSensor "Torque angle adj": "", 0, 40
+      ui8_usart1_tx_buffer[53] = ui8_adc_torque_calibration_offset;
+      ui8_usart1_tx_buffer[54] = ui8_adc_torque_middle_offset_adj;
 
-      ui8_usart1_tx_buffer[55] = 35;//rt_vars.ui8_smooth_start_counter_set;
+      ui8_usart1_tx_buffer[55] = rt_vars.ui8_smooth_start_counter_set;
       ui8_usart1_tx_buffer[56] = 0x50;//EEPROM_VERSION;
 
       // torque sensor offset set, for check the offset calibration
-      ui8_usart1_tx_buffer[76] = 150;//(uint8_t) (rt_vars.ui16_adc_pedal_torque_offset  & 0xff);
-      ui8_usart1_tx_buffer[77] = 0;//(uint8_t) (rt_vars.ui16_adc_pedal_torque_offset >> 8);
+      ui8_usart1_tx_buffer[76] = (uint8_t) (rt_vars.ui16_adc_pedal_torque_offset  & 0xff);
+      ui8_usart1_tx_buffer[77] = (uint8_t) (rt_vars.ui16_adc_pedal_torque_offset >> 8);
       //ui16_adc_pedal_torque_range = (rt_vars.ui16_adc_pedal_torque_max - rt_vars.ui16_adc_pedal_torque_offset);
-      ui8_usart1_tx_buffer[78] = 150;//(uint8_t) (ui16_adc_pedal_torque_range  & 0xff);
-      ui8_usart1_tx_buffer[79] = 0;//(uint8_t) (ui16_adc_pedal_torque_range >> 8);
+      ui8_usart1_tx_buffer[78] = (uint8_t) (ui16_adc_pedal_torque_range  & 0xff);
+      ui8_usart1_tx_buffer[79] = (uint8_t) (ui16_adc_pedal_torque_range >> 8);
 
-      ui8_usart1_tx_buffer[80] = 2;//((rt_vars.ui8_pedal_cadence_fast_stop & 1) |
-            //(rt_vars.ui8_field_weakening_feature_enabled & 1) << 1 |
-                //(rt_vars. ui8_coast_brake_enable & 1) << 2);
+      ui8_usart1_tx_buffer[80] = ((rt_vars.ui8_pedal_cadence_fast_stop & 1) |
+            (rt_vars.ui8_field_weakening & 1) << 1 |
+                (rt_vars. ui8_coast_brake_enable & 1) << 2);
                 // free for future use
 
 
-      ui8_usart1_tx_buffer[81] = 10;//rt_vars.ui8_coast_brake_adc;
-
-      // battery current min ADC
-      //ui8_usart1_tx_buffer[79] = rt_vars.ui8_motor_current_min_adc;
-      //ui8_usart1_tx_buffer[80] = (rt_vars.ui8_pedal_cadence_fast_stop |
-          //(rt_vars.ui8_field_weakening << 1) |
-          //(rt_vars.ui8_coast_brake_enable << 2) |
-          //(rt_vars.ui8_motor_current_control_mode << 3));
-      //ui8_usart1_tx_buffer[81] = rt_vars.ui8_coast_brake_adc;
-      ui8_usart1_tx_buffer[82] = 0;//rt_vars.ui8_lights_configuration;//various "Light conf": "", 0, 8
+      ui8_usart1_tx_buffer[81] = rt_vars.ui8_coast_brake_adc;
+      ui8_usart1_tx_buffer[82] = rt_vars.ui8_lights_configuration;//various "Light conf": "", 0, 8
 
       if(rt_vars.ui8_torque_sensor_calibration_feature_enabled) {
-            ui8_usart1_tx_buffer[83] = 34;//rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_adv_x100;
+            ui8_usart1_tx_buffer[83] = rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_adv_x100;
           }
           else {
-            ui8_usart1_tx_buffer[83] = 34;//rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100;
+            ui8_usart1_tx_buffer[83] = rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100;
           }
-      //ui8_usart1_tx_buffer[83] = rt_vars.ui8_torque_sensor_filter;
-      ui8_usart1_tx_buffer[84] = 10;//rt_vars.ui8_torque_sensor_adc_threshold;
+
+      ui8_usart1_tx_buffer[84] = rt_vars.ui8_torque_sensor_adc_threshold;
 
       // calculate pedal torque ADC step for human power
       //uint16_t ui16_adc_pedal_torque_range_target_max = ADC_TORQUE_SENSOR_RANGE_TARGET_MIN
@@ -1039,7 +1056,7 @@ void copy_rt_to_ui_vars(void) {
 
   rt_vars.ui8_pedal_cadence_fast_stop = ui_vars.ui8_pedal_cadence_fast_stop;
   rt_vars.ui8_coast_brake_adc = ui_vars.ui8_coast_brake_adc;
-  rt_vars.ui8_adc_lights_current_offset = ui_vars.ui8_adc_lights_current_offset;
+  rt_vars.ui8_lights_configuration = ui_vars.ui8_lights_configuration;
   rt_vars.ui8_throttle_virtual = ui_vars.ui8_throttle_virtual;
   rt_vars.ui8_torque_sensor_filter = ui_vars.ui8_torque_sensor_filter;
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
@@ -1049,6 +1066,54 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
   rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
   rt_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_street_mode_cruise_enabled;
+  rt_vars.ui8_startup_boost_at_zero = ui_vars.ui8_startup_boost_at_zero;
+  rt_vars.ui8_startup_assist_feature_enabled = ui_vars.ui8_startup_assist_feature_enabled;
+  rt_vars.ui8_smooth_start_enabled = ui_vars.ui8_smooth_start_enabled;
+  rt_vars.ui16_startup_boost_torque_factor = ui_vars.ui16_startup_boost_torque_factor;
+  rt_vars.ui8_startup_boost_cadence_step = ui_vars.ui8_startup_boost_cadence_step;
+  rt_vars.ui8_smooth_start_counter_set = ui_vars.ui8_smooth_start_counter_set;
+  rt_vars.ui8_motor_acceleration_adjustment = ui_vars.ui8_motor_acceleration_adjustment;
+  rt_vars.ui8_motor_deceleration_adjustment = ui_vars.ui8_motor_deceleration_adjustment;
+  rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100 = ui_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100;
+  rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_adv_x100 = ui_vars.ui8_pedal_torque_per_10_bit_ADC_step_adv_x100;
+  rt_vars.ui8_adc_pedal_torque_offset_adj = ui_vars.ui8_adc_pedal_torque_offset_adj;
+  rt_vars.ui8_adc_pedal_torque_range_adj = ui_vars.ui8_adc_pedal_torque_range_adj;
+  rt_vars.ui8_adc_pedal_torque_angle_adj_index = ui_vars.ui8_adc_pedal_torque_angle_adj_index;
+  if(rt_vars.ui8_motor_deceleration_adjustment == 100)
+	ui_vars.ui8_pedal_cadence_fast_stop = 1;
+  else
+	ui_vars.ui8_pedal_cadence_fast_stop = 0;
+
+  rt_vars.ui8_pedal_cadence_fast_stop = ui_vars.ui8_pedal_cadence_fast_stop;
+
+  rt_vars.ui16_adc_pedal_torque_offset = ui_vars.ui16_adc_pedal_torque_offset;
+  rt_vars.ui16_adc_pedal_torque_max = ui_vars.ui16_adc_pedal_torque_max;
+  ui16_adc_pedal_torque_range = (rt_vars.ui16_adc_pedal_torque_max - rt_vars.ui16_adc_pedal_torque_offset);
+
+  rt_vars.ui8_weight_on_pedal = ui_vars.ui8_weight_on_pedal;
+  rt_vars.ui16_adc_pedal_torque_with_weight = ui_vars.ui16_adc_pedal_torque_with_weight;
+
+  if(rt_vars.ui8_torque_sensor_calibration_feature_enabled) {
+	rt_vars.ui8_pedal_torque_ADC_step_calc_x100 = (uint8_t)((uint16_t)(((rt_vars.ui8_weight_on_pedal * 1670)
+		/ (((rt_vars.ui16_adc_pedal_torque_with_weight - rt_vars.ui16_adc_pedal_torque_offset)
+		* ADC_TORQUE_SENSOR_RANGE_TARGET) / ui16_adc_pedal_torque_range)) + 5) / 10);
+
+	ui8_adc_torque_calibration_offset = (uint8_t)((uint16_t)(((ADC_TORQUE_SENSOR_CALIBRATION_OFFSET
+		* ui16_adc_pedal_torque_range) / ADC_TORQUE_SENSOR_RANGE_TARGET) + 1));
+	ui8_adc_torque_middle_offset_adj = (uint8_t)((uint16_t)(((ADC_TORQUE_SENSOR_MIDDLE_OFFSET_ADJ
+		* ui16_adc_pedal_torque_range) / ADC_TORQUE_SENSOR_RANGE_TARGET) + 1));
+	rt_vars.ui8_adc_pedal_torque_offset_adj = (uint8_t)((uint16_t)(((ui_vars.ui8_adc_pedal_torque_offset_adj
+		* ui16_adc_pedal_torque_range) / ADC_TORQUE_SENSOR_RANGE_TARGET) + 1));
+  }
+  else  {
+	rt_vars.ui8_pedal_torque_ADC_step_calc_x100 = (uint8_t)((uint16_t)((rt_vars.ui8_weight_on_pedal * 1670)
+		/ (rt_vars.ui16_adc_pedal_torque_with_weight - rt_vars.ui16_adc_pedal_torque_offset) + 5) / 10);
+
+	ui8_adc_torque_calibration_offset = ADC_TORQUE_SENSOR_CALIBRATION_OFFSET;
+	ui8_adc_torque_middle_offset_adj = ADC_TORQUE_SENSOR_MIDDLE_OFFSET_ADJ;
+	rt_vars.ui8_adc_pedal_torque_offset_adj = ui_vars.ui8_adc_pedal_torque_offset_adj;
+  }
+  ui_vars.ui8_pedal_torque_ADC_step_calc_x100 = rt_vars.ui8_pedal_torque_ADC_step_calc_x100;
 }
 
 /// must be called from main() idle loop

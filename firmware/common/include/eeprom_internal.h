@@ -30,6 +30,23 @@ typedef struct eeprom_data {
 	uint8_t ui8_throttle_feature_enabled;
 	uint8_t ui8_cruise_feature_enabled;
 	uint8_t ui8_street_mode_cruise_enabled;
+	uint8_t ui8_startup_boost_at_zero;
+	uint8_t ui8_startup_assist_feature_enabled;
+	uint8_t ui8_smooth_start_enabled;
+	uint16_t ui16_startup_boost_torque_factor;
+	uint8_t ui8_startup_boost_cadence_step;
+	uint8_t ui8_smooth_start_counter_set;
+	uint8_t ui8_motor_acceleration_adjustment;
+	uint8_t ui8_motor_deceleration_adjustment;
+	uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
+	uint8_t ui8_pedal_torque_per_10_bit_ADC_step_adv_x100;
+	uint8_t ui8_adc_pedal_torque_offset_adj;
+	uint8_t ui8_adc_pedal_torque_range_adj;
+	uint8_t ui8_adc_pedal_torque_angle_adj_index;
+	uint16_t ui16_adc_pedal_torque_offset;
+	uint16_t ui16_adc_pedal_torque_max;
+	uint8_t ui8_weight_on_pedal;
+	uint16_t ui16_adc_pedal_torque_with_weight;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint16_t ui16_wheel_perimeter;
@@ -154,7 +171,7 @@ typedef struct eeprom_data {
 
   uint8_t ui8_pedal_cadence_fast_stop;
   uint8_t ui8_coast_brake_adc;
-  uint8_t ui8_adc_lights_current_offset;
+  uint8_t ui8_lights_configuration;
   uint8_t ui8_throttle_virtual_step;
   uint8_t ui8_torque_sensor_filter;
   uint8_t ui8_torque_sensor_adc_threshold;
@@ -183,29 +200,46 @@ typedef struct eeprom_data {
 
 // *************************************************************************** //
 // EEPROM memory variables default values
-//ADD DEFAULT_VALUE HERE
+//add variables here
 #define DEFAULT_VALUE_ASSIST_WHIT_ERROR                             0 //disabled
 #define DEFAULT_VALUE_THROTTLE                                      0 //disabled
 #define DEFAULT_VALUE_CRUISE                                        0 //disabled
 #define DEFAULT_STREET_MODE_CRUISE_ENABLE                           0 //disabled
+#define DEFAULT_BOOST_ZERO                                          0 //cadence
+#define DEFAULT_STARTUP_ASSIST_ENABLE                               1 //enabled
+#define DEFAULT_SMOOTH_START_ENABLE                                 1 //enabled
+#define DEFAULT_VALUE_BOOST_FACTOR                                  300 //%
+#define DEFAULT_VALUE_BOOST_STEP                                    20
+#define DEFAULT_VALUE_SMOOTH_START_COUNTER                          35 //%
+#define DEFAULT_VALUE_MOTOR_ACCELERATION_ADJ                        35 //%
+#define DEFAULT_VALUE_MOTOR_DECELERATION_ADJ                        5 //%
+#define DEFAULT_VALUE_PEDAL_TORQUE_ADC_STEP_x100					67
+#define DEFAULT_VALUE_PEDAL_TORQUE_ADC_STEP_ADV_x100				34
+#define DEFAULT_VALUE_TORQUE_OFFSET_ADJ                             20
+#define DEFAULT_VALUE_TORQUE_RANGE_ADJ                              20
+#define DEFAULT_VALUE_TORQUE_ANGLE_ADJ_INDEX                        20
+#define DEFAULT_VALUE_TORQUE_OFFSET                                 150
+#define DEFAULT_VALUE_TORQUE_MAX                                    300
+#define DEFAULT_VALUE_WEIGHT_ON_PEDAL                               25
+#define DEFAULT_VALUE_TORQUE_ADC_ON_WEIGHT                          250
 //Existing default value
 #define DEFAULT_VALUE_ASSIST_LEVEL                                  0
 #define DEFAULT_VALUE_NUMBER_OF_ASSIST_LEVELS                       20
-#define DEFAULT_VALUE_WHEEL_PERIMETER                               2100 // 27.5'' wheel: 2100mm perimeter
-#define DEFAULT_VALUE_WHEEL_MAX_SPEED                               50
+#define DEFAULT_VALUE_WHEEL_PERIMETER                               2060 // 27.5'' wheel: 2060mm perimeter
+#define DEFAULT_VALUE_WHEEL_MAX_SPEED                               25
 #define DEFAULT_VALUE_UNITS_TYPE                                    0 // 0 = km/h
 #define DEFAULT_VALUE_WH_X10_OFFSET                                 0
 #define DEFAULT_VALUE_HW_X10_100_PERCENT                            4000 // default to a battery of 400 Wh
 #define DEAFULT_VALUE_SHOW_NUMERIC_BATTERY_SOC                      1 // SOC
 #define DEAFULT_VALUE_TIME_FIELD                                    1 // 1 i show clock
-#define DEFAULT_VALUE_BATTERY_MAX_CURRENT                           16 // 16 amps
-#define DEFAULT_VALUE_MOTOR_MAX_CURRENT                             16 // 16 amps
+#define DEFAULT_VALUE_BATTERY_MAX_CURRENT                           15 // 15 amps
+#define DEFAULT_VALUE_MOTOR_MAX_CURRENT                             15 // 15 amps
 #define DEFAULT_VALUE_CURRENT_MIN_ADC                               1 // 1 unit, 0.156 A
 #define DEFAULT_VALUE_RAMP_UP_AMPS_PER_SECOND_X10                   80 // 8.0 amps per second ramp up
 #define DEFAULT_VALUE_TARGET_MAX_BATTERY_POWER                      20 // e.g. 20 = 20 * 25 = 500, 0 is disabled
-#define DEFAULT_VALUE_BATTERY_LOW_VOLTAGE_CUT_OFF_X10               420 // 52v battery, LVC = 42.0 (3.0 * 14)
+#define DEFAULT_VALUE_BATTERY_LOW_VOLTAGE_CUT_OFF_X10               300 // 52v battery, LVC = 42.0 (3.0 * 14)
 #define DEFAULT_VALUE_MOTOR_CURRENT_CONTROL_MODE                    0 // 0 power; 1 torque; 2 cadence; 3 eMTB; 4 hybrid
-#define DEFAULT_VALUE_MOTOR_TYPE                                    0 // 0 = 48V
+#define DEFAULT_VALUE_MOTOR_TYPE                                    1 // 1 = 36V
 #define DEFAULT_VALUE_MOTOR_ASSISTANCE_WITHOUT_PEDAL_ROTATION       0 // 0 to keep this feature disable
 #define DEFAULT_VALUE_ASSIST_LEVEL_FACTOR_1                         5 // 0.005 and each next increase +33%
 #define DEFAULT_VALUE_ASSIST_LEVEL_FACTOR_2                         9
@@ -275,7 +309,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_MOTOR_TEMPERATURE_FEATURE_ENABLE              0
 #define DEFAULT_VALUE_MOTOR_TEMPERATURE_MIN_VALUE_LIMIT             75 // 75 degrees celsius
 #define DEFAULT_VALUE_MOTOR_TEMPERATURE_MAX_VALUE_LIMIT             85 // 85 degrees celsius
-#define DEFAULT_VALUE_BATTERY_VOLTAGE_RESET_WH_COUNTER_X10          584 // 52v battery, 58.4 volts at fully charged
+#define DEFAULT_VALUE_BATTERY_VOLTAGE_RESET_WH_COUNTER_X10          414 // 36v battery, 41.4 volts at fully charged
 #define DEFAULT_VALUE_LCD_POWER_OFF_TIME                            60 // 60 minutes, each unit 1 minute
 #ifdef SW102
 #define DEFAULT_VALUE_LCD_BACKLIGHT_ON_BRIGHTNESS                   100 // 8 = 40%
@@ -301,12 +335,12 @@ typedef struct eeprom_data {
 #define DEFAULT_STREET_MODE_THROTTLE_ENABLE                         0 // disabled
 #define DEFAULT_STREET_MODE_HOTKEY_ENABLE                           0 // disabled
 #define DEFAULT_PEDAL_CADENCE_FAST_STOP_ENABLE                      0 // disabled
-#define DEFAULT_COAST_BRAKE_ADC                                     15 // 15: tested by plpetrov user on 28.04.2020:
+#define DEFAULT_COAST_BRAKE_ADC                                     10 // 10
 #define DEFAULT_FIELD_WEAKENING                                     1 // 1 enabled
-#define DEFAULT_ADC_LIGHTS_CURRENT_OFFSET                           0
+#define DEFAULT_LIGHTS_CONFIG                                       0
 #define DEFAULT_THROTTLE_VIRTUAL_STEP                               5
 #define DEFAULT_TORQUE_SENSOR_FILTER                                20 // 20%
-#define DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD                         20
+#define DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD                         10
 #define DEFAULT_COAST_BRAKE_ENABLE                                  0 // disable
 
 #define BICYCLE_1

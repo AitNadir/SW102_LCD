@@ -27,6 +27,23 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui8_throttle_feature_enabled = DEFAULT_VALUE_THROTTLE,
   .ui8_cruise_feature_enabled = DEFAULT_VALUE_CRUISE,
   .ui8_street_mode_cruise_enabled = DEFAULT_STREET_MODE_CRUISE_ENABLE,
+  .ui8_startup_boost_at_zero = DEFAULT_BOOST_ZERO,
+  .ui8_startup_assist_feature_enabled = DEFAULT_STARTUP_ASSIST_ENABLE,
+  .ui8_smooth_start_enabled = DEFAULT_SMOOTH_START_ENABLE,
+  .ui16_startup_boost_torque_factor = DEFAULT_VALUE_BOOST_FACTOR,
+  .ui8_startup_boost_cadence_step = DEFAULT_VALUE_BOOST_STEP,
+  .ui8_smooth_start_counter_set = DEFAULT_VALUE_SMOOTH_START_COUNTER,
+  .ui8_motor_acceleration_adjustment = DEFAULT_VALUE_MOTOR_ACCELERATION_ADJ,
+  .ui8_motor_deceleration_adjustment = DEFAULT_VALUE_MOTOR_DECELERATION_ADJ,
+  .ui8_pedal_torque_per_10_bit_ADC_step_x100 = DEFAULT_VALUE_PEDAL_TORQUE_ADC_STEP_x100,
+  .ui8_pedal_torque_per_10_bit_ADC_step_adv_x100 = DEFAULT_VALUE_PEDAL_TORQUE_ADC_STEP_ADV_x100,
+  .ui8_adc_pedal_torque_offset_adj = DEFAULT_VALUE_TORQUE_OFFSET_ADJ,
+  .ui8_adc_pedal_torque_range_adj = DEFAULT_VALUE_TORQUE_RANGE_ADJ,
+  .ui8_adc_pedal_torque_angle_adj_index = DEFAULT_VALUE_TORQUE_ANGLE_ADJ_INDEX,
+  .ui16_adc_pedal_torque_offset = DEFAULT_VALUE_TORQUE_OFFSET,
+  .ui16_adc_pedal_torque_max = DEFAULT_VALUE_TORQUE_MAX,
+  .ui8_weight_on_pedal = DEFAULT_VALUE_WEIGHT_ON_PEDAL,
+  .ui16_adc_pedal_torque_with_weight = DEFAULT_VALUE_TORQUE_ADC_ON_WEIGHT,
   //old variables
   .ui8_assist_level = DEFAULT_VALUE_ASSIST_LEVEL,
   .ui16_wheel_perimeter = DEFAULT_VALUE_WHEEL_PERIMETER,
@@ -280,7 +297,7 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui8_street_mode_hotkey_enabled = DEFAULT_STREET_MODE_HOTKEY_ENABLE,
   .ui8_pedal_cadence_fast_stop = DEFAULT_PEDAL_CADENCE_FAST_STOP_ENABLE,
   .ui8_coast_brake_adc = DEFAULT_COAST_BRAKE_ADC,
-  .ui8_adc_lights_current_offset = DEFAULT_ADC_LIGHTS_CURRENT_OFFSET,
+  .ui8_lights_configuration = DEFAULT_LIGHTS_CONFIG,
   .ui8_throttle_virtual_step = DEFAULT_THROTTLE_VIRTUAL_STEP,
   .ui8_torque_sensor_filter = DEFAULT_TORQUE_SENSOR_FILTER,
   .ui8_torque_sensor_adc_threshold = DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD,
@@ -353,6 +370,23 @@ void eeprom_init_variables(void) {
 	ui_vars->ui8_throttle_feature_enabled = m_eeprom_data.ui8_throttle_feature_enabled;
 	ui_vars->ui8_cruise_feature_enabled = m_eeprom_data.ui8_cruise_feature_enabled;
 	ui_vars->ui8_street_mode_cruise_enabled = m_eeprom_data.ui8_street_mode_cruise_enabled;
+	ui_vars->ui8_startup_boost_at_zero = m_eeprom_data.ui8_startup_boost_at_zero;
+	ui_vars->ui8_startup_assist_feature_enabled = m_eeprom_data.ui8_startup_assist_feature_enabled;
+	ui_vars->ui8_smooth_start_enabled = m_eeprom_data.ui8_smooth_start_enabled;
+	ui_vars->ui16_startup_boost_torque_factor = m_eeprom_data.ui16_startup_boost_torque_factor;
+	ui_vars->ui8_startup_boost_cadence_step = m_eeprom_data.ui8_startup_boost_cadence_step;
+	ui_vars->ui8_smooth_start_counter_set = m_eeprom_data.ui8_smooth_start_counter_set;
+	ui_vars->ui8_motor_acceleration_adjustment = m_eeprom_data.ui8_motor_acceleration_adjustment;
+	ui_vars->ui8_motor_deceleration_adjustment = m_eeprom_data.ui8_motor_deceleration_adjustment;
+	ui_vars->ui8_pedal_torque_per_10_bit_ADC_step_x100 = m_eeprom_data.ui8_pedal_torque_per_10_bit_ADC_step_x100;
+	ui_vars->ui8_pedal_torque_per_10_bit_ADC_step_adv_x100 = m_eeprom_data.ui8_pedal_torque_per_10_bit_ADC_step_adv_x100;
+	ui_vars->ui8_adc_pedal_torque_offset_adj = m_eeprom_data.ui8_adc_pedal_torque_offset_adj;
+	ui_vars->ui8_adc_pedal_torque_range_adj = m_eeprom_data.ui8_adc_pedal_torque_range_adj;
+	ui_vars->ui8_adc_pedal_torque_angle_adj_index = m_eeprom_data.ui8_adc_pedal_torque_angle_adj_index;
+	ui_vars->ui16_adc_pedal_torque_offset = m_eeprom_data.ui16_adc_pedal_torque_offset;
+	ui_vars->ui16_adc_pedal_torque_max = m_eeprom_data.ui16_adc_pedal_torque_max;
+	ui_vars->ui8_weight_on_pedal = m_eeprom_data.ui8_weight_on_pedal;
+	ui_vars->ui16_adc_pedal_torque_with_weight = m_eeprom_data.ui16_adc_pedal_torque_with_weight;
 	//old
 	ui_vars->ui8_assist_level = m_eeprom_data.ui8_assist_level;
 	ui_vars->ui16_wheel_perimeter = m_eeprom_data.ui16_wheel_perimeter;
@@ -598,8 +632,8 @@ void eeprom_init_variables(void) {
       m_eeprom_data.ui8_pedal_cadence_fast_stop;
   ui_vars->ui8_coast_brake_adc =
       m_eeprom_data.ui8_coast_brake_adc;
-  ui_vars->ui8_adc_lights_current_offset =
-      m_eeprom_data.ui8_adc_lights_current_offset;
+  ui_vars->ui8_lights_configuration =
+      m_eeprom_data.ui8_lights_configuration;
   ui_vars->ui8_throttle_virtual_step =
       m_eeprom_data.ui8_throttle_virtual_step;
   ui_vars->ui8_torque_sensor_filter =
@@ -649,6 +683,23 @@ void eeprom_write_variables(void) {
 	m_eeprom_data.ui8_throttle_feature_enabled = ui_vars->ui8_throttle_feature_enabled;
 	m_eeprom_data.ui8_cruise_feature_enabled = ui_vars->ui8_cruise_feature_enabled;
 	m_eeprom_data.ui8_street_mode_cruise_enabled = ui_vars->ui8_street_mode_cruise_enabled;
+	m_eeprom_data.ui8_startup_boost_at_zero = ui_vars->ui8_startup_boost_at_zero;
+	m_eeprom_data.ui8_startup_assist_feature_enabled = ui_vars->ui8_startup_assist_feature_enabled;
+	m_eeprom_data.ui8_smooth_start_enabled = ui_vars->ui8_smooth_start_enabled;
+	m_eeprom_data.ui16_startup_boost_torque_factor = ui_vars->ui16_startup_boost_torque_factor;
+	m_eeprom_data.ui8_startup_boost_cadence_step = ui_vars->ui8_startup_boost_cadence_step;
+	m_eeprom_data.ui8_smooth_start_counter_set = ui_vars->ui8_smooth_start_counter_set;
+	m_eeprom_data.ui8_motor_acceleration_adjustment = ui_vars->ui8_motor_acceleration_adjustment;
+	m_eeprom_data.ui8_motor_deceleration_adjustment = ui_vars->ui8_motor_deceleration_adjustment;
+	m_eeprom_data.ui8_pedal_torque_per_10_bit_ADC_step_x100 = ui_vars->ui8_pedal_torque_per_10_bit_ADC_step_x100;
+	m_eeprom_data.ui8_pedal_torque_per_10_bit_ADC_step_adv_x100 = ui_vars->ui8_pedal_torque_per_10_bit_ADC_step_adv_x100;
+	m_eeprom_data.ui8_adc_pedal_torque_offset_adj = ui_vars->ui8_adc_pedal_torque_offset_adj;
+	m_eeprom_data.ui8_adc_pedal_torque_range_adj = ui_vars->ui8_adc_pedal_torque_range_adj;
+	m_eeprom_data.ui8_adc_pedal_torque_angle_adj_index = ui_vars->ui8_adc_pedal_torque_angle_adj_index;
+	m_eeprom_data.ui16_adc_pedal_torque_offset = ui_vars->ui16_adc_pedal_torque_offset;
+	m_eeprom_data.ui16_adc_pedal_torque_max = ui_vars->ui16_adc_pedal_torque_max;
+	m_eeprom_data.ui8_weight_on_pedal = ui_vars->ui8_weight_on_pedal;
+	m_eeprom_data.ui16_adc_pedal_torque_with_weight = ui_vars->ui16_adc_pedal_torque_with_weight;
 	//old
 	m_eeprom_data.ui8_assist_level = ui_vars->ui8_assist_level;
 	m_eeprom_data.ui16_wheel_perimeter = ui_vars->ui16_wheel_perimeter;
@@ -826,8 +877,8 @@ void eeprom_write_variables(void) {
       ui_vars->ui8_pedal_cadence_fast_stop;
   m_eeprom_data.ui8_coast_brake_adc =
       ui_vars->ui8_coast_brake_adc;
-  m_eeprom_data.ui8_adc_lights_current_offset =
-      ui_vars->ui8_adc_lights_current_offset;
+  m_eeprom_data.ui8_lights_configuration =
+      ui_vars->ui8_lights_configuration;
   m_eeprom_data.ui8_throttle_virtual_step =
       ui_vars->ui8_throttle_virtual_step;
   m_eeprom_data.ui8_torque_sensor_filter =
