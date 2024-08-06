@@ -13,6 +13,7 @@
 #include "rtc.h"
 #include "uart.h"
 #include "eeprom.h"
+#include "eeprom_internal.h"
 #include "buttons.h"
 #include "state.h"
 #include "adc.h"
@@ -1010,7 +1011,7 @@ void copy_rt_to_ui_vars(void) {
 	rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui8_target_max_battery_power_div25;
 	rt_vars.ui16_battery_low_voltage_cut_off_x10 =
 			ui_vars.ui16_battery_low_voltage_cut_off_x10;
-	rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
+	//rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
 	rt_vars.ui8_wheel_max_speed = ui_vars.wheel_max_speed_x10 / 10;
 	rt_vars.ui8_motor_type = ui_vars.ui8_motor_type;
 	rt_vars.ui8_motor_current_control_mode = ui_vars.ui8_motor_current_control_mode;
@@ -1062,9 +1063,9 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
-  rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
-  rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
-  rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
+  //rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
+  //rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
+  //rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
   rt_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_street_mode_cruise_enabled;
   rt_vars.ui8_startup_boost_at_zero = ui_vars.ui8_startup_boost_at_zero;
   rt_vars.ui8_startup_assist_feature_enabled = ui_vars.ui8_startup_assist_feature_enabled;
@@ -1114,6 +1115,34 @@ void copy_rt_to_ui_vars(void) {
 	rt_vars.ui8_adc_pedal_torque_offset_adj = ui_vars.ui8_adc_pedal_torque_offset_adj;
   }
   ui_vars.ui8_pedal_torque_ADC_step_calc_x100 = rt_vars.ui8_pedal_torque_ADC_step_calc_x100;
+  // verify password
+	if(ui_vars.ui8_password_changed) {
+		ui_vars.ui8_password_enabled = 1;
+	}
+
+	if(((ui_vars.ui8_confirm_password)&&(ui_vars.ui8_password_confirmed))
+	  ||((!ui_vars.ui8_password_enabled)&&(!ui_vars.ui8_password_changed))) {
+		//rt_vars.ui8_wheel_max_speed = ui_vars.ui8_wheel_max_speed;
+		rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
+		//rt_vars.ui16_motor_power_limit = ui_vars.ui16_motor_power_limit;
+		rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
+		rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
+		rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
+
+		if(ui_vars.ui8_throttle_feature_enabled < ui_vars.ui8_street_mode_throttle_enabled)
+			ui_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_throttle_feature_enabled;
+		if(ui_vars.ui8_cruise_feature_enabled < ui_vars.ui8_street_mode_cruise_enabled)
+			ui_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_cruise_feature_enabled;
+
+	}
+	else {
+		//ui_vars.ui8_wheel_max_speed = rt_vars.ui8_wheel_max_speed;
+		ui_vars.ui16_wheel_perimeter = rt_vars.ui16_wheel_perimeter;
+		//ui_vars.ui16_motor_power_limit = rt_vars.ui16_motor_power_limit;
+		ui_vars.ui8_assist_whit_error_enabled = rt_vars.ui8_assist_whit_error_enabled;
+		ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled;
+		ui_vars.ui8_cruise_feature_enabled = rt_vars.ui8_cruise_feature_enabled;
+	}
 }
 
 /// must be called from main() idle loop
@@ -1275,7 +1304,7 @@ void rt_processing(void)
   // montor init processing must be done when exiting the configurations menu
   // once motor is initialized, this should take almost no processing time
   motor_init();
-
+  password_check();
   /************************************************************************************************/
   // now do all the calculations that must be done every 100ms
   rt_low_pass_filter_battery_voltage_current_power();
@@ -1534,3 +1563,87 @@ void batteryResistance(void) {
   }
 
 }
+
+void password_check(void) {
+	// password check
+	if(ui_vars.ui8_password_enabled) {
+		switch (ui_vars.ui8_confirm_password) {
+			case LOGOUT:
+				if((ui_vars.ui8_wait_confirm_password)
+				  ||(ui_vars.ui8_password_first_time)
+				  ||(ui_vars.ui8_password_confirmed)) {
+					ui_vars.ui8_wait_confirm_password = 0;
+					ui_vars.ui8_password_first_time = 0;
+					ui_vars.ui8_password_confirmed = 0;
+					ui_vars.ui16_entered_password = 0;
+				}
+
+				if(ui_vars.ui16_entered_password) {
+					ui_vars.ui8_confirm_password = WAIT;
+
+				}
+				break;
+
+			case LOGIN:
+				if((ui_vars.ui16_entered_password == ui_vars.ui16_saved_password)
+				  &&(ui_vars.ui8_password_changed)) {
+					ui_vars.ui8_password_confirmed = 1;
+					ui_vars.ui8_wait_confirm_password = 0;
+				}
+				else if((ui_vars.ui16_entered_password == DEFAULT_VALUE_PASSWORD)
+				  &&(!ui_vars.ui8_password_changed)) {
+					ui_vars.ui8_password_first_time = 1;
+					ui_vars.ui8_wait_confirm_password = 0;
+				}
+				else if((ui_vars.ui16_entered_password != ui_vars.ui16_saved_password)
+				  &&((ui_vars.ui8_password_first_time)||(ui_vars.ui8_password_confirmed))
+				  &&(!ui_vars.ui8_wait_confirm_password)) {
+					ui_vars.ui8_confirm_password = WAIT;
+				}
+				else if((ui_vars.ui16_entered_password != ui_vars.ui16_saved_password)
+				  &&(ui_vars.ui8_wait_confirm_password)) {
+					ui_vars.ui8_confirm_password = LOGOUT;
+				}
+				else {
+					ui_vars.ui8_confirm_password = LOGOUT;
+				}
+				break;
+
+			case WAIT:
+					ui_vars.ui8_wait_confirm_password = 1;
+				break;
+
+			case CHANGE:
+				if((ui_vars.ui16_entered_password != DEFAULT_VALUE_PASSWORD)
+				  &&((ui_vars.ui8_password_first_time)||(ui_vars.ui8_password_confirmed))) {
+					ui_vars.ui16_saved_password = ui_vars.ui16_entered_password;
+					ui_vars.ui8_confirm_password = LOGIN;
+					ui_vars.ui8_wait_confirm_password = 0;
+					ui_vars.ui8_password_first_time = 0;
+					ui_vars.ui8_password_confirmed = 1;
+					ui_vars.ui8_password_changed = 1;
+				}
+				else {
+					ui_vars.ui8_confirm_password = LOGOUT;
+				}
+				break;
+
+			default:
+				break;
+		}
+	}
+	else {
+		ui_vars.ui16_entered_password = 0;
+		ui_vars.ui8_confirm_password = LOGOUT;
+	}
+
+	// password reset, turn off the display within 10 seconds and reflashing firmware
+	//if(ui_vars.ui8_reset_password) {
+	//	if(--ui8_reset_password_counter == 0)
+	//		ui_vars.ui8_reset_password = 0;
+	//}
+	//else {
+	//	ui8_reset_password_counter = 100;
+	//}
+}
+

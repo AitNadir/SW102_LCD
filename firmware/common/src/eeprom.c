@@ -44,6 +44,9 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui16_adc_pedal_torque_max = DEFAULT_VALUE_TORQUE_MAX,
   .ui8_weight_on_pedal = DEFAULT_VALUE_WEIGHT_ON_PEDAL,
   .ui16_adc_pedal_torque_with_weight = DEFAULT_VALUE_TORQUE_ADC_ON_WEIGHT,
+  .ui8_password_enabled = DEFAULT_VALUE_PASSWORD_ENABLED,
+  .ui16_entered_password = DEFAULT_VALUE_PASSWORD,
+  .ui8_confirm_password = DEFAULT_VALUE_PASSWORD_CHANGED,
   //old variables
   .ui8_assist_level = DEFAULT_VALUE_ASSIST_LEVEL,
   .ui16_wheel_perimeter = DEFAULT_VALUE_WHEEL_PERIMETER,
@@ -387,6 +390,9 @@ void eeprom_init_variables(void) {
 	ui_vars->ui16_adc_pedal_torque_max = m_eeprom_data.ui16_adc_pedal_torque_max;
 	ui_vars->ui8_weight_on_pedal = m_eeprom_data.ui8_weight_on_pedal;
 	ui_vars->ui16_adc_pedal_torque_with_weight = m_eeprom_data.ui16_adc_pedal_torque_with_weight;
+  ui_vars->ui8_password_enabled = m_eeprom_data.ui8_password_enabled;
+  ui_vars->ui16_entered_password = m_eeprom_data.ui16_entered_password;
+  ui_vars->ui8_confirm_password = m_eeprom_data.ui8_confirm_password;
 	//old
 	ui_vars->ui8_assist_level = m_eeprom_data.ui8_assist_level;
 	ui_vars->ui16_wheel_perimeter = m_eeprom_data.ui16_wheel_perimeter;
@@ -700,6 +706,9 @@ void eeprom_write_variables(void) {
 	m_eeprom_data.ui16_adc_pedal_torque_max = ui_vars->ui16_adc_pedal_torque_max;
 	m_eeprom_data.ui8_weight_on_pedal = ui_vars->ui8_weight_on_pedal;
 	m_eeprom_data.ui16_adc_pedal_torque_with_weight = ui_vars->ui16_adc_pedal_torque_with_weight;
+	m_eeprom_data.ui8_password_enabled = ui_vars->ui8_password_enabled;
+	m_eeprom_data.ui16_entered_password = ui_vars->ui16_entered_password;
+	m_eeprom_data.ui8_confirm_password = ui_vars->ui8_confirm_password;
 	//old
 	m_eeprom_data.ui8_assist_level = ui_vars->ui8_assist_level;
 	m_eeprom_data.ui16_wheel_perimeter = ui_vars->ui16_wheel_perimeter;

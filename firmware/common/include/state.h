@@ -33,6 +33,12 @@
 #define SPEED_LIMIT_WITHOUT_PEDALING_x10     60
 #define MAX_SPEED_WITHOUT_PEDALING_x10       70
 
+// password
+#define LOGOUT								 0
+#define LOGIN								 1
+#define WAIT								 2
+#define CHANGE								 3
+
 typedef enum {
   MOTOR_INIT_GET_MOTOR_ALIVE,
   MOTOR_INIT_WAIT_MOTOR_ALIVE,
@@ -283,6 +289,15 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_weight_on_pedal;
 	uint16_t ui16_adc_pedal_torque_with_weight;
 	uint8_t ui8_pedal_torque_ADC_step_calc_x100;
+	uint8_t ui8_password_enabled;
+	uint16_t ui16_entered_password;
+	uint16_t ui16_saved_password;
+	uint8_t ui8_wait_confirm_password;
+	uint8_t ui8_password_first_time;
+	uint8_t ui8_password_changed;
+	uint8_t ui8_password_confirmed;
+	uint8_t ui8_confirm_password;
+	uint8_t ui8_reset_password;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
@@ -529,3 +544,5 @@ extern volatile motor_init_status_t ui8_g_motor_init_status;
 #define PEDAL_CADENCE_FILTER_COEFFICIENT   3
 
 void batteryResistance(void);
+
+void password_check(void);

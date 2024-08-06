@@ -32,6 +32,9 @@ static const struct configtree_t cfgroot[] = {
 		{ "Assist with error", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_assist_whit_error_enabled), disable_enable }},
 		{ "Throttle", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_throttle_feature_enabled), (const char*[]){ "disable", "pedaling", "6km/h only", "6km/h & ped", "unconditional", 0 } }},
 		{ "Cruise", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cruise_feature_enabled), (const char*[]){ "disable", "pedaling", "w/o pedaling", 0 } }},
+		{ "Password enable", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_password_enabled), disable_enable }},
+		{ "Password", F_NUMERIC, .numeric = &(const struct cfgnumeric_t){ PTRSIZE(ui_vars.ui16_entered_password), 0, "", 1000, 9999 }},
+		{ "Confirm", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_confirm_password), (const char*[]){ "logout", "login", "wait", "change", 0 } }},
 		{},
 	}}},
 	{ "Battery", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
