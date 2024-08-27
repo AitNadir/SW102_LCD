@@ -20,12 +20,14 @@
 #include "ble_dis.h"
 #include "fds.h"
 #include "state.h"
+#include "eeprom.h"
+#include "ui.h"
 #include "ble_conn_state.h"
 
 // define to enable the serial service
 #define BLE_SERIAL
 // define to able reporting speed and cadence via bluetooth
-//#define BLE_CSC
+#define BLE_CSC
 // define to enable reporting battery SOC via bluetooth
 //#define BLE_BAS
 
@@ -276,8 +278,8 @@ static void csc_init() {
   memset(&cscs_init, 0, sizeof(cscs_init));
 
   cscs_init.evt_handler = NULL;
-  cscs_init.feature     = BLE_CSCS_FEATURE_WHEEL_REV_BIT | BLE_CSCS_FEATURE_CRANK_REV_BIT |
-                          BLE_CSCS_FEATURE_MULTIPLE_SENSORS_BIT;
+  cscs_init.feature     = rt_vars.ui16_wheel_perimeter;//BLE_CSCS_FEATURE_WHEEL_REV_BIT | BLE_CSCS_FEATURE_CRANK_REV_BIT |
+                          //BLE_CSCS_FEATURE_MULTIPLE_SENSORS_BIT;
 
   // Here the sec level for the Cycling Speed and Cadence Service can be changed/increased.
   BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cscs_init.csc_meas_attr_md.cccd_write_perm);   // for the measurement characteristic, only the CCCD write permission can be set by the application, others are mandated by service specification

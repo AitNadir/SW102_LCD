@@ -1053,7 +1053,11 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_street_mode_enabled = ui_vars.ui8_street_mode_enabled;
   rt_vars.ui8_street_mode_speed_limit = ui_vars.ui8_street_mode_speed_limit;
   rt_vars.ui8_street_mode_power_limit_div25 = ui_vars.ui8_street_mode_power_limit_div25;
-  rt_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_street_mode_throttle_enabled;
+
+  if(ui_vars.ui8_street_mode_throttle_enabled){
+    rt_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_street_mode_throttle_enabled + 1;//6km + 1 for motor function recognition
+  }else
+    rt_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_street_mode_throttle_enabled;
 
   rt_vars.ui8_pedal_cadence_fast_stop = ui_vars.ui8_pedal_cadence_fast_stop;
   rt_vars.ui8_coast_brake_adc = ui_vars.ui8_coast_brake_adc;
@@ -1126,7 +1130,10 @@ void copy_rt_to_ui_vars(void) {
 		rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
 		//rt_vars.ui16_motor_power_limit = ui_vars.ui16_motor_power_limit;
 		rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
-		rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
+		if(ui_vars.ui8_throttle_feature_enabled){
+		  rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled + 1;
+		}else
+		  rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
 		rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
 
 		if(ui_vars.ui8_throttle_feature_enabled < ui_vars.ui8_street_mode_throttle_enabled)
@@ -1140,7 +1147,10 @@ void copy_rt_to_ui_vars(void) {
 		ui_vars.ui16_wheel_perimeter = rt_vars.ui16_wheel_perimeter;
 		//ui_vars.ui16_motor_power_limit = rt_vars.ui16_motor_power_limit;
 		ui_vars.ui8_assist_whit_error_enabled = rt_vars.ui8_assist_whit_error_enabled;
-		ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled;
+		if(rt_vars.ui8_throttle_feature_enabled){
+		  ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled - 1;
+		}else
+		  ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled;
 		ui_vars.ui8_cruise_feature_enabled = rt_vars.ui8_cruise_feature_enabled;
 	}
 }

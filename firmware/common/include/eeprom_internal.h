@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x30
-#define EEPROM_VERSION 0x30
+#define EEPROM_MIN_COMPAT_VERSION 0x47
+#define EEPROM_VERSION 0x47
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -225,7 +225,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_TORQUE_MAX                                    300
 #define DEFAULT_VALUE_WEIGHT_ON_PEDAL                               25
 #define DEFAULT_VALUE_TORQUE_ADC_ON_WEIGHT                          250
-#define DEFAULT_VALUE_PASSWORD_ENABLED                              1
+#define DEFAULT_VALUE_PASSWORD_ENABLED                              0
 #define DEFAULT_VALUE_PASSWORD_CHANGED                              0
 //#define DEFAULT_VALUE_RESET_PASSWORD                                0
 #define DEFAULT_VALUE_PASSWORD                                      1000
