@@ -2,6 +2,7 @@
 #include "state.h"
 #include "eeprom.h"
 #include "ui.h"
+#include "uart.h"
 
 extern const struct screen screen_main;
 
@@ -20,7 +21,7 @@ static const char *disable_enable[] = { "disable", "enable", 0 };
 static const char *off_on[] = { "off", "on", 0 };
 static const char *left_right[] = { "left", "right", 0 };
 
-static const struct configtree_t cfgroot[] = {
+static const struct configtree_t cfgroot_tsdz2[] = {
 	{ "Trip memory", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
 		{ "Reset trip A", F_BUTTON, .action = do_reset_trip_a },
 		{ "Reset trip B", F_BUTTON, .action = do_reset_trip_b },
@@ -152,7 +153,20 @@ static const struct configtree_t cfgroot[] = {
 	{}
 };
 
-const struct scroller_config cfg_root = { 20, 58, 18, 0, 128,  cfgroot };
+static const struct configtree_t cfgroot_tsdz8[] = {
+  { "Trip memory", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
+    { "Reset trip A", F_BUTTON, .action = do_reset_trip_a },
+    { "Reset trip B", F_BUTTON, .action = do_reset_trip_b },
+    {},
+  }}},
+  {}
+};
+
+#if is_tsdz2
+  const struct scroller_config cfg_root = { 20, 58, 18, 0, 128,  cfgroot_tsdz2 };
+#else
+  const struct scroller_config cfg_root = { 20, 58, 18, 0, 128,  cfgroot_tsdz8 };
+#endif
 
 static int tmp_rescale = 100;
 bool enumerate_assist_levels(const struct scroller_config *cfg, int index, const struct scroller_item_t **it);
