@@ -28,8 +28,6 @@ extern uint8_t app_uart_get(void);
 #define TSDZ2_CONFIG()                          (motor_state.current_config == &tsdz2_comm_params)
 #define TSDZ8_CONFIG()                          (motor_state.current_config == &tsdz8_comm_params)
 
-uint8_t is_tsdz2 = 1;
-
 /**
  *@breif UART configuration structure
  */
@@ -137,7 +135,6 @@ static void uart_tsdz8_recv_handler(uint8_t byte)
             memcpy(ui8_rx_buffer, ui8_rx, FRAME_MAX_BYTES);
 
             motor_state.type = MOTOR_TSDZ8;
-            is_tsdz2 = 0;
           }
         }
       }
@@ -205,7 +202,6 @@ static void uart_tsdz2_recv_handler(uint8_t byte)
           memcpy(ui8_rx_buffer, ui8_rx, ui8_rx[1] + 2);
 
           motor_state.type = MOTOR_TSDZ2;
-          is_tsdz2 = 1;
         }
       }
     }

@@ -2,7 +2,6 @@
 #include "state.h"
 #include "eeprom.h"
 #include "ui.h"
-#include "uart.h"
 
 extern const struct screen screen_main;
 
@@ -24,7 +23,7 @@ static const char *left_right[] = { "left", "right", 0 };
 static const struct configtree_t cfgroot_tsdz2[] = {
 	{ "Trip memory", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
 		{ "Reset trip A", F_BUTTON, .action = do_reset_trip_a },
-		{ "Reset trip B", F_BUTTON, .action = do_reset_trip_b },
+		//{ "Reset trip B", F_BUTTON, .action = do_reset_trip_b },
 		{},
 	}}},
 	{ "Bike", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
@@ -94,8 +93,8 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 	  { "Control mode", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_motor_current_control_mode), (const char*[]){ "power", "torque", "cadence", "eMTB", "hybrid", 0}}},
 	  {},
 	}}},
-	{ "Assist-old", F_BUTTON, .action = cfg_push_assist_screen },
-	{ "Walk assist", F_BUTTON, .action = cfg_push_walk_assist_screen },
+	//{ "Assist-old", F_BUTTON, .action = cfg_push_assist_screen },
+	//{ "Walk assist", F_BUTTON, .action = cfg_push_walk_assist_screen },
 	{ "Startup power", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
 	  { "Feature", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_startup_motor_power_boost_feature_enabled), disable_enable } },
 	  { "Boost torque factor", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_startup_boost_torque_factor), 0, "%", 1, 500 }},
@@ -156,17 +155,17 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 static const struct configtree_t cfgroot_tsdz8[] = {
   { "Trip memory", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
     { "Reset trip A", F_BUTTON, .action = do_reset_trip_a },
-    { "Reset trip B", F_BUTTON, .action = do_reset_trip_b },
+    //{ "Reset trip B", F_BUTTON, .action = do_reset_trip_b },
     {},
   }}},
   {}
 };
 
-#if is_tsdz2
-  const struct scroller_config cfg_root = { 20, 58, 18, 0, 128,  cfgroot_tsdz2 };
-#else
-  const struct scroller_config cfg_root = { 20, 58, 18, 0, 128,  cfgroot_tsdz8 };
-#endif
+
+const struct scroller_config cfg_rootz2 = { 20, 58, 18, 0, 128,  cfgroot_tsdz2 };
+
+const struct scroller_config cfg_rootz8 = { 20, 58, 18, 0, 128,  cfgroot_tsdz8 };
+
 
 static int tmp_rescale = 100;
 bool enumerate_assist_levels(const struct scroller_config *cfg, int index, const struct scroller_item_t **it);

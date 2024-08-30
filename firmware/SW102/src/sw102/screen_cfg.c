@@ -4,6 +4,7 @@
 #include "state.h"
 #include "buttons.h"
 #include "eeprom.h"
+#include "uart.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -264,11 +265,15 @@ static void cfg_edit_push(const struct configtree_t *it, const struct scroller_c
 	cfg_edit_push_class(it, cfg, &cfg_edit_class);
 }
 
-extern const struct scroller_config cfg_root;
+extern const struct scroller_config cfg_rootz2;
+extern const struct scroller_config cfg_rootz8;
 static void cfg_enter()
 {
 	sstack_reset();
-	cfg_list_push(&cfg_root);
+	if(uart_get_motor_type() == MOTOR_TSDZ8){
+	  cfg_list_push(&cfg_rootz8);
+	}else
+	  cfg_list_push(&cfg_rootz2);
 }
 
 static void cfg_idle()
