@@ -443,20 +443,20 @@ void rt_send_tx_package(frame_type_t type) {
       ui8_usart1_tx_buffer[84] = rt_vars.ui8_torque_sensor_adc_threshold;
 
       // calculate pedal torque ADC step for human power
-      //uint16_t ui16_adc_pedal_torque_range_target_max = ADC_TORQUE_SENSOR_RANGE_TARGET_MIN
-            //* (100 + rt_vars.ui8_adc_pedal_torque_range_adj) / 100;
+      uint16_t ui16_adc_pedal_torque_range_target_max = ADC_TORQUE_SENSOR_RANGE_TARGET_MIN
+            * (100 + rt_vars.ui8_adc_pedal_torque_range_adj) / 100;
 
-      //uint16_t ui16_adc_pedal_torque_delta_with_weight = (((((ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT * ADC_TORQUE_SENSOR_RANGE_TARGET_MIN) / ADC_TORQUE_SENSOR_RANGE_TARGET)
-            //* (100 + rt_vars.ui8_adc_pedal_torque_range_adj) / 100)
-            //* (ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT - ui8_adc_torque_calibration_offset + rt_vars.ui8_adc_pedal_torque_offset_adj
-            //- ((((ui8_adc_torque_middle_offset_adj * 2) - ui8_adc_torque_calibration_offset - rt_vars.ui8_adc_pedal_torque_offset_adj) * ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT)
-           // / ADC_TORQUE_SENSOR_RANGE_TARGET))) / ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT);
+      uint16_t ui16_adc_pedal_torque_delta_with_weight = (((((ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT * ADC_TORQUE_SENSOR_RANGE_TARGET_MIN) / ADC_TORQUE_SENSOR_RANGE_TARGET)
+            * (100 + rt_vars.ui8_adc_pedal_torque_range_adj) / 100)
+            * (ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT - ui8_adc_torque_calibration_offset + rt_vars.ui8_adc_pedal_torque_offset_adj
+            - ((((ui8_adc_torque_middle_offset_adj * 2) - ui8_adc_torque_calibration_offset - rt_vars.ui8_adc_pedal_torque_offset_adj) * ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT)
+            / ADC_TORQUE_SENSOR_RANGE_TARGET))) / ADC_TORQUE_SENSOR_TARGET_WITH_WEIGHT);
 
-      //ui8_pedal_torque_ADC_step_adv_calc_x100 = (uint8_t)((uint16_t)(((WEIGHT_ON_PEDAL_FOR_STEP_CALIBRATION * 167)
-            /// ((ui16_adc_pedal_torque_delta_with_weight * ui16_adc_pedal_torque_range_target_max)
-           // / (ui16_adc_pedal_torque_range_target_max - (((ui16_adc_pedal_torque_range_target_max - ui16_adc_pedal_torque_delta_with_weight) * 10)
-            /// ui8_adc_pedal_torque_angle_adj_array[rt_vars.ui8_adc_pedal_torque_angle_adj_index])))
-            //* rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_adv_x100) / PEDAL_TORQUE_PER_10_BIT_ADC_STEP_BASE_X100)) + 1;
+      ui8_pedal_torque_ADC_step_adv_calc_x100 = (uint8_t)((uint16_t)(((WEIGHT_ON_PEDAL_FOR_STEP_CALIBRATION * 167)
+            / ((ui16_adc_pedal_torque_delta_with_weight * ui16_adc_pedal_torque_range_target_max)
+            / (ui16_adc_pedal_torque_range_target_max - (((ui16_adc_pedal_torque_range_target_max - ui16_adc_pedal_torque_delta_with_weight) * 10)
+            / ui8_adc_pedal_torque_angle_adj_array[rt_vars.ui8_adc_pedal_torque_angle_adj_index])))
+            * rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_adv_x100) / PEDAL_TORQUE_PER_10_BIT_ADC_STEP_BASE_X100)) + 1;
 
       crc_len = 86;
       ui8_usart1_tx_buffer[1] = crc_len;
@@ -1257,8 +1257,7 @@ void communications(void) {
               }
 
               rt_vars.ui16_adc_pedal_torque_sensor = ((uint16_t) p_rx_buffer[11]) | (((uint16_t) (p_rx_buffer[7] & 0xC0)) << 2);
-              rt_vars.ui8_pedal_weight_with_offset = p_rx_buffer[12];
-              rt_vars.ui8_pedal_weight = p_rx_buffer[13];
+              rt_vars.ui16_adc_pedal_torque_delta = ((uint16_t) p_rx_buffer[12]) | ((uint16_t) p_rx_buffer[13] << 8);
 
               rt_vars.ui8_pedal_cadence = p_rx_buffer[14];
 
@@ -1274,7 +1273,14 @@ void communications(void) {
                   (((uint32_t) p_rx_buffer[22]) << 8) | (((uint32_t) p_rx_buffer[23]) << 16);
               rt_vars.ui32_wheel_speed_sensor_tick_counter = ui32_wheel_speed_sensor_tick_temp;
 
-              rt_vars.ui16_pedal_power_x10 = ((uint16_t) p_rx_buffer[24]) | ((uint16_t) p_rx_buffer[25] << 8);
+              if(rt_vars.ui8_torque_sensor_calibration_feature_enabled) {
+                rt_vars.ui16_pedal_power_x10 = (rt_vars.ui16_adc_pedal_torque_delta * ui8_pedal_torque_ADC_step_adv_calc_x100 * rt_vars.ui8_pedal_cadence) / 96;
+              }
+              else {
+                rt_vars.ui16_pedal_power_x10 = (rt_vars.ui16_adc_pedal_torque_delta * rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100 * rt_vars.ui8_pedal_cadence) / 96;
+              }
+
+              rt_vars.ui16_adc_pedal_torque_delta_boost = ((uint16_t) p_rx_buffer[24]) | ((uint16_t) p_rx_buffer[25] << 8);
 
               ui16_temp = (uint16_t) p_rx_buffer[26];
               rt_vars.ui16_adc_battery_current = ui16_temp | ((uint16_t) ((p_rx_buffer[7] & 0x18) << 5));
