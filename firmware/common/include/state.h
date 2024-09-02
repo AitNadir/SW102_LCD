@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define ASSIST_LEVEL_NUMBER 20
 
 // Torque sensor calibration from main.h v20.1C.4 TSDZ2-OSF
 #define ADC_TORQUE_SENSOR_CALIBRATION_OFFSET    	6
@@ -38,6 +37,15 @@
 #define LOGIN								 1
 #define WAIT								 2
 #define CHANGE								 3
+
+// assist level number
+#define ASSIST_LEVEL_NUMBER         5
+
+// Riding mode
+#define POWER_MODE                          0
+#define TORQUE_MODE                         1
+#define CADENCE_MODE                        2
+#define eMTB_MODE                           3
 
 typedef enum {
   MOTOR_INIT_GET_MOTOR_ALIVE,
@@ -133,6 +141,7 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_weight_on_pedal;
 	uint16_t ui16_adc_pedal_torque_with_weight;
 	uint8_t ui8_pedal_torque_ADC_step_calc_x100;
+	uint8_t ui8_assist_level_factor[4][ASSIST_LEVEL_NUMBER];
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
@@ -298,6 +307,7 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_password_confirmed;
 	uint8_t ui8_confirm_password;
 	uint8_t ui8_reset_password;
+	uint8_t ui8_assist_level_factor[4][ASSIST_LEVEL_NUMBER];
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;

@@ -184,11 +184,7 @@ void rt_send_tx_package(frame_type_t type) {
   uint8_t crc_len = 3; // minimum is 3
   uint8_t *ui8_usart1_tx_buffer = uart_get_tx_buffer();
   uint8_t ui8_temp;
-  const uint8_t assist_level_factor[4][5] = {{25, 50, 75, 100, 130},
-                                             {50, 70, 90, 120, 140},
-                                             {25, 50, 75, 100, 130},
-                                             {40, 70, 100, 130, 160}};
-  const uint8_t assist_level_walk[5] = {25, 25, 30, 30, 35};
+  const uint8_t assist_level_walk[5] = {25, 30, 35, 40, 50};
   /************************************************************************************************/
   // send tx package
   // start up byte
@@ -202,12 +198,12 @@ void rt_send_tx_package(frame_type_t type) {
       if (rt_vars.ui8_assist_level) {
             // control mode
             if(rt_vars.ui8_motor_current_control_mode < 4) // not hybrid mode
-              ui8_temp = assist_level_factor[rt_vars.ui8_motor_current_control_mode][(rt_vars.ui8_assist_level - 1)];
+              ui8_temp = rt_vars.ui8_assist_level_factor[rt_vars.ui8_motor_current_control_mode][(rt_vars.ui8_assist_level - 1)];
             else // hybrid mode
-              ui8_temp = assist_level_factor[0][(rt_vars.ui8_assist_level - 1)];
+              ui8_temp = rt_vars.ui8_assist_level_factor[POWER_MODE][(rt_vars.ui8_assist_level - 1)];
 
             ui8_usart1_tx_buffer[3] = ui8_temp;
-            ui8_usart1_tx_buffer[4] = assist_level_factor[1][(rt_vars.ui8_assist_level - 1)];
+            ui8_usart1_tx_buffer[4] = rt_vars.ui8_assist_level_factor[TORQUE_MODE][(rt_vars.ui8_assist_level - 1)];
 
             // walk assist parameter
             ui8_usart1_tx_buffer[7] = assist_level_walk[(rt_vars.ui8_assist_level - 1)];
@@ -1025,9 +1021,9 @@ void copy_rt_to_ui_vars(void) {
 			ui_vars.ui8_startup_motor_power_boost_limit_power;
 	rt_vars.ui8_startup_motor_power_boost_time =
 			ui_vars.ui8_startup_motor_power_boost_time;
-  for (uint8_t i = 0; i < 9; i++) {
-    rt_vars.ui16_startup_motor_power_boost_factor[i] = ui_vars.ui16_startup_motor_power_boost_factor[i];
-  }
+  //for (uint8_t i = 0; i < 9; i++) {
+  //  rt_vars.ui16_startup_motor_power_boost_factor[i] = ui_vars.ui16_startup_motor_power_boost_factor[i];
+  //}
 	rt_vars.ui8_startup_motor_power_boost_fade_time =
 			ui_vars.ui8_startup_motor_power_boost_fade_time;
 	rt_vars.ui8_startup_motor_power_boost_feature_enabled =
@@ -1067,6 +1063,12 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
+  for (uint8_t i = 0; i < ASSIST_LEVEL_NUMBER; i++) {
+      rt_vars.ui8_assist_level_factor[POWER_MODE][i] = ui_vars.ui8_assist_level_factor[POWER_MODE][i];
+      rt_vars.ui8_assist_level_factor[TORQUE_MODE][i] = ui_vars.ui8_assist_level_factor[TORQUE_MODE][i];
+      rt_vars.ui8_assist_level_factor[CADENCE_MODE][i] = ui_vars.ui8_assist_level_factor[CADENCE_MODE][i];
+      rt_vars.ui8_assist_level_factor[eMTB_MODE][i] = ui_vars.ui8_assist_level_factor[eMTB_MODE][i];
+    }
   //rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
   //rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
   //rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
@@ -1585,10 +1587,10 @@ void password_check(void) {
 					ui_vars.ui8_wait_confirm_password = 0;
 					ui_vars.ui8_password_first_time = 0;
 					ui_vars.ui8_password_confirmed = 0;
-					ui_vars.ui16_entered_password = 0;
+					ui_vars.ui16_entered_password = 999;
 				}
 
-				if(ui_vars.ui16_entered_password) {
+				if(ui_vars.ui16_entered_password > 999) {
 					ui_vars.ui8_confirm_password = WAIT;
 
 				}
@@ -1643,7 +1645,7 @@ void password_check(void) {
 		}
 	}
 	else {
-		ui_vars.ui16_entered_password = 0;
+		ui_vars.ui16_entered_password = 999;
 		ui_vars.ui8_confirm_password = LOGOUT;
 	}
 

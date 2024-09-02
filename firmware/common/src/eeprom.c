@@ -47,6 +47,32 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui8_password_enabled = DEFAULT_VALUE_PASSWORD_ENABLED,
   .ui16_entered_password = DEFAULT_VALUE_PASSWORD,
   .ui8_confirm_password = DEFAULT_VALUE_PASSWORD_CHANGED,
+  .ui8_assist_level_factor = {
+    {
+  	DEFAULT_VALUE_POWER_ASSIST_LEVEL_1,
+  	DEFAULT_VALUE_POWER_ASSIST_LEVEL_2,
+  	DEFAULT_VALUE_POWER_ASSIST_LEVEL_3,
+  	DEFAULT_VALUE_POWER_ASSIST_LEVEL_4,
+  	DEFAULT_VALUE_POWER_ASSIST_LEVEL_5,
+    }, {
+  	DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_1,
+  	DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_2,
+  	DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_3,
+  	DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_4,
+  	DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_5,
+    }, {
+  	DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_1,
+  	DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_2,
+  	DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_3,
+  	DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_4,
+  	DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_5,
+    }, {
+  	DEFAULT_VALUE_EMTB_ASSIST_LEVEL_1,
+  	DEFAULT_VALUE_EMTB_ASSIST_LEVEL_2,
+  	DEFAULT_VALUE_EMTB_ASSIST_LEVEL_3,
+  	DEFAULT_VALUE_EMTB_ASSIST_LEVEL_4,
+  	DEFAULT_VALUE_EMTB_ASSIST_LEVEL_5,
+    } },
   //old variables
   .ui8_assist_level = DEFAULT_VALUE_ASSIST_LEVEL,
   .ui16_wheel_perimeter = DEFAULT_VALUE_WHEEL_PERIMETER,
@@ -393,6 +419,12 @@ void eeprom_init_variables(void) {
   ui_vars->ui8_password_enabled = m_eeprom_data.ui8_password_enabled;
   ui_vars->ui16_entered_password = m_eeprom_data.ui16_entered_password;
   ui_vars->ui8_confirm_password = m_eeprom_data.ui8_confirm_password;
+  for (uint8_t i = 0; i < ASSIST_LEVEL_NUMBER; i++) {
+    ui_vars->ui8_assist_level_factor[POWER_MODE][i] = m_eeprom_data.ui8_assist_level_factor[POWER_MODE][i];
+    ui_vars->ui8_assist_level_factor[TORQUE_MODE][i] = m_eeprom_data.ui8_assist_level_factor[TORQUE_MODE][i];
+    ui_vars->ui8_assist_level_factor[CADENCE_MODE][i] = m_eeprom_data.ui8_assist_level_factor[CADENCE_MODE][i];
+    ui_vars->ui8_assist_level_factor[eMTB_MODE][i] = m_eeprom_data.ui8_assist_level_factor[eMTB_MODE][i];
+  }
 	//old
 	ui_vars->ui8_assist_level = m_eeprom_data.ui8_assist_level;
 	ui_vars->ui16_wheel_perimeter = m_eeprom_data.ui16_wheel_perimeter;
@@ -709,6 +741,12 @@ void eeprom_write_variables(void) {
 	m_eeprom_data.ui8_password_enabled = ui_vars->ui8_password_enabled;
 	m_eeprom_data.ui16_entered_password = ui_vars->ui16_entered_password;
 	m_eeprom_data.ui8_confirm_password = ui_vars->ui8_confirm_password;
+	for (uint8_t i = 0; i < ASSIST_LEVEL_NUMBER; i++) {
+	    m_eeprom_data.ui8_assist_level_factor[POWER_MODE][i] = ui_vars->ui8_assist_level_factor[POWER_MODE][i];
+	    m_eeprom_data.ui8_assist_level_factor[TORQUE_MODE][i] = ui_vars->ui8_assist_level_factor[TORQUE_MODE][i];
+	    m_eeprom_data.ui8_assist_level_factor[CADENCE_MODE][i] = ui_vars->ui8_assist_level_factor[CADENCE_MODE][i];
+	    m_eeprom_data.ui8_assist_level_factor[eMTB_MODE][i] = ui_vars->ui8_assist_level_factor[eMTB_MODE][i];
+	  }
 	//old
 	m_eeprom_data.ui8_assist_level = ui_vars->ui8_assist_level;
 	m_eeprom_data.ui16_wheel_perimeter = ui_vars->ui16_wheel_perimeter;

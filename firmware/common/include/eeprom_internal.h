@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x52
-#define EEPROM_VERSION 0x52
+#define EEPROM_MIN_COMPAT_VERSION 0x53
+#define EEPROM_VERSION 0x53
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -50,6 +50,7 @@ typedef struct eeprom_data {
   uint8_t ui8_password_enabled;
   uint16_t ui16_entered_password;
   uint8_t ui8_confirm_password;
+  uint8_t ui8_assist_level_factor[4][ASSIST_LEVEL_NUMBER];
 	//old variables
 	uint8_t ui8_assist_level;
 	uint16_t ui16_wheel_perimeter;
@@ -69,12 +70,12 @@ typedef struct eeprom_data {
 	uint8_t ui8_motor_type;
 	uint8_t ui8_motor_current_control_mode;
 	uint8_t ui8_motor_assistance_startup_without_pedal_rotation;
-	uint16_t ui16_assist_level_factor[ASSIST_LEVEL_NUMBER];
+	uint16_t ui16_assist_level_factor[20];
 	uint8_t ui8_number_of_assist_levels;
 	uint8_t ui8_startup_motor_power_boost_feature_enabled;
 	uint8_t ui8_startup_motor_power_boost_always;
 	uint8_t ui8_startup_motor_power_boost_limit_power;
-	uint16_t ui16_startup_motor_power_boost_factor[ASSIST_LEVEL_NUMBER];
+	uint16_t ui16_startup_motor_power_boost_factor[20];
 	uint8_t ui8_startup_motor_power_boost_time;
 	uint8_t ui8_startup_motor_power_boost_fade_time;
 	uint8_t ui8_temperature_limit_feature_enabled;
@@ -92,7 +93,7 @@ typedef struct eeprom_data {
 	uint8_t ui8_offroad_power_limit_div25;
 	uint32_t ui32_odometer_x10;
 	uint8_t ui8_walk_assist_feature_enabled;
-	uint8_t ui8_walk_assist_level_factor[ASSIST_LEVEL_NUMBER];
+	uint8_t ui8_walk_assist_level_factor[20];
 
 	uint8_t ui8_battery_soc_increment_decrement;
 	uint8_t ui8_buttons_up_down_invert;
@@ -229,6 +230,38 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_PASSWORD_CHANGED                              0
 //#define DEFAULT_VALUE_RESET_PASSWORD                                0
 #define DEFAULT_VALUE_PASSWORD                                      1000
+
+// default value for power assist
+#define DEFAULT_VALUE_POWER_ASSIST_LEVEL_1                          25  // MAX 254
+#define DEFAULT_VALUE_POWER_ASSIST_LEVEL_2                          75
+#define DEFAULT_VALUE_POWER_ASSIST_LEVEL_3                          130
+#define DEFAULT_VALUE_POWER_ASSIST_LEVEL_4                          190
+#define DEFAULT_VALUE_POWER_ASSIST_LEVEL_5                          250
+
+
+// default value for torque assist
+#define DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_1                         50  // MAX 254
+#define DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_2                         90
+#define DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_3                         140
+#define DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_4                         190
+#define DEFAULT_VALUE_TORQUE_ASSIST_LEVEL_5                         250
+
+
+// default value for cadence assist
+#define DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_1                        100 // MAX 254
+#define DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_2                        130
+#define DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_3                        160
+#define DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_4                        200
+#define DEFAULT_VALUE_CADENCE_ASSIST_LEVEL_5                        250
+
+
+// default value for eMTB assist
+#define DEFAULT_VALUE_EMTB_ASSIST_LEVEL_1                           2 // MAX 18
+#define DEFAULT_VALUE_EMTB_ASSIST_LEVEL_2                           6
+#define DEFAULT_VALUE_EMTB_ASSIST_LEVEL_3                           10
+#define DEFAULT_VALUE_EMTB_ASSIST_LEVEL_4                           14
+#define DEFAULT_VALUE_EMTB_ASSIST_LEVEL_5                           18
+
 //Existing default value
 #define DEFAULT_VALUE_ASSIST_LEVEL                                  0
 #define DEFAULT_VALUE_NUMBER_OF_ASSIST_LEVELS                       20
