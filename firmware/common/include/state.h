@@ -144,6 +144,7 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_assist_level_factor[4][ASSIST_LEVEL_NUMBER];
 	uint16_t ui16_adc_pedal_torque_delta;
 	uint16_t ui16_adc_pedal_torque_delta_boost;
+	uint16_t ui16_energy_consumption_per_distance_x100;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
@@ -312,6 +313,7 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_assist_level_factor[4][ASSIST_LEVEL_NUMBER];
 	uint16_t ui16_adc_pedal_torque_delta;
 	uint16_t ui16_adc_pedal_torque_delta_boost;
+	uint16_t ui16_energy_consumption_per_distance_x100;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;

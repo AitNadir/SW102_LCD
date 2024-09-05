@@ -654,6 +654,7 @@ void rt_calc_wh(void) {
       rt_vars.ui32_wh_x10 = rt_vars.ui32_wh_x10_offset + ui32_temp;
     }
 	}
+	rt_vars.ui16_energy_consumption_per_distance_x100 = ((rt_vars.ui32_wh_x10*10)/(rt_vars.ui32_odometer_x10/10));
 }
 
 void reset_wh(void) {
@@ -1063,6 +1064,7 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
+  ui_vars.ui16_energy_consumption_per_distance_x100 = rt_vars.ui16_energy_consumption_per_distance_x100;
   for (uint8_t i = 0; i < ASSIST_LEVEL_NUMBER; i++) {
       rt_vars.ui8_assist_level_factor[POWER_MODE][i] = ui_vars.ui8_assist_level_factor[POWER_MODE][i];
       rt_vars.ui8_assist_level_factor[TORQUE_MODE][i] = ui_vars.ui8_assist_level_factor[TORQUE_MODE][i];
@@ -1204,6 +1206,7 @@ void communications(void) {
           tick_counter = 0;
         }
         rt_vars.ui32_wheel_speed_sensor_tick_counter = tick_counter;
+        rt_vars.ui8_battery_current_x5 = p_rx_buffer[3];
       }
       else {
         ui8_frame = (frame_type_t) p_rx_buffer[2];

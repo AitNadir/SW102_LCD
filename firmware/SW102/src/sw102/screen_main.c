@@ -76,7 +76,8 @@ enum display_mode_t {
 	ModeTripDistance,
 	ModeTripTime,
 	ModeTripAVS,
-	ModePedalPower,
+	ModePowerConsump,
+//	ModePedalPower,
 	ModeMotorPower,
 	ModeLast,
 } display_mode;
@@ -87,7 +88,8 @@ static struct GraphData * const mode_graph[] = {
 	NULL,
 	NULL,
 	&graph_pedal_power,
-	&graph_motor_power,
+	NULL,
+//	&graph_motor_power,
 };
 
 static void draw_main_speed(ui_vars_t *ui, int y)
@@ -135,10 +137,15 @@ static void draw_2nd_field(ui_vars_t *ui, int y)
 		sprintf(buf, "%d.%01d km/h", m/10, m%10);
 		break;
 
-	case ModePedalPower:
-		m = ui->ui16_pedal_power;
-		sprintf(buf, "%d W", m);
-		break;
+	case ModePowerConsump:
+	  m = ui->ui16_energy_consumption_per_distance_x100;
+	  sprintf(buf, "%d Wh/km", m/100);
+	  break;
+
+//	case ModePedalPower:
+//		m = ui->ui16_pedal_power;
+//		sprintf(buf, "%d W", m);
+//		break;
 
 	case ModeMotorPower:
 		m = ui->ui16_battery_power;
@@ -247,7 +254,7 @@ static void main_idle()
 	if(!(tick&15)){
 		if (ui->ui16_wheel_speed_x10 > 0) {
 			graph_append(&graph_speed, ui->ui16_wheel_speed_x10/3); 	// 0- 76
-			graph_append(&graph_pedal_power, ui->ui16_pedal_power/2);	// 0- 512W
+			//graph_append(&graph_pedal_power, ui->ui16_pedal_power/2);	// 0- 512W
 			graph_append(&graph_motor_power, ui->ui16_battery_power/4);	// 0-1024W
 			graph_append(&graph_cadence, ui->ui8_pedal_cadence_filtered);	// 0-255
 			graph_head=(graph_head+1) % GRAPH_DEPTH;
@@ -266,18 +273,17 @@ static void main_idle()
 
 	draw_assist_indicator(ui);
 
-	if(mode_graph[display_mode]) {
-		draw_main_speed(ui, 28);
-		draw_2nd_field(ui, 65);
-	} else {
+//	if(mode_graph[display_mode]) {
+//	  draw_2nd_field(ui, 65);
+//	  draw_main_speed(ui, 44);
+//	} else {
 		draw_2nd_field(ui, 22);
 		draw_main_speed(ui, 44);
-	}
+//	}
 
 	if(!draw_fault_states(ui)) {
-		struct GraphData *gd = mode_graph[display_mode];
-		if(!gd) 
-			gd = &graph_speed;
+		struct GraphData *gd = &graph_motor_power;
+
 
 		graph_paint(gd, 3, 114, 58, 50, 114-72);
 	}
