@@ -32,6 +32,11 @@ typedef enum {
   FRAME_TYPE_FIRMWARE_VERSION = 4,
 } frame_type_t;
 
+// calculate Wh trip A and B
+uint32_t ui32_wh_x10_reset_trip_a = 0;
+uint32_t ui32_wh_x10_since_power_on = 0;
+//uint32_t ui32_trip_a_wh_km_value_x100 = 0;
+
 static uint8_t ui8_pedal_torque_ADC_step_adv_calc_x100 = 0;
 static uint16_t ui16_adc_pedal_torque_range = 0;
 static uint8_t ui8_adc_torque_calibration_offset = ADC_TORQUE_SENSOR_CALIBRATION_OFFSET;
@@ -654,7 +659,10 @@ void rt_calc_wh(void) {
       rt_vars.ui32_wh_x10 = rt_vars.ui32_wh_x10_offset + ui32_temp;
     }
 	}
-	rt_vars.ui16_energy_consumption_per_distance_x100 = ((rt_vars.ui32_wh_x10*10)/(rt_vars.ui32_odometer_x10/10));
+	// calc trip A Wh
+	ui32_wh_x10_since_power_on = ui32_temp;
+	ui_vars.ui32_wh_x10_trip_a = rt_vars.ui32_wh_x10_trip_a_offset + ui32_temp - ui32_wh_x10_reset_trip_a;
+	rt_vars.ui16_energy_consumption_per_distance_x100 = ((ui_vars.ui32_wh_x10_trip_a * 10000)/(rt_vars.ui32_trip_a_distance_x1000));
 }
 
 void reset_wh(void) {
@@ -818,6 +826,9 @@ static void rt_calc_trips(void) {
     rt_vars.ui32_trip_a_time = 0;
     rt_vars.ui16_trip_a_avg_speed_x10 = 0;
     rt_vars.ui16_trip_a_max_speed_x10 = 0;
+
+    ui_vars.ui32_wh_x10_trip_a_offset = 0;
+    ui32_wh_x10_reset_trip_a = ui32_wh_x10_since_power_on;
   }
 
   if (ui_vars.ui8_trip_b_auto_reset && (current_time - rt_vars.ui32_trip_b_last_update_time >= ui_vars.ui16_trip_b_auto_reset_hours * 3600)) {
@@ -880,6 +891,10 @@ uint8_t rt_first_time_management(void) {
         > ((uint32_t) ui_vars.ui16_battery_voltage_reset_wh_counter_x10
             * 1000)) {
       ui_vars.ui32_wh_x10_offset = 0;
+
+      // reset trip Wh
+      ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
+      ui32_wh_x10_reset_trip_a = 0;
     }
 
     if (ui_vars.ui8_offroad_feature_enabled
@@ -1157,6 +1172,7 @@ void copy_rt_to_ui_vars(void) {
 		  ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled;
 		ui_vars.ui8_cruise_feature_enabled = rt_vars.ui8_cruise_feature_enabled;
 	}
+	rt_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a_offset;
 }
 
 /// must be called from main() idle loop

@@ -73,6 +73,7 @@ const eeprom_data_t m_eeprom_data_defaults = {
   	DEFAULT_VALUE_EMTB_ASSIST_LEVEL_4,
   	DEFAULT_VALUE_EMTB_ASSIST_LEVEL_5,
     } },
+  .ui32_wh_x10_trip_a_offset = DEFAULT_VALUE_WH_X10_TRIP_A_OFFSET,
   //old variables
   .ui8_assist_level = DEFAULT_VALUE_ASSIST_LEVEL,
   .ui16_wheel_perimeter = DEFAULT_VALUE_WHEEL_PERIMETER,
@@ -425,6 +426,7 @@ void eeprom_init_variables(void) {
     ui_vars->ui8_assist_level_factor[CADENCE_MODE][i] = m_eeprom_data.ui8_assist_level_factor[CADENCE_MODE][i];
     ui_vars->ui8_assist_level_factor[eMTB_MODE][i] = m_eeprom_data.ui8_assist_level_factor[eMTB_MODE][i];
   }
+  ui_vars->ui32_wh_x10_trip_a_offset = m_eeprom_data.ui32_wh_x10_trip_a_offset;
 	//old
 	ui_vars->ui8_assist_level = m_eeprom_data.ui8_assist_level;
 	ui_vars->ui16_wheel_perimeter = m_eeprom_data.ui16_wheel_perimeter;
@@ -747,6 +749,7 @@ void eeprom_write_variables(void) {
 	    m_eeprom_data.ui8_assist_level_factor[CADENCE_MODE][i] = ui_vars->ui8_assist_level_factor[CADENCE_MODE][i];
 	    m_eeprom_data.ui8_assist_level_factor[eMTB_MODE][i] = ui_vars->ui8_assist_level_factor[eMTB_MODE][i];
 	  }
+	m_eeprom_data.ui32_wh_x10_trip_a_offset = ui_vars->ui32_wh_x10_trip_a;
 	//old
 	m_eeprom_data.ui8_assist_level = ui_vars->ui8_assist_level;
 	m_eeprom_data.ui16_wheel_perimeter = ui_vars->ui16_wheel_perimeter;

@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x53
-#define EEPROM_VERSION 0x53
+#define EEPROM_MIN_COMPAT_VERSION 0x54
+#define EEPROM_VERSION 0x54
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -51,6 +51,7 @@ typedef struct eeprom_data {
   uint16_t ui16_entered_password;
   uint8_t ui8_confirm_password;
   uint8_t ui8_assist_level_factor[4][ASSIST_LEVEL_NUMBER];
+  uint32_t ui32_wh_x10_trip_a_offset;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint16_t ui16_wheel_perimeter;
@@ -230,7 +231,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_PASSWORD_CHANGED                              0
 //#define DEFAULT_VALUE_RESET_PASSWORD                                0
 #define DEFAULT_VALUE_PASSWORD                                      1000
-
+#define DEFAULT_VALUE_WH_X10_TRIP_A_OFFSET                          0
 // default value for power assist
 #define DEFAULT_VALUE_POWER_ASSIST_LEVEL_1                          25  // MAX 254
 #define DEFAULT_VALUE_POWER_ASSIST_LEVEL_2                          75

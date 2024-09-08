@@ -257,6 +257,8 @@ const struct scroller_config cfg_calibration = { 20, 26, 36, 0, 76, (const struc
 
 static void do_reset_trip_a(const struct configtree_t *ign)
 {
+  ui_vars.ui32_wh_x10_trip_a_offset = 0;
+  ui32_wh_x10_reset_trip_a = ui32_wh_x10_since_power_on;
 	// FIXME is accessing rt_vars safe here?
 	rt_vars.ui32_trip_a_distance_x1000 = 0;
 	rt_vars.ui32_trip_a_time = 0;

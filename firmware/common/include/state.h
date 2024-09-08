@@ -47,6 +47,11 @@
 #define CADENCE_MODE                        2
 #define eMTB_MODE                           3
 
+// for calculate Wh trip A
+extern uint32_t ui32_wh_x10_reset_trip_a;
+extern uint32_t ui32_wh_x10_since_power_on;
+//extern uint32_t ui32_trip_a_wh_km_value_x100;
+
 typedef enum {
   MOTOR_INIT_GET_MOTOR_ALIVE,
   MOTOR_INIT_WAIT_MOTOR_ALIVE,
@@ -145,6 +150,7 @@ typedef struct rt_vars_struct {
 	uint16_t ui16_adc_pedal_torque_delta;
 	uint16_t ui16_adc_pedal_torque_delta_boost;
 	uint16_t ui16_energy_consumption_per_distance_x100;
+	uint32_t ui32_wh_x10_trip_a_offset;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
@@ -314,6 +320,8 @@ typedef struct ui_vars_struct {
 	uint16_t ui16_adc_pedal_torque_delta;
 	uint16_t ui16_adc_pedal_torque_delta_boost;
 	uint16_t ui16_energy_consumption_per_distance_x100;
+	uint32_t ui32_wh_x10_trip_a;
+	uint32_t ui32_wh_x10_trip_a_offset;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
