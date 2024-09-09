@@ -47,10 +47,15 @@
 #define CADENCE_MODE                        2
 #define eMTB_MODE                           3
 
+//for calculate battery voltage tsdz8
+#define BATTERY_LEVEL_STEPx10               50
+#define BATTERY_BASE_VOLTAGEx10             330
+
 // for calculate Wh trip A
 extern uint32_t ui32_wh_x10_reset_trip_a;
 extern uint32_t ui32_wh_x10_since_power_on;
 //extern uint32_t ui32_trip_a_wh_km_value_x100;
+
 
 typedef enum {
   MOTOR_INIT_GET_MOTOR_ALIVE,

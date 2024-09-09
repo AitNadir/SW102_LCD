@@ -37,6 +37,9 @@ uint32_t ui32_wh_x10_reset_trip_a = 0;
 uint32_t ui32_wh_x10_since_power_on = 0;
 //uint32_t ui32_trip_a_wh_km_value_x100 = 0;
 
+//calculate battery voltage tsdz8
+uint8_t ui8_battery_level = 0;
+
 static uint8_t ui8_pedal_torque_ADC_step_adv_calc_x100 = 0;
 static uint16_t ui16_adc_pedal_torque_range = 0;
 static uint8_t ui8_adc_torque_calibration_offset = ADC_TORQUE_SENSOR_CALIBRATION_OFFSET;
@@ -572,6 +575,10 @@ void rt_low_pass_filter_battery_voltage_current_power(void) {
 	rt_vars.ui16_battery_voltage_filtered_x10 =
 			(((uint32_t) (ui32_battery_voltage_accumulated_x10000 >> BATTERY_VOLTAGE_FILTER_COEFFICIENT)) / 1000);
 
+	if(uart_get_motor_type() == MOTOR_TSDZ8){
+	  rt_vars.ui16_battery_voltage_filtered_x10 =
+	      (uint16_t)(ui8_battery_level*10 * BATTERY_LEVEL_STEPx10/100) + BATTERY_BASE_VOLTAGEx10;
+	}
 	// low pass filter battery current
 	ui16_battery_current_accumulated_x5 -= ui16_battery_current_accumulated_x5
 			>> BATTERY_CURRENT_FILTER_COEFFICIENT;
@@ -1217,6 +1224,7 @@ void communications(void) {
 
       if(uart_get_motor_type() == MOTOR_TSDZ8) {
         g_motor_init_state = MOTOR_INIT_READY;
+        ui8_battery_level = (uint8_t)p_rx_buffer[1];
         uint32_t tick_counter = ((uint16_t)p_rx_buffer[7] << 8) | p_rx_buffer[6];
         if (tick_counter >= 1750) {
           tick_counter = 0;
