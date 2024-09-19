@@ -5,6 +5,7 @@
 #include "state.h"
 
 void ble_init(void);
-void send_bluetooth(rt_vars_t *rt_vars);
+void send_bluetooth1(rt_vars_t *rt_vars);
+void send_bluetooth2(rt_vars_t *rt_vars);
 
 #endif /* INCLUDE_BLE_SERVICES_H_ */

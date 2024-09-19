@@ -278,8 +278,8 @@ static void csc_init() {
   memset(&cscs_init, 0, sizeof(cscs_init));
 
   cscs_init.evt_handler = NULL;
-  cscs_init.feature     = rt_vars.ui16_wheel_perimeter;//BLE_CSCS_FEATURE_WHEEL_REV_BIT | BLE_CSCS_FEATURE_CRANK_REV_BIT |
-                          //BLE_CSCS_FEATURE_MULTIPLE_SENSORS_BIT;
+  cscs_init.feature     = BLE_CSCS_FEATURE_WHEEL_REV_BIT | BLE_CSCS_FEATURE_CRANK_REV_BIT |
+                          BLE_CSCS_FEATURE_MULTIPLE_SENSORS_BIT;
 
   // Here the sec level for the Cycling Speed and Cadence Service can be changed/increased.
   BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cscs_init.csc_meas_attr_md.cccd_write_perm);   // for the measurement characteristic, only the CCCD write permission can be set by the application, others are mandated by service specification
@@ -796,14 +796,51 @@ void ble_init(void)
   APP_ERROR_CHECK(ble_advertising_start(BLE_ADV_MODE_FAST));
 }
 
-void send_bluetooth(rt_vars_t *rt_vars) {
+void send_bluetooth1(rt_vars_t *rt_vars) {
  static uint8_t data_array[BLE_NUS_MAX_DATA_LEN]; // 19 bytes max
 
- sprintf(data_array, "%d,%d,%d,%d\n",
-     rt_vars->ui16_adc_pedal_torque_sensor, // torque sensor RAW
-     rt_vars->ui8_adc_throttle, // position
-     rt_vars->ui8_pedal_weight_with_offset, // weight in kgs with offset
-     rt_vars->ui8_pedal_cadence);
+   data_array[0] = 0x01;
+   data_array[1] = rt_vars->ui8_wheel_max_speed + 1;
+   data_array[2] = (uint8_t) (rt_vars->ui16_wheel_perimeter >> 8) + 1;
+   data_array[3] = (uint8_t) (rt_vars->ui16_wheel_perimeter & 0xff) + 1;
+   data_array[4] = rt_vars->ui8_battery_max_current + 1;
+   data_array[5] = (uint8_t) (rt_vars->ui16_battery_low_voltage_cut_off_x10 >> 8) + 1;
+   data_array[6] = (uint8_t) (rt_vars->ui16_battery_low_voltage_cut_off_x10 & 0xff) + 1;
+   data_array[7] = (uint8_t) (rt_vars->ui16_battery_voltage_reset_wh_counter_x10 >> 8) + 1;
+   data_array[8] = (uint8_t) (rt_vars->ui16_battery_voltage_reset_wh_counter_x10 & 0xff) + 1;
+   data_array[9] = (rt_vars->ui8_motor_type|
+                   rt_vars->ui8_field_weakening << 1|
+                   rt_vars->ui8_assist_whit_error_enabled << 2|
+                   rt_vars->ui8_walk_assist_feature_enabled << 3|
+                   rt_vars->ui8_walk_assist << 4|
+                   rt_vars->ui8_street_mode_function_enabled << 5|
+                   rt_vars->ui8_street_mode_enabled << 6) + 1;
+   data_array[10] = rt_vars->ui8_motor_max_current + 1;
+   data_array[11] = rt_vars->ui8_motor_acceleration_adjustment + 1;
+   data_array[12] = rt_vars->ui8_motor_deceleration_adjustment + 1;
+   data_array[13] = rt_vars->ui8_motor_current_control_mode + 1;
 
- ble_nus_string_send(&m_nus, data_array, strlen(data_array));
+     ble_nus_string_send(&m_nus, data_array, strlen(data_array));
+}
+
+void send_bluetooth2(rt_vars_t *rt_vars) {
+ static uint8_t data_array[BLE_NUS_MAX_DATA_LEN]; // 19 bytes max
+
+   data_array[0] = 0x02;
+   data_array[1] = (uint8_t) (rt_vars->ui16_wheel_speed_x10 >> 8) + 1;
+   data_array[2] = (uint8_t) (rt_vars->ui16_wheel_speed_x10 & 0xff) + 1;
+   data_array[3] = (uint8_t) (rt_vars->ui16_pedal_power_x10 >> 8) + 1;
+   data_array[4] = (uint8_t) (rt_vars->ui16_pedal_power_x10 & 0xff) + 1;
+   data_array[5] = (uint8_t) (rt_vars->ui32_trip_a_distance_x1000 >> 24) + 1;
+   data_array[6] = (uint8_t) ((rt_vars->ui32_trip_a_distance_x1000 >> 16) & 0xff) + 1;
+   data_array[7] = (uint8_t) ((rt_vars->ui32_trip_a_distance_x1000 >> 8) & 0xff) + 1;
+   data_array[8] = (uint8_t) (rt_vars->ui32_trip_a_distance_x1000 & 0xff) + 1;
+   data_array[9] = rt_vars->ui8_assist_level + 1;
+   data_array[10] = rt_vars->ui8_lights_configuration + 1;
+   data_array[11] = (uint8_t) (rt_vars->ui32_odometer_x10 >> 24) + 1;
+   data_array[12] = (uint8_t) ((rt_vars->ui32_odometer_x10 >> 16) & 0xff) + 1;
+   data_array[13] = (uint8_t) ((rt_vars->ui32_odometer_x10 >> 8) & 0xff) + 1;
+   data_array[14] = (uint8_t) (rt_vars->ui32_odometer_x10 & 0xff) + 1;
+
+     ble_nus_string_send(&m_nus, data_array, strlen(data_array));
 }

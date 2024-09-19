@@ -226,7 +226,7 @@ void rt_send_tx_package(frame_type_t type) {
       ui8_usart1_tx_buffer[8] = rt_vars.ui8_motor_current_control_mode + 1;
 
       uint8_t ui8_walk_assist_state = 0;
-      if ((rt_vars.ui8_assist_level)&&(ui_vars.ui8_walk_assist_feature_enabled))
+      if ((rt_vars.ui8_assist_level)&&(rt_vars.ui8_walk_assist_feature_enabled))
          ui8_walk_assist_state = rt_vars.ui8_walk_assist;
 
       uint8_t ui8_assist_level_state = 0;
@@ -1086,6 +1086,9 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
+  rt_vars.ui16_battery_voltage_reset_wh_counter_x10 = ui_vars.ui16_battery_voltage_reset_wh_counter_x10;
+  rt_vars.ui8_walk_assist_feature_enabled = ui_vars.ui8_walk_assist_feature_enabled;
+  rt_vars.ui8_street_mode_function_enabled = ui_vars.ui8_street_mode_function_enabled;
   ui_vars.ui16_energy_consumption_per_distance_x100 = rt_vars.ui16_energy_consumption_per_distance_x100;
   for (uint8_t i = 0; i < ASSIST_LEVEL_NUMBER; i++) {
       rt_vars.ui8_assist_level_factor[POWER_MODE][i] = ui_vars.ui8_assist_level_factor[POWER_MODE][i];

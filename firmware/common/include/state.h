@@ -156,6 +156,7 @@ typedef struct rt_vars_struct {
 	uint16_t ui16_adc_pedal_torque_delta_boost;
 	uint16_t ui16_energy_consumption_per_distance_x100;
 	uint32_t ui32_wh_x10_trip_a_offset;
+	uint8_t ui8_street_mode_function_enabled;
 	//old variables
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
