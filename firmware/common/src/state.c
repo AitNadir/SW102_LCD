@@ -1027,6 +1027,7 @@ void copy_rt_to_ui_vars(void) {
 	rt_vars.ui8_field_weakening = ui_vars.ui8_field_weakening;
 	rt_vars.ui8_ramp_up_amps_per_second_x10 =
 			ui_vars.ui8_ramp_up_amps_per_second_x10;
+	ui_vars.ui8_target_max_battery_power_div25 = ui_vars.ui16_target_max_battery_power / 25;
 	rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui8_target_max_battery_power_div25;
 	rt_vars.ui16_battery_low_voltage_cut_off_x10 =
 			ui_vars.ui16_battery_low_voltage_cut_off_x10;
@@ -1071,6 +1072,7 @@ void copy_rt_to_ui_vars(void) {
 
   rt_vars.ui8_street_mode_enabled = ui_vars.ui8_street_mode_enabled;
   rt_vars.ui8_street_mode_speed_limit = ui_vars.ui8_street_mode_speed_limit;
+  ui_vars.ui8_street_mode_power_limit_div25 = ui_vars.ui16_street_mode_power_limit / 25;
   rt_vars.ui8_street_mode_power_limit_div25 = ui_vars.ui8_street_mode_power_limit_div25;
 
   if(ui_vars.ui8_street_mode_throttle_enabled){

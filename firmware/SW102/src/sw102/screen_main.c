@@ -114,11 +114,11 @@ static void draw_2nd_field(ui_vars_t *ui, int y)
 		m = ui->ui32_trip_a_distance_x1000;
 		if(m < 1000) // <0m-999m
 			sprintf(buf, "%d m", m);
-		else if(m < 10000) // <1.000km-9.999km
-			sprintf(buf, "%d.%03d km", m/1000, m % 1000);
-		else if(m < 100000) // 10.00km-99.99km
-			sprintf(buf, "%d.%02d km", m/1000, (m/10) % 100);
-		else if(m < 100000) // 100.0km-999.9km
+		//else if(m < 10000) // <1.000km-9.999km
+		//	sprintf(buf, "%d.%03d km", m/1000, m % 1000);
+		//else if(m < 100000) // 10.00km-99.99km
+		//	sprintf(buf, "%d.%02d km", m/1000, (m/10) % 100);
+		else if(m < 1000000) // 100.0km-999.9km
 			sprintf(buf, "%d.%01d km", m/1000, (m/100) % 10);
 		else // 1000km+
 			sprintf(buf, "%d km", m/1000);

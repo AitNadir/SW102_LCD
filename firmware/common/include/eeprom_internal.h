@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x54
-#define EEPROM_VERSION 0x54
+#define EEPROM_MIN_COMPAT_VERSION 0x55
+#define EEPROM_VERSION 0x55
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -61,7 +61,7 @@ typedef struct eeprom_data {
 	uint32_t ui32_wh_x10_100_percent;
 	uint8_t ui8_battery_soc_enable;
 	uint8_t ui8_time_field_enable;
-	uint8_t ui8_target_max_battery_power_div25;
+	uint16_t ui16_target_max_battery_power;
 	uint8_t ui8_battery_max_current;
 	uint8_t ui8_motor_max_current;
   uint8_t ui8_motor_current_min_adc;
@@ -113,7 +113,7 @@ typedef struct eeprom_data {
   uint8_t ui8_street_mode_enabled;
   uint8_t ui8_street_mode_enabled_on_startup;
   uint8_t ui8_street_mode_speed_limit;
-  uint8_t ui8_street_mode_power_limit_div25;
+  uint16_t ui16_street_mode_power_limit;
   uint8_t ui8_street_mode_throttle_enabled;
   uint8_t ui8_street_mode_hotkey_enabled;
 
@@ -277,7 +277,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_MOTOR_MAX_CURRENT                             15 // 15 amps
 #define DEFAULT_VALUE_CURRENT_MIN_ADC                               1 // 1 unit, 0.156 A
 #define DEFAULT_VALUE_RAMP_UP_AMPS_PER_SECOND_X10                   80 // 8.0 amps per second ramp up
-#define DEFAULT_VALUE_TARGET_MAX_BATTERY_POWER                      20 // e.g. 20 = 20 * 25 = 500, 0 is disabled
+#define DEFAULT_VALUE_TARGET_MAX_BATTERY_POWER                      500 // e.g. 20 = 20 * 25 = 500, 0 is disabled
 #define DEFAULT_VALUE_BATTERY_LOW_VOLTAGE_CUT_OFF_X10               300 // 52v battery, LVC = 42.0 (3.0 * 14)
 #define DEFAULT_VALUE_MOTOR_CURRENT_CONTROL_MODE                    0 // 0 power; 1 torque; 2 cadence; 3 eMTB; 4 hybrid
 #define DEFAULT_VALUE_MOTOR_TYPE                                    1 // 1 = 36V
@@ -372,7 +372,7 @@ typedef struct eeprom_data {
 #define DEFAULT_STREET_MODE_ENABLE_AT_STARTUP                       0 // disabled
 #define DEFAULT_STREET_MODE_ENABLE                                  0 // disabled
 #define DEFAULT_STREET_MODE_SPEED_LIMIT                             25 // 25 km/h
-#define DEFAULT_STREET_MODE_POWER_LIMIT                             10 // 250W --> 250 / 25 = 10
+#define DEFAULT_STREET_MODE_POWER_LIMIT                             250 // 250W --> 250 / 25 = 10
 #define DEFAULT_STREET_MODE_THROTTLE_ENABLE                         0 // disabled
 #define DEFAULT_STREET_MODE_HOTKEY_ENABLE                           0 // disabled
 #define DEFAULT_PEDAL_CADENCE_FAST_STOP_ENABLE                      0 // disabled

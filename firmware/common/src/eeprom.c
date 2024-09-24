@@ -84,7 +84,7 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui8_battery_soc_enable = DEAFULT_VALUE_SHOW_NUMERIC_BATTERY_SOC,
   .ui8_time_field_enable = DEAFULT_VALUE_TIME_FIELD,
   .ui8_battery_max_current = DEFAULT_VALUE_BATTERY_MAX_CURRENT,
-  .ui8_target_max_battery_power_div25 = DEFAULT_VALUE_TARGET_MAX_BATTERY_POWER,
+  .ui16_target_max_battery_power = DEFAULT_VALUE_TARGET_MAX_BATTERY_POWER,
   .ui8_motor_max_current = DEFAULT_VALUE_MOTOR_MAX_CURRENT,
   .ui8_motor_current_min_adc = DEFAULT_VALUE_CURRENT_MIN_ADC,
   .ui8_field_weakening = DEFAULT_FIELD_WEAKENING,
@@ -322,7 +322,7 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui8_street_mode_enabled_on_startup = DEFAULT_STREET_MODE_ENABLE_AT_STARTUP,
   .ui8_street_mode_enabled = DEFAULT_STREET_MODE_ENABLE,
   .ui8_street_mode_speed_limit = DEFAULT_STREET_MODE_SPEED_LIMIT,
-  .ui8_street_mode_power_limit_div25 = DEFAULT_STREET_MODE_POWER_LIMIT,
+  .ui16_street_mode_power_limit = DEFAULT_STREET_MODE_POWER_LIMIT,
   .ui8_street_mode_throttle_enabled = DEFAULT_STREET_MODE_THROTTLE_ENABLE,
   .ui8_street_mode_hotkey_enabled = DEFAULT_STREET_MODE_HOTKEY_ENABLE,
   .ui8_pedal_cadence_fast_stop = DEFAULT_PEDAL_CADENCE_FAST_STOP_ENABLE,
@@ -440,8 +440,8 @@ void eeprom_init_variables(void) {
 			m_eeprom_data.ui8_battery_soc_enable;
   ui_vars->ui8_time_field_enable =
       m_eeprom_data.ui8_time_field_enable;
-  ui_vars->ui8_target_max_battery_power_div25 =
-      m_eeprom_data.ui8_target_max_battery_power_div25;
+  ui_vars->ui16_target_max_battery_power =
+      m_eeprom_data.ui16_target_max_battery_power;
 	ui_vars->ui8_battery_max_current =
 			m_eeprom_data.ui8_battery_max_current;
   ui_vars->ui8_motor_max_current =
@@ -661,8 +661,8 @@ void eeprom_init_variables(void) {
       m_eeprom_data.ui8_street_mode_enabled_on_startup;
   ui_vars->ui8_street_mode_speed_limit =
       m_eeprom_data.ui8_street_mode_speed_limit;
-  ui_vars->ui8_street_mode_power_limit_div25 =
-      m_eeprom_data.ui8_street_mode_power_limit_div25;
+  ui_vars->ui16_street_mode_power_limit =
+      m_eeprom_data.ui16_street_mode_power_limit;
   ui_vars->ui8_street_mode_throttle_enabled =
       m_eeprom_data.ui8_street_mode_throttle_enabled;
   ui_vars->ui8_street_mode_hotkey_enabled =
@@ -763,8 +763,8 @@ void eeprom_write_variables(void) {
 			ui_vars->ui8_battery_soc_enable;
   m_eeprom_data.ui8_time_field_enable =
       ui_vars->ui8_time_field_enable;
-  m_eeprom_data.ui8_target_max_battery_power_div25 =
-      ui_vars->ui8_target_max_battery_power_div25;
+  m_eeprom_data.ui16_target_max_battery_power =
+      ui_vars->ui16_target_max_battery_power;
   m_eeprom_data.ui8_battery_max_current =
       ui_vars->ui8_battery_max_current;
   m_eeprom_data.ui8_motor_max_current =
@@ -916,8 +916,8 @@ void eeprom_write_variables(void) {
       ui_vars->ui8_street_mode_enabled_on_startup;
   m_eeprom_data.ui8_street_mode_speed_limit =
       ui_vars->ui8_street_mode_speed_limit;
-  m_eeprom_data.ui8_street_mode_power_limit_div25 =
-      ui_vars->ui8_street_mode_power_limit_div25;
+  m_eeprom_data.ui16_street_mode_power_limit =
+      ui_vars->ui16_street_mode_power_limit;
   m_eeprom_data.ui8_street_mode_throttle_enabled =
       ui_vars->ui8_street_mode_throttle_enabled;
   m_eeprom_data.ui8_street_mode_hotkey_enabled =
