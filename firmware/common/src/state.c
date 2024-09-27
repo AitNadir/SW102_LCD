@@ -690,7 +690,7 @@ static void rt_calc_speed(void) {
   // Convert to meters
   circ_in_m = (float)(rt_vars.ui16_wheel_perimeter) / 1000;
   // Calculate time units
-  rotations = (float)(rt_vars.ui32_wheel_speed_sensor_tick_counter) * 2.04f;
+  rotations = (float)(rt_vars.ui16_time_units) * 2.04f;
 
   if (rotations) {
     // Calculate rotations per second
@@ -1217,6 +1217,9 @@ void communications(void) {
   frame_type_t ui8_frame;
   uint8_t process_frame = 0;
   uint16_t ui16_temp;
+  uint32_t ui32_ms_per_rotation_x100;
+  uint16_t delta_tick_per100ms_x1000;
+  uint16_t ui16_remain;
 
   const uint8_t *p_rx_buffer = uart_get_rx_buffer_rdy();
 
@@ -1234,7 +1237,14 @@ void communications(void) {
         if (tick_counter >= 1750) {
           tick_counter = 0;
         }
-        rt_vars.ui32_wheel_speed_sensor_tick_counter = tick_counter;
+        rt_vars.ui16_time_units = tick_counter;
+        //calculate tick counter for tsdz8
+        ui32_ms_per_rotation_x100 = tick_counter * 204;
+        delta_tick_per100ms_x1000 = (uint16_t)(100 * 100000 / ui32_ms_per_rotation_x100 + ui16_remain);
+        if(delta_tick_per100ms_x1000 >= 1000){
+          rt_vars.ui32_wheel_speed_sensor_tick_counter ++;
+          ui16_remain = delta_tick_per100ms_x1000 - 1000;
+        }
         rt_vars.ui8_battery_current_x5 = p_rx_buffer[3];
       }
       else {
