@@ -1027,12 +1027,11 @@ void copy_rt_to_ui_vars(void) {
 	rt_vars.ui8_field_weakening = ui_vars.ui8_field_weakening;
 	rt_vars.ui8_ramp_up_amps_per_second_x10 =
 			ui_vars.ui8_ramp_up_amps_per_second_x10;
-	ui_vars.ui8_target_max_battery_power_div25 = ui_vars.ui16_target_max_battery_power / 25;
-	rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui8_target_max_battery_power_div25;
+
 	rt_vars.ui16_battery_low_voltage_cut_off_x10 =
 			ui_vars.ui16_battery_low_voltage_cut_off_x10;
 	//rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
-	rt_vars.ui8_wheel_max_speed = ui_vars.wheel_max_speed_x10 / 10;
+
 	rt_vars.ui8_motor_type = ui_vars.ui8_motor_type;
 	rt_vars.ui8_motor_current_control_mode = ui_vars.ui8_motor_current_control_mode;
 	rt_vars.ui8_motor_assistance_startup_without_pedal_rotation =
@@ -1157,9 +1156,9 @@ void copy_rt_to_ui_vars(void) {
 
 	if(((ui_vars.ui8_confirm_password)&&(ui_vars.ui8_password_confirmed))
 	  ||((!ui_vars.ui8_password_enabled)&&(!ui_vars.ui8_password_changed))) {
-		//rt_vars.ui8_wheel_max_speed = ui_vars.ui8_wheel_max_speed;
+	  rt_vars.ui8_wheel_max_speed = ui_vars.wheel_max_speed_x10 / 10;
 		rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
-		//rt_vars.ui16_motor_power_limit = ui_vars.ui16_motor_power_limit;
+		rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui16_target_max_battery_power / 25;
 		rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
 		if(ui_vars.ui8_throttle_feature_enabled){
 		  rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled + 1;
@@ -1174,9 +1173,9 @@ void copy_rt_to_ui_vars(void) {
 
 	}
 	else {
-		//ui_vars.ui8_wheel_max_speed = rt_vars.ui8_wheel_max_speed;
+	  ui_vars.wheel_max_speed_x10 = rt_vars.ui8_wheel_max_speed * 10;
 		ui_vars.ui16_wheel_perimeter = rt_vars.ui16_wheel_perimeter;
-		//ui_vars.ui16_motor_power_limit = rt_vars.ui16_motor_power_limit;
+		ui_vars.ui16_target_max_battery_power = rt_vars.ui8_target_max_battery_power_div25 * 25;
 		ui_vars.ui8_assist_whit_error_enabled = rt_vars.ui8_assist_whit_error_enabled;
 		if(rt_vars.ui8_throttle_feature_enabled){
 		  ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled - 1;
@@ -1219,7 +1218,7 @@ void communications(void) {
   uint16_t ui16_temp;
   uint32_t ui32_ms_per_rotation_x100;
   uint16_t delta_tick_per100ms_x1000;
-  uint16_t ui16_remain;
+  static uint16_t ui16_remain = 0;
 
   const uint8_t *p_rx_buffer = uart_get_rx_buffer_rdy();
 
@@ -1240,10 +1239,11 @@ void communications(void) {
         rt_vars.ui16_time_units = tick_counter;
         //calculate tick counter for tsdz8
         ui32_ms_per_rotation_x100 = tick_counter * 204;
-        delta_tick_per100ms_x1000 = (uint16_t)(100 * 100000 / ui32_ms_per_rotation_x100 + ui16_remain);
-        if(delta_tick_per100ms_x1000 >= 1000){
-          rt_vars.ui32_wheel_speed_sensor_tick_counter ++;
-          ui16_remain = delta_tick_per100ms_x1000 - 1000;
+        delta_tick_per100ms_x1000 = (uint16_t)(100 * 100000 / ui32_ms_per_rotation_x100);
+        ui16_remain += delta_tick_per100ms_x1000;
+        if(ui16_remain >= 1000){
+          rt_vars.ui32_wheel_speed_sensor_tick_counter += ui16_remain / 1000;
+          ui16_remain = ui16_remain % 1000;
         }
         rt_vars.ui8_battery_current_x5 = p_rx_buffer[3];
       }
