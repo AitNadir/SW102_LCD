@@ -432,7 +432,7 @@ void rt_send_tx_package(frame_type_t type) {
       ui8_usart1_tx_buffer[78] = (uint8_t) (ui16_adc_pedal_torque_range  & 0xff);
       ui8_usart1_tx_buffer[79] = (uint8_t) (ui16_adc_pedal_torque_range >> 8);
 
-      ui8_usart1_tx_buffer[80] = ((rt_vars.ui8_pedal_cadence_fast_stop & 1) |
+      ui8_usart1_tx_buffer[80] = (0|//(rt_vars.ui8_pedal_cadence_fast_stop & 1) |
             (rt_vars.ui8_field_weakening & 1) << 1 |
                 (rt_vars. ui8_coast_brake_enable & 1) << 2);
                 // free for future use
@@ -1245,7 +1245,7 @@ void communications(void) {
           rt_vars.ui32_wheel_speed_sensor_tick_counter += ui16_remain / 1000;
           ui16_remain = ui16_remain % 1000;
         }
-        rt_vars.ui8_battery_current_x5 = p_rx_buffer[3];
+        rt_vars.ui8_battery_current_x5 = p_rx_buffer[4];
       }
       else {
         ui8_frame = (frame_type_t) p_rx_buffer[2];
