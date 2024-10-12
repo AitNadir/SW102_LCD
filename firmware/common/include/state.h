@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+extern volatile uint8_t ui8_battery_soc_used[100];
+extern volatile uint8_t ui8_battery_soc_index;
+extern volatile uint8_t ui8_voltage_ready_counter;
 
 // Torque sensor calibration from main.h v20.1C.4 TSDZ2-OSF
 #define ADC_TORQUE_SENSOR_CALIBRATION_OFFSET    	6
@@ -37,6 +40,11 @@
 #define LOGIN								 1
 #define WAIT								 2
 #define CHANGE								 3
+
+// SOC calculation
+#define SOC_CALC_AUTO						0
+#define SOC_CALC_WH							0
+#define SOC_CALC_VOLTS						0
 
 // assist level number
 #define ASSIST_LEVEL_NUMBER         5
@@ -292,6 +300,7 @@ typedef struct ui_vars_struct {
 	uint32_t ui32_wh_sum_counter;
 	uint32_t ui32_wh_x10;
     //add variables here
+	uint8_t ui8_battery_soc_percent_calculation;
 	uint8_t ui8_assist_whit_error_enabled;
 	uint8_t ui8_throttle_feature_enabled;
     uint8_t ui8_cruise_feature_enabled;

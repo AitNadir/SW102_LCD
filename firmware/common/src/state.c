@@ -58,6 +58,15 @@ volatile motor_init_state_config_t g_motor_init_state_conf = MOTOR_INIT_CONFIG_S
 volatile motor_init_status_t ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
 volatile uint8_t motor_check_counter = 0;
 
+static uint8_t ui8_battery_soc_init_flag = 0;
+volatile uint8_t ui8_voltage_ready_counter = 60;
+volatile uint8_t ui8_battery_soc_used[100] = { 1, 1, 2, 3, 4, 5, 6, 8, 10, 12, 13, 15, 17, 19, 21, 23, 25, 26, 28,
+  29, 31, 33, 34, 36, 38, 39, 41, 42, 44, 46, 47, 49, 51, 52, 53, 54, 55, 57, 58, 59, 61, 62, 63, 65, 66, 67,
+  69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 85, 86, 87, 87, 88, 88, 89, 89, 90, 90,
+  91, 91, 91, 92, 92, 92, 93, 93, 93, 94, 94, 94, 95, 95, 95, 96, 96, 96, 97, 97, 97, 98, 98, 98, 99, 99, 99 };
+// table tested with Panasonic NCR18650GA, voltage reset Wh = 4.15 x num.cells, voltage cut-off = 2.90 x num.cells
+volatile uint8_t ui8_battery_soc_index = 0;
+
 tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 
 static void motor_init(void);
@@ -928,6 +937,49 @@ void rt_calc_battery_soc(void) {
 		ui32_temp = 100;
 
   ui8_g_battery_soc = (uint8_t) (100 - ui32_temp);
+
+  // voltage ready counter
+  if(ui8_voltage_ready_counter)
+      ui8_voltage_ready_counter--;
+  if(!ui8_voltage_ready_counter) {
+      ui8_battery_soc_index =  (uint8_t) ((uint16_t) (100
+        - ((ui_vars.ui16_battery_voltage_soc_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10) * 100)
+        / (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10)));
+
+      if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_AUTO) { // Auto
+        if((!ui8_battery_soc_init_flag)
+          &&(ui8_g_battery_soc > 15)
+          &&(((100 - ui8_battery_soc_used[ui8_battery_soc_index]) < (ui8_g_battery_soc - 15))
+          ||((100 - ui8_battery_soc_used[ui8_battery_soc_index]) > (ui8_g_battery_soc + 15)))) {
+          if(ui_vars.ui16_battery_voltage_soc_x10 < ui_vars.ui16_battery_voltage_reset_wh_counter_x10) {
+                reset_wh();
+
+                ui8_battery_soc_index = (uint8_t) ((uint16_t) (100
+                - ((ui_vars.ui16_battery_voltage_soc_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10) * 100)
+                / (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10)));
+
+                ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
+                  * ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
+          //#ifndef SW102
+                // reset total Wh and charge cycles if battery capacity = 0
+                //if(!rt_vars.ui32_wh_x10_100_percent) {
+                //  ui_vars.ui32_wh_x10_total_offset = 0;
+                //  rt_vars.ui16_battery_charge_cycles_x10 = 0;
+                //}
+          //#ifndef SW102
+                // reset trip Wh
+                ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
+                ui32_wh_x10_reset_trip_a = 0;
+
+        }
+      }
+      else if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_VOLTS) { // Volts
+      //  ui8_g_configuration_battery_soc_reset = 1;
+      }
+
+      ui8_battery_soc_init_flag = 1;
+      }
+  }
 }
 
 void rt_processing_stop(void) {
