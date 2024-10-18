@@ -1298,6 +1298,7 @@ void communications(void) {
           ui16_remain = ui16_remain % 1000;
         }
         rt_vars.ui8_battery_current_x5 = p_rx_buffer[4];
+        rt_vars.ui8_error_states = p_rx_buffer[5];
       }
       else {
         ui8_frame = (frame_type_t) p_rx_buffer[2];
