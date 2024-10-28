@@ -24,11 +24,14 @@ DEFINE_IMAGE(icon_walk);
 const
 #include "icon_light.xbm"
 DEFINE_IMAGE(icon_light);
+const
+#include "speed_background.xbm"
+DEFINE_IMAGE(speed_background);
 
 // fonts based on DejaVu Sans, some hand-modified
 const
 #include "font_speed.xbm"
-DEFINE_FONT(speed, ".0123456789", 2, 19, 35, 51, 66, 83, 99, 116, 133, 151);
+DEFINE_FONT(speed, "0123456789", 6, 21, 35, 51, 65, 79, 94, 108, 122);
 
 const
 #include "font_2nd.xbm"
@@ -94,10 +97,11 @@ static struct GraphData * const mode_graph[] = {
 
 static void draw_main_speed(ui_vars_t *ui, int y)
 {
+  img_draw(&img_speed_background, 2, 16);
 	char buf[20];
 	int speed_x10 = ui->ui16_wheel_speed_x10;
-	sprintf(buf, "%d.%01d", speed_x10/10, speed_x10 % 10);
-	font_text(&font_speed, 32, y, buf, AlignCenter);
+	sprintf(buf, "%d", speed_x10/10);//, speed_x10 % 10);
+	font_text(&font_speed, 31, y, buf, AlignCenter);
 }
 
 static void draw_2nd_field(ui_vars_t *ui, int y)
@@ -162,9 +166,9 @@ static void draw_battery_indicator(ui_vars_t *ui)
 {
 	char buf[10];
 	int batpx = ui8_g_battery_soc / 5;
-	img_draw(&img_icon_battery_frame, 0, 1);
+	img_draw(&img_icon_battery_frame, 2, 2);
 
-	img_draw_clip(&img_icon_battery, 0, 1, 0, 0, batpx+3, img_icon_battery.h, 0);
+	img_draw_clip(&img_icon_battery, 2, 2, 0, 0, batpx-3, img_icon_battery.h, 0);
 
 	switch (ui_vars.ui8_battery_soc_enable) {
 	case 0:
@@ -299,13 +303,10 @@ static void main_idle()
 
 	draw_assist_indicator(ui);
 
-//	if(mode_graph[display_mode]) {
-//	  draw_2nd_field(ui, 65);
-//	  draw_main_speed(ui, 44);
-//	} else {
-		draw_2nd_field(ui, 22);
-		draw_main_speed(ui, 44);
-//	}
+
+	//draw_2nd_field(ui, 22);
+	draw_main_speed(ui, 23);
+
 
 	if(!draw_fault_states(ui)) {
 		struct GraphData *gd = &graph_motor_power;

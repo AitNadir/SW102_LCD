@@ -7,9 +7,13 @@ const
 #include "logo.xbm"
 const
 #include "logo_anim.xbm"
+const
+#include "logo_syklo.xbm"
 
 DEFINE_IMAGE(logo);
 DEFINE_IMAGE(logo_anim);
+DEFINE_IMAGE(logo_syklo);
+
 
 extern const struct screen screen_main;
 
@@ -39,6 +43,7 @@ static void boot_idle()
 	img_draw_clip(&img_logo_anim, 8, 29, 0, q*18, 18, 18, 0);
 	q=(q+3)&3;
 	img_draw_clip(&img_logo_anim, 38, 29, 0, q*18, 18, 18, 0);
+	img_draw(&img_logo_syklo, 10, 55);
 	lcd_refresh();
 }
 

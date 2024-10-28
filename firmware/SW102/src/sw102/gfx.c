@@ -174,6 +174,7 @@ int font_text(const struct font *fnt, int x, int y, const char *txt, int flags)
 		int cx, l;
 		l = font_getchar(fnt, *txt++, &cx);
 		if(l > 0) {
+		  fill_rect(x, y, l, fnt->img->h, false);
 			img_draw_clip(fnt->img, x, y, cx, 0, l, fnt->img->h, flags);
 			x += l;
 		}
