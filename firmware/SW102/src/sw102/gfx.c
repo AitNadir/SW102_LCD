@@ -161,7 +161,7 @@ int font_length(const struct font *fnt, const char *txt)
 	return l;
 }
 
-int font_text(const struct font *fnt, int x, int y, const char *txt, int flags)
+int font_text_inv(const struct font *fnt, int x, int y, const char *txt, int flags)
 {
 	int align = flags & AlignMask;
 	if(align == AlignRight) {
@@ -183,3 +183,23 @@ int font_text(const struct font *fnt, int x, int y, const char *txt, int flags)
 	return x;
 }
 
+int font_text(const struct font *fnt, int x, int y, const char *txt, int flags)
+{
+  int align = flags & AlignMask;
+  if(align == AlignRight) {
+    x = x - font_length(fnt, txt);
+  } else if(align == AlignCenter) {
+    x = x - font_length(fnt, txt)/2;
+  }
+
+  while(*txt) {
+    int cx, l;
+    l = font_getchar(fnt, *txt++, &cx);
+    if(l > 0) {
+      img_draw_clip(fnt->img, x, y, cx, 0, l, fnt->img->h, flags);
+      x += l;
+    }
+  }
+
+  return x;
+}

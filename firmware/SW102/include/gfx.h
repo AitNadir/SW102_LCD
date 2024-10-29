@@ -49,5 +49,5 @@ inline static void clear_all() { fill_rect(0,0,64,128, false); }
 
 int font_getchar(const struct font *fnt, char c, int *cx);
 int font_length(const struct font *fnt, const char *txt);
-
+int font_text_inv(const struct font *fnt, int x, int y, const char *txt, int flags);
 int font_text(const struct font *fnt, int x, int y, const char *txt, int flags);

@@ -22,20 +22,38 @@ const
 #include "icon_walk.xbm"
 DEFINE_IMAGE(icon_walk);
 const
+#include "walk_icon.xbm"
+DEFINE_IMAGE(walk_icon);
+const
+#include "offroad_icon.xbm"
+DEFINE_IMAGE(offroad_icon);
+const
 #include "icon_light.xbm"
 DEFINE_IMAGE(icon_light);
 const
 #include "speed_background.xbm"
 DEFINE_IMAGE(speed_background);
+const
+#include "kph.xbm"
+DEFINE_IMAGE(kph);
 
 // fonts based on DejaVu Sans, some hand-modified
 const
 #include "font_speed.xbm"
-DEFINE_FONT(speed, "0123456789", 6, 21, 35, 51, 65, 79, 94, 108, 122);
+DEFINE_FONT(speed, "0123456789", 13, 19, 34, 48, 64, 78, 92, 107, 121);
 
 const
-#include "font_2nd.xbm"
-DEFINE_FONT(2nd, " ./0123456789Whkm", 2, 3, 7, 16, 23, 31, 40, 49, 58, 67, 76, 85, 94, 103, 111, 118);
+#include "font_speeddecimal.xbm"
+DEFINE_FONT(speeddecimal, ".0123456789", 4, 11, 15, 22, 29, 37, 44, 51, 58, 65);
+
+const
+#include "font_assist.xbm"
+DEFINE_FONT(assist, "012345", 6, 11, 17, 25, 33);
+
+const
+#include "font_2sd.xbm"
+//DEFINE_FONT(2nd, " ./0123456789Whkm", 2, 3, 7, 16, 23, 31, 40, 49, 58, 67, 76, 85, 94, 103, 111, 118);
+DEFINE_FONT(2nd, "./0123456789Wehikmnr", 3, 11, 18, 22, 29, 37, 44, 51, 58, 65, 72, 79, 90, 96, 102, 105, 111, 120, 126);
 
 const
 #include "font_battery.xbm"
@@ -98,10 +116,15 @@ static struct GraphData * const mode_graph[] = {
 static void draw_main_speed(ui_vars_t *ui, int y)
 {
   img_draw(&img_speed_background, 2, 16);
+  fill_rect(45, 23, 16, 8, false);
+  img_draw(&img_kph, 45, 23);
 	char buf[20];
+	char dec[20];
 	int speed_x10 = ui->ui16_wheel_speed_x10;
-	sprintf(buf, "%d", speed_x10/10);//, speed_x10 % 10);
-	font_text(&font_speed, 31, y, buf, AlignCenter);
+	sprintf(buf, "%02d", speed_x10/10);
+	sprintf(dec, ".%01d", speed_x10 % 10);
+	font_text_inv(&font_speed, 30, y, buf, AlignCenter);
+	font_text_inv(&font_speeddecimal, 53, y+12, dec, AlignCenter);
 }
 
 static void draw_2nd_field(ui_vars_t *ui, int y)
@@ -111,39 +134,39 @@ static void draw_2nd_field(ui_vars_t *ui, int y)
 
 	switch(display_mode) {
 	case ModeOdometer:
-		sprintf(buf, "%d km", ui_vars.ui32_odometer_x10/10);
+		sprintf(buf, "%dkm", ui_vars.ui32_odometer_x10/10);
 		break;
 
 	case ModeTripDistance:
 		m = ui->ui32_trip_a_distance_x1000;
 		if(m < 1000) // <0m-999m
-			sprintf(buf, "%d m", m);
+			sprintf(buf, "%dm", m);
 		//else if(m < 10000) // <1.000km-9.999km
 		//	sprintf(buf, "%d.%03d km", m/1000, m % 1000);
 		//else if(m < 100000) // 10.00km-99.99km
 		//	sprintf(buf, "%d.%02d km", m/1000, (m/10) % 100);
 		else if(m < 1000000) // 100.0km-999.9km
-			sprintf(buf, "%d.%01d km", m/1000, (m/100) % 10);
+			sprintf(buf, "%d.%01dkm", m/1000, (m/100) % 10);
 		else // 1000km+
-			sprintf(buf, "%d km", m/1000);
+			sprintf(buf, "%dkm", m/1000);
 		break;
 
 	case ModeTripTime:
 		m = ui->ui32_trip_a_time/60;
 		if(m < 60 * 99)
-			sprintf(buf, "%dh %dm", m/60, m % 60);
+			sprintf(buf, "%dh%dm", m/60, m % 60);
 		else
-			sprintf(buf, "%d h", m/3600);
+			sprintf(buf, "%dh", m/3600);
 		break;
 
 	case ModeTripAVS:
 		m = ui->ui16_trip_a_avg_speed_x10;
-		sprintf(buf, "%d.%01d km/h", m/10, m%10);
+		sprintf(buf, "%d.%01dkm/h", m/10, m%10);
 		break;
 
 	case ModePowerConsump:
 	  m = ui->ui16_energy_consumption_per_distance_x100;
-	  sprintf(buf, "%d Wh/km", m/100);
+	  sprintf(buf, "%dWh/km", m/100);
 	  break;
 
 //	case ModePedalPower:
@@ -194,32 +217,38 @@ static void draw_power_indicator(ui_vars_t *ui)
 	int max_power = ui->ui16_battery_voltage_reset_wh_counter_x10 * max_current / 10;
 	if(tmp > max_power)
 		tmp = max_power;
-	tmp = tmp * 99 / max_power;
+	tmp = tmp * 40 / max_power;
 	fill_rect(62, 114 - tmp, 2, tmp, true);
 }
 
 static void draw_misc_indicators(ui_vars_t *ui)
 {
 	if(ui->ui8_walk_assist)
-		img_draw(&img_icon_walk, 0, 119);
+		img_draw(&img_walk_icon, 5, 116);
 	if(ui->ui8_braking)
 		img_draw(&img_icon_brake, 23, 119);
 
-	img_draw(&img_icon_radio, 41, 119);
+	img_draw(&img_icon_radio, 33, 117);
 
 	if(ui->ui8_lights)
-		img_draw(&img_icon_light, 53, 118);
+		img_draw(&img_icon_light, 47, 117);
 }
 
 static void draw_assist_indicator(ui_vars_t *ui)
 {
-	int bar_height = 400 / ui->ui8_number_of_assist_levels;
+	/*int bar_height = 400 / ui->ui8_number_of_assist_levels;
 	int bar_bottom = 114;
 	int bar_fill = bar_height - 1;
 	int i;
 
 	for(i=0;i < ui->ui8_assist_level;i++) 
-		fill_rect(0, bar_bottom - bar_height * i - bar_fill, 2, bar_fill, true);
+		fill_rect(0, bar_bottom - bar_height * i - bar_fill, 2, bar_fill, true);*/
+  char bufa[10];
+  char bufb[10];
+  sprintf(bufa, "%d", 5);//number of assist levels
+  sprintf(bufb, "%d", ui->ui8_assist_level);
+  font_text_inv(&font_assist, 8, 38, bufa, AlignCenter);
+  font_text_inv(&font_assist, 8, 18, bufb, AlignCenter);
 }
 
 static bool draw_fault_states(ui_vars_t *ui)
@@ -291,9 +320,10 @@ static void main_idle()
 		}
 	}
 
-	if(ui->ui8_street_mode_enabled) {
-		draw_hline(0, 64, 13);
-		draw_hline(0, 64, 115);
+	if(!ui->ui8_street_mode_enabled) {
+		//draw_hline(0, 64, 13);
+		//draw_hline(0, 64, 115);
+	  img_draw(&img_offroad_icon, 19, 116);
 	}
 
 	draw_battery_indicator(ui);
@@ -301,18 +331,17 @@ static void main_idle()
 	draw_misc_indicators(ui);
 	draw_power_indicator(ui);
 
-	draw_assist_indicator(ui);
 
-
-	//draw_2nd_field(ui, 22);
 	draw_main_speed(ui, 23);
+	draw_assist_indicator(ui);
 
 
 	if(!draw_fault_states(ui)) {
 		struct GraphData *gd = &graph_motor_power;
+		draw_hline(1, 63, 74);
 
-
-		graph_paint(gd, 3, 114, 58, 50, 114-72);
+		graph_paint(gd, 1, 114, 59, 50, 114-72);
+		draw_2nd_field(ui, 56);
 	}
 	lcd_refresh();
 }
