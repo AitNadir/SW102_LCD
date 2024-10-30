@@ -6,6 +6,7 @@
 extern volatile uint8_t ui8_battery_soc_used[100];
 extern volatile uint8_t ui8_battery_soc_index;
 extern volatile uint8_t ui8_voltage_ready_counter;
+extern volatile uint8_t ui8_screenmain_ready_counter;
 
 // Torque sensor calibration from main.h v20.1C.4 TSDZ2-OSF
 #define ADC_TORQUE_SENSOR_CALIBRATION_OFFSET    	6

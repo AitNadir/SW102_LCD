@@ -26,8 +26,13 @@ static void boot_idle()
 
 		case MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK:
 		case MOTOR_INIT_READY:
-			showScreen(&screen_main);
-			return;
+		  if(ui8_screenmain_ready_counter){
+		    break;
+		  }else{
+		    showScreen(&screen_main);
+		          return;
+
+		  }
 
 		// any error state will block here and avoid leave the boot screen
 		default:

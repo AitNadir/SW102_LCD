@@ -217,7 +217,7 @@ static void draw_power_indicator(ui_vars_t *ui)
 	int max_power = ui->ui16_battery_voltage_reset_wh_counter_x10 * max_current / 10;
 	if(tmp > max_power)
 		tmp = max_power;
-	tmp = tmp * 40 / max_power;
+	tmp = tmp * 42 / max_power;
 	fill_rect(62, 114 - tmp, 2, tmp, true);
 }
 
@@ -338,7 +338,7 @@ static void main_idle()
 
 	if(!draw_fault_states(ui)) {
 		struct GraphData *gd = &graph_motor_power;
-		draw_hline(1, 63, 74);
+		draw_hline(1, 63, 72);
 
 		graph_paint(gd, 1, 114, 59, 50, 114-72);
 		draw_2nd_field(ui, 56);

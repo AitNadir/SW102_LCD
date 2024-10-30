@@ -67,6 +67,8 @@ volatile uint8_t ui8_battery_soc_used[100] = { 1, 1, 2, 3, 4, 5, 6, 8, 10, 12, 1
 // table tested with Panasonic NCR18650GA, voltage reset Wh = 4.15 x num.cells, voltage cut-off = 2.90 x num.cells
 volatile uint8_t ui8_battery_soc_index = 0;
 
+volatile uint8_t ui8_screenmain_ready_counter = 20;
+
 tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 
 static void motor_init(void);
@@ -1432,6 +1434,9 @@ void rt_processing(void)
   /************************************************************************************************/
   rt_first_time_management();
   rt_calc_battery_soc();
+
+  if(ui8_screenmain_ready_counter)
+    ui8_screenmain_ready_counter--;
 
   if((uart_get_motor_type() == MOTOR_NONE) && (++motor_check_counter >= 10))
   {
