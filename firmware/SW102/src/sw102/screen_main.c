@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "uart.h"
 #include "state.h"
+extern const struct screen screen_boot;
 
 const
 #include "icon_brake.xbm"
@@ -279,17 +280,29 @@ static bool draw_fault_states(ui_vars_t *ui)
 	}
 	else{
 	  if(ui->ui8_error_states & 1)
-	    e1 = "Motor",e2="initialization";
+	    {
+	      showScreen(&screen_boot);
+	      return true;
+	    }
 	    else if(ui->ui8_error_states & 2)
 	      e2 = "torque";
 	    else if(ui->ui8_error_states & 4)
-	      e2 = "cadence";
+	    {
+	            showScreen(&screen_boot);
+	            return true;
+	          }
 	    else if(ui->ui8_error_states & 8)
-	      e1 = "Motor",e2="blocked";
+	    {
+	            showScreen(&screen_boot);
+	            return true;
+	          }
 	    else if(ui->ui8_error_states & 16)
 	      e2 = "throttle";
 	    else if(ui->ui8_error_states & 32)
-	      e2 = "fatalError";
+	    {
+	            showScreen(&screen_boot);
+	            return true;
+	          }
 	    else if(ui->ui8_error_states & 64)
 	      e2 = "overcurrent";
 	    else if(ui->ui8_error_states & 128)
