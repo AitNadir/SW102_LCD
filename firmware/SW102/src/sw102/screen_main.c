@@ -255,7 +255,7 @@ static void draw_assist_indicator(ui_vars_t *ui)
 static bool draw_fault_states(ui_vars_t *ui)
 {
 	extern const struct font font_full;
-	const char *e1="FAULT:", *e2 = "";
+	const char *e1="", *e2 = "";
 	if(uart_get_motor_type() == MOTOR_TSDZ8){
 	  if(ui->ui8_error_states == 1)
 	    e2 = "temperature";
@@ -277,6 +277,7 @@ static bool draw_fault_states(ui_vars_t *ui)
 	      e2 = "hall";
 	    else
 	      return false;
+	  font_text(&font_full, 32, 56, e2, AlignCenter);
 	}
 	else{
 	  if(ui->ui8_error_states & 1)
@@ -285,7 +286,7 @@ static bool draw_fault_states(ui_vars_t *ui)
 	      return true;
 	    }
 	    else if(ui->ui8_error_states & 2)
-	      e2 = "torque";
+	      e1 = "err02";
 	    else if(ui->ui8_error_states & 4)
 	    {
 	            showScreen(&screen_boot);
@@ -297,23 +298,22 @@ static bool draw_fault_states(ui_vars_t *ui)
 	            return true;
 	          }
 	    else if(ui->ui8_error_states & 16)
-	      e2 = "throttle";
+	      e1 = "err05";
 	    else if(ui->ui8_error_states & 32)
 	    {
 	            showScreen(&screen_boot);
 	            return true;
 	          }
 	    else if(ui->ui8_error_states & 64)
-	      e2 = "overcurrent";
+	      e1 = "err07";
 	    else if(ui->ui8_error_states & 128)
-	      e2 = "speed";
+	      e1 = "err08";
 	    else
 	      return false;
+	  font_text(&font_2nd, 32, 56, e1, AlignCenter);
 	}
 
 
-	font_text(&font_full, 32, 80, e1, AlignCenter);
-	font_text(&font_full, 32, 96, e2, AlignCenter);
 	return true;
 }
 
