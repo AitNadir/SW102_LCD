@@ -588,3 +588,5 @@ extern volatile motor_init_status_t ui8_g_motor_init_status;
 void batteryResistance(void);
 
 void password_check(void);
+
+void cooling_down(void);

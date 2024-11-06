@@ -71,6 +71,16 @@ volatile uint8_t ui8_screenmain_ready_counter = 20;
 
 tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 
+const uint16_t max_time[] = {36000, 54000, 54000, 33000, 18000};
+const uint16_t cooldown_time = 3000; // Cooldown of 5 minutes (in seconds)
+const uint32_t runtime_limit = 144000; // 4-hour runtime limit
+
+// Global variables
+static uint16_t time_counter[5] = {0, 0, 0, 0, 0}; // Time counters
+static uint32_t total_runtime = 0; // Total motor runtime
+static bool is_cooling_down = false; // Cooldown phase indicator
+
+
 static void motor_init(void);
 
 void ui_motor_stabilized();
@@ -1420,6 +1430,7 @@ void rt_processing(void)
   // once motor is initialized, this should take almost no processing time
   motor_init();
   password_check();
+  cooling_down();
   /************************************************************************************************/
   // now do all the calculations that must be done every 100ms
   rt_low_pass_filter_battery_voltage_current_power();
@@ -1765,3 +1776,23 @@ void password_check(void) {
 	//}
 }
 
+void cooling_down(void){
+  if (!is_cooling_down) {
+         time_counter[rt_vars.ui8_assist_level-1]++;
+     }
+  if (is_cooling_down) {
+         static int cooldown_counter = 0;
+         cooldown_counter++;
+         if (cooldown_counter >= cooldown_time) {
+             is_cooling_down = false;
+             cooldown_counter = 0;
+         }
+     }else {
+       if (time_counter[rt_vars.ui8_assist_level-1] >= max_time[rt_vars.ui8_assist_level-1]) {
+           rt_vars.ui8_assist_level = (rt_vars.ui8_assist_level > 1) ? rt_vars.ui8_assist_level - 1 : rt_vars.ui8_assist_level;
+           is_cooling_down = true;
+       }
+   }
+
+
+}

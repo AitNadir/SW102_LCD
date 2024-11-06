@@ -32,7 +32,7 @@ static void boot_idle()
 		case MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK:
 		case MOTOR_INIT_READY:
 		  if(ui8_screenmain_ready_counter ||
-		      ui->ui8_error_states & 1 ||
+		      //ui->ui8_error_states & 1 ||
 		      ui->ui8_error_states & 4 ||
 		      ui->ui8_error_states & 8 ||
 		      ui->ui8_error_states & 32)
@@ -54,8 +54,8 @@ static void boot_idle()
 	static int q=1;
 	char buf[10] = "";
 	clear_all();
-	if(ui->ui8_error_states & 1)
-	  sprintf(buf, "err%02d", 1);
+	//if(ui->ui8_error_states & 1)
+	  //sprintf(buf, "err%02d", 1);
 	if(ui->ui8_error_states & 4)
 	  sprintf(buf, "err%02d", 3);
 	if(ui->ui8_error_states & 8)

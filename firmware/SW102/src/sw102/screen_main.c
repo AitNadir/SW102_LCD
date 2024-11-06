@@ -189,10 +189,10 @@ static void draw_2nd_field(ui_vars_t *ui, int y)
 static void draw_battery_indicator(ui_vars_t *ui)
 {
 	char buf[10];
-	int batpx = ui8_g_battery_soc / 5;
+	int batpx = ui8_g_battery_soc / 6;
 	img_draw(&img_icon_battery_frame, 2, 2);
 
-	img_draw_clip(&img_icon_battery, 2, 2, 0, 0, batpx-3, img_icon_battery.h, 0);
+	img_draw_clip(&img_icon_battery, 2, 2, 0, 0, batpx+1, img_icon_battery.h, 0);
 
 	switch (ui_vars.ui8_battery_soc_enable) {
 	case 0:
@@ -280,12 +280,13 @@ static bool draw_fault_states(ui_vars_t *ui)
 	  font_text(&font_full, 32, 56, e2, AlignCenter);
 	}
 	else{
-	  if(ui->ui8_error_states & 1)
-	    {
-	      showScreen(&screen_boot);
-	      return true;
-	    }
-	    else if(ui->ui8_error_states & 2)
+	  //if(ui->ui8_error_states & 1)
+	   // {
+	   //   showScreen(&screen_boot);
+	    //  return true;
+	    //}
+
+	    if(ui->ui8_error_states & 2)
 	      e1 = "err02";
 	    else if(ui->ui8_error_states & 4)
 	    {
