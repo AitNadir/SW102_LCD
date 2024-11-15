@@ -234,25 +234,28 @@ void rt_send_tx_package(frame_type_t type) {
             ui8_usart1_tx_buffer[3] = ui8_temp;
             ui8_usart1_tx_buffer[4] = rt_vars.ui8_assist_level_factor[TORQUE_MODE][(rt_vars.ui8_assist_level - 1)];
 
-            // walk assist parameter
-            ui8_usart1_tx_buffer[7] = assist_level_walk[(rt_vars.ui8_assist_level - 1)];
       }
       else {
             // always disable motor when assist level is 0
             ui8_usart1_tx_buffer[3] = 0;
             ui8_usart1_tx_buffer[4] = 0;
-            ui8_usart1_tx_buffer[7] = 0;
+            //ui8_usart1_tx_buffer[7] = 0;
       }
+      // walk assist parameter
+      ui8_usart1_tx_buffer[7] = assist_level_walk[3];
 
       ui8_usart1_tx_buffer[8] = rt_vars.ui8_motor_current_control_mode + 1;
 
       uint8_t ui8_walk_assist_state = 0;
-      if ((rt_vars.ui8_assist_level)&&(rt_vars.ui8_walk_assist_feature_enabled))
+      if (rt_vars.ui8_walk_assist_feature_enabled)
          ui8_walk_assist_state = rt_vars.ui8_walk_assist;
 
       uint8_t ui8_assist_level_state = 0;
-      if (rt_vars.ui8_assist_level)
+      if (rt_vars.ui8_assist_level||rt_vars.ui8_walk_assist){
          ui8_assist_level_state = 1;
+      }else
+         ui8_assist_level_state = 0;
+
 
       uint8_t ui8_cruise_state = rt_vars.ui8_walk_assist;
       if (((rt_vars.ui8_street_mode_enabled)&&(!rt_vars.ui8_street_mode_cruise_enabled))
@@ -598,7 +601,7 @@ void rt_low_pass_filter_battery_voltage_current_power(void) {
 
 	if(uart_get_motor_type() == MOTOR_TSDZ8){
 	  rt_vars.ui16_battery_voltage_filtered_x10 =
-	      (uint16_t)(ui8_battery_level*10 * BATTERY_LEVEL_STEPx10/100) + BATTERY_BASE_VOLTAGEx10;
+	      battery_voltage_10x_get();
 	}
 	// low pass filter battery current
 	ui16_battery_current_accumulated_x5 -= ui16_battery_current_accumulated_x5

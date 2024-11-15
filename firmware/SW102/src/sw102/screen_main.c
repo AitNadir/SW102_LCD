@@ -383,9 +383,6 @@ static void main_button(int but)
 		ui->ui8_street_mode_enabled =! ui->ui8_street_mode_enabled;
 
 	if ((but & DOWN_LONG_CLICK) && ui->ui8_walk_assist_feature_enabled) {
-		if((uart_get_motor_type() == MOTOR_TSDZ2) && (ui->ui8_assist_level == 0))
-		  ui_vars.ui8_walk_assist = 0;
-		else
 		  ui_vars.ui8_walk_assist = 1;
 	}
 
