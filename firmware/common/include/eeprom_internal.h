@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x57
-#define EEPROM_VERSION 0x57
+#define EEPROM_MIN_COMPAT_VERSION 0x50
+#define EEPROM_VERSION 0x50
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -270,7 +270,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_WHEEL_MAX_SPEED                               25
 #define DEFAULT_VALUE_UNITS_TYPE                                    0 // 0 = km/h
 #define DEFAULT_VALUE_WH_X10_OFFSET                                 0
-#define DEFAULT_VALUE_HW_X10_100_PERCENT                            4000 // default to a battery of 400 Wh
+#define DEFAULT_VALUE_HW_X10_100_PERCENT                            2880 // default to a battery of 288 Wh for 36V battery
 #define DEAFULT_VALUE_SHOW_NUMERIC_BATTERY_SOC                      1 // SOC
 #define DEAFULT_VALUE_TIME_FIELD                                    1 // 1 i show clock
 #define DEFAULT_VALUE_BATTERY_MAX_CURRENT                           15 // 15 amps

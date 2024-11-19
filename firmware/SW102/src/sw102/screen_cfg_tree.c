@@ -228,7 +228,7 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     { "At startup", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_street_mode_enabled_on_startup), (const char*[]){ "no change", "activate", 0 } }},
     //{ "Hotkey", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_street_mode_hotkey_enabled), disable_enable } },
     { "Speed limit", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_street_mode_speed_limit), 0, "km/h", 1, 99 }},
-    { "Power limit", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_street_mode_power_limit), 0, "W", 25, 1000, 25 }},
+    //{ "Power limit", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_street_mode_power_limit), 0, "W", 25, 1000, 25 }},
     //{ "Throttle", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_street_mode_throttle_enabled), (const char*[]){ "disable", "6km/h only", 0 } } },
     //{ "Cruise", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_street_mode_cruise_enabled), (const char*[]){ "disable", "pedaling", "w/o pedaling", 0 } }},
     {},

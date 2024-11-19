@@ -968,11 +968,6 @@ void rt_calc_battery_soc(void) {
           ||((100 - ui8_battery_soc_used[ui8_battery_soc_index]) > (ui8_g_battery_soc + 15)))) {
           if(ui_vars.ui16_battery_voltage_soc_x10 < ui_vars.ui16_battery_voltage_reset_wh_counter_x10) {
                 reset_wh();
-
-                ui8_battery_soc_index = (uint8_t) ((uint16_t) (100
-                - ((ui_vars.ui16_battery_voltage_soc_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10) * 100)
-                / (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10)));
-
                 ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
                   * ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
           //#ifndef SW102
@@ -985,11 +980,16 @@ void rt_calc_battery_soc(void) {
                 // reset trip Wh
                 ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
                 ui32_wh_x10_reset_trip_a = 0;
-
         }
       }
       else if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_VOLTS) { // Volts
-      //  ui8_g_configuration_battery_soc_reset = 1;
+        if(ui_vars.ui16_battery_voltage_soc_x10 < ui_vars.ui16_battery_voltage_reset_wh_counter_x10) {
+                        reset_wh();
+                        ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
+                          * ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
+                        ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
+                        ui32_wh_x10_reset_trip_a = 0;
+                }
       }
 
       ui8_battery_soc_init_flag = 1;

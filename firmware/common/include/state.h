@@ -44,8 +44,8 @@ extern volatile uint8_t ui8_screenmain_ready_counter;
 
 // SOC calculation
 #define SOC_CALC_AUTO						0
-#define SOC_CALC_WH							0
-#define SOC_CALC_VOLTS						0
+#define SOC_CALC_WH							1
+#define SOC_CALC_VOLTS						2
 
 // assist level number
 #define ASSIST_LEVEL_NUMBER         5
