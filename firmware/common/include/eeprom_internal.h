@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x50
-#define EEPROM_VERSION 0x50
+#define EEPROM_MIN_COMPAT_VERSION 0x60
+#define EEPROM_VERSION 0x60
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -26,6 +26,7 @@ typedef struct {
 typedef struct eeprom_data {
 	uint8_t eeprom_version; // Used to detect changes in eeprom encoding, if != EEPROM_VERSION we will not use it
     //add variables here
+	uint8_t ui8_battery_soc_percent_calculation;
 	uint8_t ui8_assist_whit_error_enabled;
 	uint8_t ui8_throttle_feature_enabled;
 	uint8_t ui8_cruise_feature_enabled;
@@ -229,6 +230,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_TORQUE_ADC_ON_WEIGHT                          250
 #define DEFAULT_VALUE_PASSWORD_ENABLED                              0
 #define DEFAULT_VALUE_PASSWORD_CHANGED                              0
+#define DEFAULT_VALUE_SOC_PERCENT_CALC                              0
 //#define DEFAULT_VALUE_RESET_PASSWORD                                0
 #define DEFAULT_VALUE_PASSWORD                                      1000
 #define DEFAULT_VALUE_WH_X10_TRIP_A_OFFSET                          0

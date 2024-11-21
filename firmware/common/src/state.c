@@ -68,6 +68,7 @@ volatile uint8_t ui8_battery_soc_used[100] = { 1, 1, 2, 3, 4, 5, 6, 8, 10, 12, 1
 volatile uint8_t ui8_battery_soc_index = 0;
 
 volatile uint8_t ui8_screenmain_ready_counter = 20;
+volatile uint8_t ui8_speedsensorerr_counter = 40;
 
 tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 
@@ -980,6 +981,7 @@ void rt_calc_battery_soc(void) {
                 // reset trip Wh
                 ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
                 ui32_wh_x10_reset_trip_a = 0;
+          }
         }
       }
       else if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_VOLTS) { // Volts
@@ -989,11 +991,11 @@ void rt_calc_battery_soc(void) {
                           * ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
                         ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
                         ui32_wh_x10_reset_trip_a = 0;
-                }
+        }
       }
 
       ui8_battery_soc_init_flag = 1;
-      }
+
   }
 }
 
@@ -1154,6 +1156,7 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
+  ui_vars.ui8_speed_sensor_err = rt_vars.ui8_speed_sensor_err;
   rt_vars.ui16_battery_voltage_reset_wh_counter_x10 = ui_vars.ui16_battery_voltage_reset_wh_counter_x10;
   rt_vars.ui8_walk_assist_feature_enabled = ui_vars.ui8_walk_assist_feature_enabled;
   rt_vars.ui8_street_mode_function_enabled = ui_vars.ui8_street_mode_function_enabled;
@@ -1370,6 +1373,19 @@ void communications(void) {
               rt_vars.ui16_adc_pedal_torque_delta = ((uint16_t) p_rx_buffer[12]) | ((uint16_t) p_rx_buffer[13] << 8);
 
               rt_vars.ui8_pedal_cadence = p_rx_buffer[14];
+              if(ui8_speedsensorerr_counter){
+                  if ((!rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_pedal_cadence))
+                        ui8_speedsensorerr_counter --;
+                  if ((rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_pedal_cadence))
+                        ui8_speedsensorerr_counter ++;
+                  if(ui8_speedsensorerr_counter == 40)
+                        rt_vars.ui8_speed_sensor_err = 0;
+              }
+              else{
+                  rt_vars.ui8_speed_sensor_err = 1;
+                  if ((rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_pedal_cadence))
+                        ui8_speedsensorerr_counter ++;
+              }
 
               rt_vars.ui8_duty_cycle = p_rx_buffer[15];
 

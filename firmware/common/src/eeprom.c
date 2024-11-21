@@ -23,6 +23,7 @@ static eeprom_data_t m_eeprom_data;
 const eeprom_data_t m_eeprom_data_defaults = {
   .eeprom_version = EEPROM_VERSION,
   //add variables here
+  .ui8_battery_soc_percent_calculation = DEFAULT_VALUE_SOC_PERCENT_CALC,
   .ui8_assist_whit_error_enabled = DEFAULT_VALUE_ASSIST_WHIT_ERROR,
   .ui8_throttle_feature_enabled = DEFAULT_VALUE_THROTTLE,
   .ui8_cruise_feature_enabled = DEFAULT_VALUE_CRUISE,
@@ -396,6 +397,7 @@ void eeprom_init_variables(void) {
 
 	// copy data final variables
 	//add variables here
+	ui_vars->ui8_battery_soc_percent_calculation = m_eeprom_data.ui8_battery_soc_percent_calculation;
 	ui_vars->ui8_assist_whit_error_enabled = m_eeprom_data.ui8_assist_whit_error_enabled;
 	ui_vars->ui8_throttle_feature_enabled = m_eeprom_data.ui8_throttle_feature_enabled;
 	ui_vars->ui8_cruise_feature_enabled = m_eeprom_data.ui8_cruise_feature_enabled;
@@ -719,6 +721,7 @@ void eeprom_init_variables(void) {
 void eeprom_write_variables(void) {
 	ui_vars_t *ui_vars = get_ui_vars();
 	//add variables here
+	m_eeprom_data.ui8_battery_soc_percent_calculation = ui_vars->ui8_battery_soc_percent_calculation;
 	m_eeprom_data.ui8_assist_whit_error_enabled = ui_vars->ui8_assist_whit_error_enabled;
 	m_eeprom_data.ui8_throttle_feature_enabled = ui_vars->ui8_throttle_feature_enabled;
 	m_eeprom_data.ui8_cruise_feature_enabled = ui_vars->ui8_cruise_feature_enabled;
