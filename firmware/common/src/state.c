@@ -1316,6 +1316,19 @@ void communications(void) {
           ui16_remain = ui16_remain % 1000;
         }
         rt_vars.ui8_battery_current_x5 = p_rx_buffer[4];
+        if(ui8_speedsensorerr_counter){
+          if ((!rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_battery_current_x5 > 5))
+            ui8_speedsensorerr_counter --;
+          if ((rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_battery_current_x5 > 5)&&(ui8_speedsensorerr_counter < 40))
+            ui8_speedsensorerr_counter ++;
+          if(ui8_speedsensorerr_counter == 40)
+            rt_vars.ui8_speed_sensor_err = 0;
+        }
+        else{
+          rt_vars.ui8_speed_sensor_err = 1;
+          if ((rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_battery_current_x5 > 5))
+            ui8_speedsensorerr_counter ++;
+        }
         rt_vars.ui8_error_states = p_rx_buffer[5];
       }
       else {
@@ -1376,7 +1389,7 @@ void communications(void) {
               if(ui8_speedsensorerr_counter){
                   if ((!rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_pedal_cadence))
                         ui8_speedsensorerr_counter --;
-                  if ((rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_pedal_cadence))
+                  if ((rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_pedal_cadence)&&(ui8_speedsensorerr_counter < 40))
                         ui8_speedsensorerr_counter ++;
                   if(ui8_speedsensorerr_counter == 40)
                         rt_vars.ui8_speed_sensor_err = 0;
@@ -1796,22 +1809,22 @@ void password_check(void) {
 }
 
 void cooling_down(void){
-  if (!is_cooling_down) {
-         time_counter[rt_vars.ui8_assist_level-1]++;
-     }
-  if (is_cooling_down) {
-         static int cooldown_counter = 0;
-         cooldown_counter++;
-         if (cooldown_counter >= cooldown_time) {
-             is_cooling_down = false;
-             cooldown_counter = 0;
-         }
-     }else {
-       if (time_counter[rt_vars.ui8_assist_level-1] >= max_time[rt_vars.ui8_assist_level-1]) {
-           rt_vars.ui8_assist_level = (rt_vars.ui8_assist_level > 1) ? rt_vars.ui8_assist_level - 1 : rt_vars.ui8_assist_level;
-           is_cooling_down = true;
+  if (ui_vars.ui8_assist_level){
+    if (is_cooling_down) {
+             static int cooldown_counter = 0;
+             cooldown_counter++;
+             if (cooldown_counter >= cooldown_time) {
+                 ui_vars.ui8_assist_level = ui_vars.ui8_assist_level + 1;
+                 is_cooling_down = false;
+                 cooldown_counter = 0;
+             }
+      }else {
+           if (time_counter[ui_vars.ui8_assist_level-1] >= max_time[ui_vars.ui8_assist_level-1]) {
+               ui_vars.ui8_assist_level = ui_vars.ui8_assist_level - 1;
+               is_cooling_down = true;
+               time_counter[ui_vars.ui8_assist_level] = 0;
+           }else
+             time_counter[ui_vars.ui8_assist_level-1]++;
        }
-   }
-
-
+  }
 }
