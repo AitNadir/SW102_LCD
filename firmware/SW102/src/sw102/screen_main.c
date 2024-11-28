@@ -35,6 +35,27 @@ const
 #include "speed_background.xbm"
 DEFINE_IMAGE(speed_background);
 const
+#include "speed_background2.xbm"
+DEFINE_IMAGE(speed_background2);
+const
+#include "assistlevel_background.xbm"
+DEFINE_IMAGE(assistlevel_background);
+const
+#include "level1.xbm"
+DEFINE_IMAGE(level1);
+const
+#include "level2.xbm"
+DEFINE_IMAGE(level2);
+const
+#include "level3.xbm"
+DEFINE_IMAGE(level3);
+const
+#include "level4.xbm"
+DEFINE_IMAGE(level4);
+const
+#include "level5.xbm"
+DEFINE_IMAGE(level5);
+const
 #include "kph.xbm"
 DEFINE_IMAGE(kph);
 
@@ -42,6 +63,10 @@ DEFINE_IMAGE(kph);
 const
 #include "font_speed.xbm"
 DEFINE_FONT(speed, "0123456789", 13, 19, 34, 48, 64, 78, 92, 107, 121);
+
+const
+#include "font_speed2.xbm"
+DEFINE_FONT(speed2, "0123456789", 26, 39, 68, 96, 127, 155, 183, 211, 239);
 
 const
 #include "font_speeddecimal.xbm"
@@ -69,6 +94,7 @@ static struct GraphData graph_speed;
 static struct GraphData graph_pedal_power;
 static struct GraphData graph_motor_power;
 static struct GraphData graph_cadence;
+volatile int mclick_counter;
 
 static void graph_append(struct GraphData *gd, int v)
 {
@@ -101,6 +127,7 @@ enum display_mode_t {
 	ModePowerConsump,
 //	ModePedalPower,
 	ModeMotorPower,
+	ModeBigScreen,
 	ModeLast,
 } display_mode;
 
@@ -116,16 +143,23 @@ static struct GraphData * const mode_graph[] = {
 
 static void draw_main_speed(ui_vars_t *ui, int y)
 {
-  img_draw(&img_speed_background, 2, 16);
-  fill_rect(45, 23, 16, 8, false);
-  img_draw(&img_kph, 45, 23);
-	char buf[20];
-	char dec[20];
-	int speed_x10 = ui->ui16_wheel_speed_x10;
-	sprintf(buf, "%02d", speed_x10/10);
-	sprintf(dec, ".%01d", speed_x10 % 10);
-	font_text_inv(&font_speed, 30, y, buf, AlignCenter);
-	font_text_inv(&font_speeddecimal, 53, y+12, dec, AlignCenter);
+  char buf[20];
+  char dec[20];
+  int speed_x10 = ui->ui16_wheel_speed_x10;
+  if(display_mode == ModeBigScreen){
+    img_draw(&img_speed_background2, 2, 16);
+    sprintf(buf, "%02d", speed_x10/10);
+    font_text_inv(&font_speed2, 32, y-4, buf, AlignCenter);
+  }else{
+    img_draw(&img_speed_background, 2, 16);
+    fill_rect(45, 23, 16, 8, false);
+    img_draw(&img_kph, 45, 23);
+    sprintf(buf, "%02d", speed_x10/10);
+    sprintf(dec, ".%01d", speed_x10 % 10);
+    font_text_inv(&font_speed, 30, y, buf, AlignCenter);
+    font_text_inv(&font_speeddecimal, 53, y+12, dec, AlignCenter);
+  }
+
 }
 
 static void draw_2nd_field(ui_vars_t *ui, int y)
@@ -246,10 +280,28 @@ static void draw_assist_indicator(ui_vars_t *ui)
 		fill_rect(0, bar_bottom - bar_height * i - bar_fill, 2, bar_fill, true);*/
   char bufa[10];
   char bufb[10];
-  sprintf(bufa, "%d", 5);//number of assist levels
-  sprintf(bufb, "%d", ui->ui8_assist_level);
-  font_text_inv(&font_assist, 8, 38, bufa, AlignCenter);
-  font_text_inv(&font_assist, 8, 18, bufb, AlignCenter);
+  if(display_mode == ModeBigScreen){
+    img_draw(&img_assistlevel_background, 5, 85);
+    draw_hline(4, 60, 112);
+    fill_rect(1, 111, 2, 2, true);
+    fill_rect(61, 111, 2, 2, true);
+    if(ui->ui8_assist_level==1)
+      img_draw(&img_level1, 5, 101);
+    else if(ui->ui8_assist_level==2)
+      img_draw(&img_level2, 16, 97);
+    else if(ui->ui8_assist_level==3)
+      img_draw(&img_level3, 27, 93);
+    else if(ui->ui8_assist_level==4)
+      img_draw(&img_level4, 38, 89);
+    else if(ui->ui8_assist_level==5)
+      img_draw(&img_level5, 49, 85);
+  }else{
+    sprintf(bufa, "%d", 5);//number of assist levels
+    sprintf(bufb, "%d", ui->ui8_assist_level);
+    font_text_inv(&font_assist, 8, 38, bufa, AlignCenter);
+    font_text_inv(&font_assist, 8, 18, bufb, AlignCenter);
+  }
+
 }
 
 static bool draw_fault_states(ui_vars_t *ui)
@@ -277,7 +329,9 @@ static bool draw_fault_states(ui_vars_t *ui)
 	      e2 = "hall";
 	    else
 	      return false;
-	  font_text(&font_full, 32, 56, e2, AlignCenter);
+	  if(!(display_mode == ModeBigScreen))
+	    font_text(&font_full, 32, 56, e2, AlignCenter);
+
 	}
 	else{
 	  //if(ui->ui8_error_states & 1)
@@ -311,7 +365,9 @@ static bool draw_fault_states(ui_vars_t *ui)
 	      e1 = "err08";
 	    else
 	      return false;
-	  font_text(&font_2nd, 32, 56, e1, AlignCenter);
+	  if(!(display_mode == ModeBigScreen))
+	    font_text(&font_2nd, 32, 56, e1, AlignCenter);
+
 	}
 
 
@@ -323,6 +379,14 @@ static void main_idle()
 	char *ptr;
 	ui_vars_t *ui = get_ui_vars();
 	clear_all();
+
+	if(!mclick_counter){
+	  if(ui->ui8_screen_size){
+	    display_mode = ModeBigScreen;
+	  }else{
+	    display_mode = ModeOdometer;
+	  }
+	}
 
 	if(!(tick&15)){
 		if (ui->ui16_wheel_speed_x10 > 0) {
@@ -341,10 +405,7 @@ static void main_idle()
 	}
 
 	draw_battery_indicator(ui);
-
 	draw_misc_indicators(ui);
-	draw_power_indicator(ui);
-
 
 	draw_main_speed(ui, 23);
 	draw_assist_indicator(ui);
@@ -352,10 +413,12 @@ static void main_idle()
 
 	if(!draw_fault_states(ui)) {
 		struct GraphData *gd = &graph_motor_power;
-		draw_hline(1, 63, 72);
-
-		graph_paint(gd, 1, 114, 59, 50, 114-72);
-		draw_2nd_field(ui, 56);
+		if(!(display_mode == ModeBigScreen)){
+	    draw_hline(1, 63, 72);
+	    draw_power_indicator(ui);
+	    graph_paint(gd, 1, 114, 59, 50, 114-72);
+	    draw_2nd_field(ui, 56);
+		}
 	}
 	lcd_refresh();
 }
@@ -391,6 +454,7 @@ static void main_button(int but)
 
 	if(but & M_CLICK) {
 		display_mode = (enum display_mode_t)(((int)display_mode + 1) % ModeLast);
+		mclick_counter = 1;
 	}
 	
 	if(but & M_LONG_CLICK) {

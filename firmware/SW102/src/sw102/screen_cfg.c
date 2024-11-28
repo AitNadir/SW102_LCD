@@ -12,6 +12,7 @@
 #include "screen_cfg_utils.h"
 
 extern const struct screen screen_main;
+extern volatile int mclick_counter;
 
 static void cfg_button_repeat(bool speedup);
 
@@ -71,6 +72,7 @@ static void cfg_list_button(void *_it, int but, int increment)
 		sstack_pop();
 		if(!sstack_current) {
 			showScreen(&screen_main);
+			mclick_counter = 0;
 			return;
 		}
 	}
