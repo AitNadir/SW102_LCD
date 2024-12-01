@@ -159,6 +159,7 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 	{ "Various", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
 		//{ "Fast stop", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_pedal_cadence_fast_stop), disable_enable } },
 	  { "Screen size", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_screen_size), (const char*[]){ "small", "big", 0}}},
+	  { "Motor type", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_motor_version), (const char*[]){ "Z2", "Z8", "TS85", 0}}},
 	  { "Light config", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lights_configuration), 0, "", 0, 8 }},
 		{ "Odometer", F_NUMERIC|F_CALLBACK, .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_odometer_x10), 1, "km", 0, UINT32_MAX }, do_set_odometer }},
 		{ "Auto power off", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lcd_power_off_time_minutes), 0, "min", 0, 255 }},
@@ -207,7 +208,7 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     {},
   }}},
   { "Battery", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
-    //{ "Max current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_battery_max_current), 0, "A", 1, 20 }},
+    { "Max current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_battery_max_current), 0, "A", 1, 20 }},
     { "Cut-off voltage", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_low_voltage_cut_off_x10), 1, "V", 160, 630 }},
     { "Resistance", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_pack_resistance_x1000), 0, "mohm", 0, 1000 }},
     { "Voltage", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_voltage_soc_x10), 1, "V" }},
@@ -233,6 +234,20 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     //{ "Throttle", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_street_mode_throttle_enabled), (const char*[]){ "disable", "6km/h only", 0 } } },
     //{ "Cruise", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_street_mode_cruise_enabled), (const char*[]){ "disable", "pedaling", "w/o pedaling", 0 } }},
     {},
+  }}},
+  { "Various", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
+    //{ "Fast stop", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_pedal_cadence_fast_stop), disable_enable } },
+    { "Screen size", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_screen_size), (const char*[]){ "small", "big", 0}}},
+    { "Motor type", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_motor_version), (const char*[]){ "Z2", "Z8", "TS85", 0}}},
+    { "Light config", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lights_configuration), 0, "", 0, 8 }},
+    { "Odometer", F_NUMERIC|F_CALLBACK, .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_odometer_x10), 1, "km", 0, UINT32_MAX }, do_set_odometer }},
+    { "Auto power off", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lcd_power_off_time_minutes), 0, "min", 0, 255 }},
+    { "Reset BLE peers", F_BUTTON, .action = do_reset_ble },
+    { "Reset all settings", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
+      { "Confirm reset all", F_BUTTON, .action = do_reset_all },
+      {}
+    }}},
+    {}
   }}},
   {}
 };

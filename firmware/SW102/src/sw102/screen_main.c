@@ -245,11 +245,15 @@ static void draw_power_indicator(ui_vars_t *ui)
 {
 	int tmp = ui->ui16_battery_power;
 	int max_current = ui->ui8_motor_max_current;
+	int max_power = 48 * max_current;
 	if(ui->ui8_battery_max_current > max_current)
 		max_current = ui->ui8_battery_max_current;
 
 	// estimate max. power from current limit & max voltage
-	int max_power = ui->ui16_battery_voltage_reset_wh_counter_x10 * max_current / 10;
+	if(ui->ui8_motor_type){
+	  max_power = 36 * max_current;
+	}
+
 	if(tmp > max_power)
 		tmp = max_power;
 	tmp = tmp * 42 / max_power;
