@@ -7,6 +7,9 @@ extern const struct screen screen_main;
 
 static void do_reset_trip_a(const struct configtree_t *ign);
 static void do_reset_trip_b(const struct configtree_t *ign);
+static void do_set_Z2motor(const struct configtree_t *ign);
+static void do_set_Z8motor(const struct configtree_t *ign);
+static void do_set_TS85motor(const struct configtree_t *ign);
 static void do_reset_ble(const struct configtree_t *ign);
 static void do_reset_all(const struct configtree_t *ign);
 void cfg_push_assist_screen(const struct configtree_t *ign);
@@ -159,7 +162,16 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 	{ "Various", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
 		//{ "Fast stop", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_pedal_cadence_fast_stop), disable_enable } },
 	  { "Screen size", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_screen_size), (const char*[]){ "small", "big", 0}}},
-	  { "Motor type", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_motor_version), (const char*[]){ "Z2", "Z8", "TS85", 0}}},
+    { "Motor type", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
+      { "Current motor type", F_OPTIONS|F_RO, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_motor_version), (const char*[]){ "Z2", "Z8", "TS85", 0}}},
+      { "Set motor type", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
+        { "Z2", F_BUTTON, .action = do_set_Z2motor },
+        { "Z8", F_BUTTON, .action = do_set_Z8motor },
+        { "TS85", F_BUTTON, .action = do_set_TS85motor },
+        {}
+      }}},
+      {}
+    }}},
 	  { "Light config", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lights_configuration), 0, "", 0, 8 }},
 		{ "Odometer", F_NUMERIC|F_CALLBACK, .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_odometer_x10), 1, "km", 0, UINT32_MAX }, do_set_odometer }},
 		{ "Auto power off", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lcd_power_off_time_minutes), 0, "min", 0, 255 }},
@@ -224,6 +236,17 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     { "Used Wh", F_NUMERIC|F_CALLBACK,  .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_wh_x10), 1, "Wh", 0, 9990, 100 }, do_set_wh }},
     {},
   }}},
+  { "Motor", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
+    { "Motor voltage", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_motor_type), (const char*[]){ "48V", "36V", 0}}},
+    { "Max current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_motor_max_current), 0, "A", 1, 20 }},
+    //{ "Motor acceleration", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_motor_acceleration_adjustment), 0, "%", 0, 100 }},
+    //{ "Motor deceleration", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_motor_deceleration_adjustment), 0, "%", 0, 100 }},
+    //{ "Current ramp", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_ramp_up_amps_per_second_x10), 1, "A", 4, 100 }},
+    //{ "Control mode", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_motor_current_control_mode), (const char*[]){ "power", "torque", "cadence", "eMTB", "hybrid", 0}}},
+    //{ "Min current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_motor_current_min_adc), 0, "steps", 0, 13 }},
+    //{ "Field weakening", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_field_weakening), disable_enable } },
+    {},
+  }}},
   { "Street mode", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
     { "Feature", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_street_mode_function_enabled), disable_enable } },
     { "Current status", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_street_mode_enabled), off_on } },
@@ -238,7 +261,16 @@ static const struct configtree_t cfgroot_tsdz8[] = {
   { "Various", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
     //{ "Fast stop", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_pedal_cadence_fast_stop), disable_enable } },
     { "Screen size", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_screen_size), (const char*[]){ "small", "big", 0}}},
-    { "Motor type", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_motor_version), (const char*[]){ "Z2", "Z8", "TS85", 0}}},
+    { "Motor type", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
+      { "Current motor type", F_OPTIONS|F_RO, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_motor_version), (const char*[]){ "Z2", "Z8", "TS85", 0}}},
+      { "Set motor type", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
+        { "Z2", F_BUTTON, .action = do_set_Z2motor },
+        { "Z8", F_BUTTON, .action = do_set_Z8motor },
+        { "TS85", F_BUTTON, .action = do_set_TS85motor },
+        {}
+      }}},
+      {}
+    }}},
     { "Light config", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lights_configuration), 0, "", 0, 8 }},
     { "Odometer", F_NUMERIC|F_CALLBACK, .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_odometer_x10), 1, "km", 0, UINT32_MAX }, do_set_odometer }},
     { "Auto power off", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lcd_power_off_time_minutes), 0, "min", 0, 255 }},
@@ -320,6 +352,39 @@ static void do_reset_trip_b(const struct configtree_t *ign)
 	rt_vars.ui16_trip_b_avg_speed_x10 = 0;
 	rt_vars.ui16_trip_b_max_speed_x10 = 0;
 	sstack_pop();
+}
+
+static void do_set_Z2motor(const struct configtree_t *ign)
+{
+  ui_vars.ui8_battery_max_current = 15;
+  ui_vars.ui16_battery_low_voltage_cut_off_x10 = 300;
+  ui_vars.ui16_battery_voltage_reset_wh_counter_x10 = 415;
+  ui_vars.ui8_motor_type = 1;
+  ui_vars.ui8_motor_max_current = 15;
+  ui_vars.ui8_motor_version = 0;
+  sstack_pop();
+}
+
+static void do_set_Z8motor(const struct configtree_t *ign)
+{
+  ui_vars.ui8_battery_max_current = 23;
+  ui_vars.ui16_battery_low_voltage_cut_off_x10 = 420;
+  ui_vars.ui16_battery_voltage_reset_wh_counter_x10 = 544;
+  ui_vars.ui8_motor_type = 0;
+  ui_vars.ui8_motor_max_current = 23;
+  ui_vars.ui8_motor_version = 1;
+  sstack_pop();
+}
+
+static void do_set_TS85motor(const struct configtree_t *ign)
+{
+  ui_vars.ui8_battery_max_current = 15;
+  ui_vars.ui16_battery_low_voltage_cut_off_x10 = 300;
+  ui_vars.ui16_battery_voltage_reset_wh_counter_x10 = 415;
+  ui_vars.ui8_motor_type = 1;
+  ui_vars.ui8_motor_max_current = 15;
+  ui_vars.ui8_motor_version = 2;
+  sstack_pop();
 }
 
 #if defined(NRF51)

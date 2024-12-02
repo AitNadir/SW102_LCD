@@ -1020,19 +1020,6 @@ void rt_processing_start(void) {
  *
  */
 void copy_rt_to_ui_vars(void) {
-  if(ui_vars.ui8_motor_version == 1){
-    ui_vars.ui8_battery_max_current = 23;
-    ui_vars.ui16_battery_low_voltage_cut_off_x10 = 420;
-    ui_vars.ui16_battery_voltage_reset_wh_counter_x10 = 544;
-    ui_vars.ui8_motor_type = 0;
-    ui_vars.ui8_motor_max_current = 23;
-  }else{
-    ui_vars.ui8_battery_max_current = 15;
-    ui_vars.ui16_battery_low_voltage_cut_off_x10 = 300;
-    ui_vars.ui16_battery_voltage_reset_wh_counter_x10 = 415;
-    ui_vars.ui8_motor_type = 1;
-    ui_vars.ui8_motor_max_current = 15;
-  }
 	ui_vars.ui16_adc_battery_voltage = rt_vars.ui16_adc_battery_voltage;
 	ui_vars.ui8_battery_current_x5 = rt_vars.ui8_battery_current_x5;
 	ui_vars.ui16_battery_power_loss = rt_vars.ui16_battery_power_loss;
