@@ -291,14 +291,28 @@ static void draw_assist_indicator(ui_vars_t *ui)
     fill_rect(61, 111, 2, 2, true);
     if(ui->ui8_assist_level==1)
       img_draw(&img_level1, 5, 101);
-    else if(ui->ui8_assist_level==2)
+    else if(ui->ui8_assist_level==2){
+      img_draw(&img_level1, 5, 101);
       img_draw(&img_level2, 16, 97);
-    else if(ui->ui8_assist_level==3)
+    }
+    else if(ui->ui8_assist_level==3){
+      img_draw(&img_level1, 5, 101);
+      img_draw(&img_level2, 16, 97);
       img_draw(&img_level3, 27, 93);
-    else if(ui->ui8_assist_level==4)
+    }
+    else if(ui->ui8_assist_level==4){
+      img_draw(&img_level1, 5, 101);
+      img_draw(&img_level2, 16, 97);
+      img_draw(&img_level3, 27, 93);
       img_draw(&img_level4, 38, 89);
-    else if(ui->ui8_assist_level==5)
+    }
+    else if(ui->ui8_assist_level==5){
+      img_draw(&img_level1, 5, 101);
+      img_draw(&img_level2, 16, 97);
+      img_draw(&img_level3, 27, 93);
+      img_draw(&img_level4, 38, 89);
       img_draw(&img_level5, 49, 85);
+    }
   }else{
     sprintf(bufa, "%d", 5);//number of assist levels
     sprintf(bufb, "%d", ui->ui8_assist_level);

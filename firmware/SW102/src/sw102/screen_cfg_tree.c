@@ -172,7 +172,7 @@ static const struct configtree_t cfgroot_tsdz2[] = {
       }}},
       {}
     }}},
-	  { "Light config", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lights_configuration), 0, "", 0, 8 }},
+	  //{ "Light config", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lights_configuration), 0, "", 0, 8 }},
 		{ "Odometer", F_NUMERIC|F_CALLBACK, .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_odometer_x10), 1, "km", 0, UINT32_MAX }, do_set_odometer }},
 		{ "Auto power off", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lcd_power_off_time_minutes), 0, "min", 0, 255 }},
 		{ "Reset BLE peers", F_BUTTON, .action = do_reset_ble },
@@ -271,7 +271,7 @@ static const struct configtree_t cfgroot_tsdz8[] = {
       }}},
       {}
     }}},
-    { "Light config", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lights_configuration), 0, "", 0, 8 }},
+    //{ "Light config", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lights_configuration), 0, "", 0, 8 }},
     { "Odometer", F_NUMERIC|F_CALLBACK, .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_odometer_x10), 1, "km", 0, UINT32_MAX }, do_set_odometer }},
     { "Auto power off", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lcd_power_off_time_minutes), 0, "min", 0, 255 }},
     { "Reset BLE peers", F_BUTTON, .action = do_reset_ble },

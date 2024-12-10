@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x62
-#define EEPROM_VERSION 0x62
+#define EEPROM_MIN_COMPAT_VERSION 0x63
+#define EEPROM_VERSION 0x63
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -210,7 +210,7 @@ typedef struct eeprom_data {
 // EEPROM memory variables default values
 //add variables here
 #define DEFAULT_VALUE_MOTOR_VERSION                                 0 //0 for Z2, 1 for Z8, 2 for TS85
-#define DEFAULT_VALUE_SCREEN_SIZE                             		  0 //small
+#define DEFAULT_VALUE_SCREEN_SIZE                             		  1 //0:small;1:big
 #define DEFAULT_VALUE_ASSIST_WHIT_ERROR                             0 //disabled
 #define DEFAULT_VALUE_THROTTLE                                      0 //disabled
 #define DEFAULT_VALUE_CRUISE                                        0 //disabled

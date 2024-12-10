@@ -535,7 +535,7 @@ void rt_send_tx_package_tsdz8(frame_type_t type) {
 	  case FRAME_TYPE_PERIODIC:
       ui8_usart1_tx_buffer[1] = 0x00;
       // Set the light
-      ui8_usart1_tx_buffer[1] |= 0;
+      ui8_usart1_tx_buffer[1] |= (rt_vars.ui8_lights & 1);
       // Set the walk assit
       if (rt_vars.ui8_walk_assist) {
         ui8_usart1_tx_buffer[1] |= (1 << 5);
