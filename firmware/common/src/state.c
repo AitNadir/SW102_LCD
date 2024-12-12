@@ -1156,6 +1156,12 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
+  rt_vars.ui8_screen_size = ui_vars.ui8_screen_size;
+  rt_vars.ui16_battery_pack_resistance_estimated_x1000 = ui_vars.ui16_battery_pack_resistance_estimated_x1000;
+  rt_vars.ui8_street_mode_enabled_on_startup = ui_vars.ui8_street_mode_enabled_on_startup;
+  rt_vars.ui16_pedal_power = ui_vars.ui16_pedal_power;
+  rt_vars.ui16_battery_power = ui_vars.ui16_battery_power;
+  rt_vars.ui8_lcd_power_off_time_minutes = ui_vars.ui8_lcd_power_off_time_minutes;
   ui_vars.ui8_speed_sensor_err = rt_vars.ui8_speed_sensor_err;
   rt_vars.ui16_battery_voltage_reset_wh_counter_x10 = ui_vars.ui16_battery_voltage_reset_wh_counter_x10;
   rt_vars.ui8_walk_assist_feature_enabled = ui_vars.ui8_walk_assist_feature_enabled;

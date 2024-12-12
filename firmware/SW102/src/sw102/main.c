@@ -44,7 +44,6 @@ Button buttonM, buttonDWN, buttonUP, buttonPWR;
 APP_TIMER_DEF(gui_timer_id); /* GUI updates counting timer. */
 #define GUI_INTERVAL APP_TIMER_TICKS(MSEC_PER_TICK, APP_TIMER_PRESCALER)
 volatile uint32_t gui_ticks;
-static uint8_t framecount;
 
 // assume we should until we init_softdevice()
 bool useSoftDevice = true;
@@ -293,14 +292,13 @@ static void gui_timer_timeout(void *p_context)
   }
   if((gui_ticks % (100 / MSEC_PER_TICK) == 0) && // every 100ms
       m_rt_processing_stop == false) {
-    rt_processing();
-    framecount++;
-        if(framecount == 1){
-          send_bluetooth1(&rt_vars);
-        }else{
-          send_bluetooth2(&rt_vars);
-          framecount = 0;
-        }
+      rt_processing();
+
+      send_bluetooth1(&rt_vars);
+      send_bluetooth2(&rt_vars);
+      send_bluetooth3(&rt_vars);
+      send_bluetooth4(&rt_vars);
+
   }
 }
 

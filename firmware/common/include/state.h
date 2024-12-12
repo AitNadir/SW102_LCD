@@ -138,6 +138,12 @@ typedef struct rt_vars_struct {
 	uint32_t ui32_wh_x10;
 	uint32_t ui32_wheel_speed_sensor_tick_counter_offset;
     //add variables here
+	uint8_t ui8_screen_size;
+	uint16_t ui16_battery_pack_resistance_estimated_x1000;
+	uint8_t ui8_street_mode_enabled_on_startup;
+	uint16_t ui16_pedal_power;
+	uint16_t ui16_battery_power;
+	uint8_t ui8_lcd_power_off_time_minutes;
 	uint8_t ui8_motor_version;
   uint8_t ui8_speed_sensor_err;
 	uint8_t ui8_assist_whit_error_enabled;

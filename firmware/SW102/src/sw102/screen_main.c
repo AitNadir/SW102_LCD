@@ -120,13 +120,13 @@ static void graph_paint(struct GraphData *gd, int x_left, int y_bot, int w, int 
 }
 
 enum display_mode_t {
-	ModeOdometer,
+  ModeMotorPower,
+  ModeOdometer,
 	ModeTripDistance,
 	ModeTripTime,
 	ModeTripAVS,
 	ModePowerConsump,
 //	ModePedalPower,
-	ModeMotorPower,
 	ModeBigScreen,
 	ModeLast,
 } display_mode;
