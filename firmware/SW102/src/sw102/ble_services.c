@@ -831,8 +831,8 @@ void send_bluetooth2(rt_vars_t *rt_vars) {
    data_array[0] = 0x02;
    data_array[1] = (uint8_t) (rt_vars->ui16_wheel_speed_x10 >> 8) + 1;
    data_array[2] = (uint8_t) (rt_vars->ui16_wheel_speed_x10 & 0xff) + 1;
-   data_array[3] = (uint8_t) (rt_vars->ui16_pedal_power_x10 >> 8) + 1;
-   data_array[4] = (uint8_t) (rt_vars->ui16_pedal_power_x10 & 0xff) + 1;
+   data_array[3] = rt_vars->ui8_motor_max_current + 1;
+   data_array[4] = rt_vars->ui8_screen_size + 1;
    data_array[5] = (uint8_t) (rt_vars->ui32_trip_a_distance_x1000 >> 24) + 1;
    data_array[6] = (uint8_t) ((rt_vars->ui32_trip_a_distance_x1000 >> 16) & 0xff) + 1;
    data_array[7] = (uint8_t) ((rt_vars->ui32_trip_a_distance_x1000 >> 8) & 0xff) + 1;
@@ -843,6 +843,7 @@ void send_bluetooth2(rt_vars_t *rt_vars) {
    data_array[12] = (uint8_t) ((rt_vars->ui32_odometer_x10 >> 16) & 0xff) + 1;
    data_array[13] = (uint8_t) ((rt_vars->ui32_odometer_x10 >> 8) & 0xff) + 1;
    data_array[14] = (uint8_t) (rt_vars->ui32_odometer_x10 & 0xff) + 1;
+
 
      ble_nus_string_send(&m_nus, data_array, strlen(data_array));
 }
@@ -904,8 +905,6 @@ void send_bluetooth4(rt_vars_t *rt_vars) {
     data_array[15] = (uint8_t) ((rt_vars->ui32_wh_x10 >> 8) & 0xff) + 1;
     data_array[16] = (uint8_t) (rt_vars->ui32_wh_x10 & 0xff) + 1;
 
-    data_array[17] = rt_vars->ui8_motor_max_current + 1;
-    data_array[18] = rt_vars->ui8_screen_size + 1;
 
     // Send the data (19 bytes used)
     ble_nus_string_send(&m_nus, data_array, strlen(data_array));
