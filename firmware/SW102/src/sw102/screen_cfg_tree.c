@@ -345,14 +345,14 @@ static void do_reset_trip_a(const struct configtree_t *ign)
 	sstack_pop();
 }
 
-static void do_reset_trip_b(const struct configtree_t *ign)
+/*static void do_reset_trip_b(const struct configtree_t *ign)
 {
 	rt_vars.ui32_trip_b_distance_x1000 = 0;
 	rt_vars.ui32_trip_b_time = 0;
 	rt_vars.ui16_trip_b_avg_speed_x10 = 0;
 	rt_vars.ui16_trip_b_max_speed_x10 = 0;
 	sstack_pop();
-}
+}*/
 
 static void do_set_Z2motor(const struct configtree_t *ign)
 {
@@ -362,6 +362,7 @@ static void do_set_Z2motor(const struct configtree_t *ign)
   ui_vars.ui8_motor_type = 1;
   ui_vars.ui8_motor_max_current = 15;
   ui_vars.ui8_motor_version = 0;
+  ui_vars.ui32_wh_x10_100_percent = 5000;
   sstack_pop();
 }
 
@@ -373,6 +374,7 @@ static void do_set_Z8motor(const struct configtree_t *ign)
   ui_vars.ui8_motor_type = 0;
   ui_vars.ui8_motor_max_current = 23;
   ui_vars.ui8_motor_version = 1;
+  ui_vars.ui32_wh_x10_100_percent = 7000;
   sstack_pop();
 }
 
@@ -384,6 +386,7 @@ static void do_set_TS85motor(const struct configtree_t *ign)
   ui_vars.ui8_motor_type = 1;
   ui_vars.ui8_motor_max_current = 15;
   ui_vars.ui8_motor_version = 2;
+  ui_vars.ui32_wh_x10_100_percent = 3000;
   sstack_pop();
 }
 

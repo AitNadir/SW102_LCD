@@ -1138,6 +1138,10 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_calibration_feature_enabled = ui_vars.ui8_torque_sensor_calibration_feature_enabled;
   rt_vars.ui8_torque_sensor_calibration_pedal_ground = ui_vars.ui8_torque_sensor_calibration_pedal_ground;
 
+  if(!ui_vars.ui8_street_mode_function_enabled){
+    rt_vars.ui8_street_mode_enabled = 1;
+    ui_vars.ui8_street_mode_enabled = rt_vars.ui8_street_mode_enabled;
+  }
   rt_vars.ui8_street_mode_enabled = ui_vars.ui8_street_mode_enabled;
   rt_vars.ui8_street_mode_speed_limit = ui_vars.ui8_street_mode_speed_limit;
   ui_vars.ui8_street_mode_power_limit_div25 = ui_vars.ui16_street_mode_power_limit / 25;
