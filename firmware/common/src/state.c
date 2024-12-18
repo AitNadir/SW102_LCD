@@ -600,10 +600,6 @@ void rt_low_pass_filter_battery_voltage_current_power(void) {
 	rt_vars.ui16_battery_voltage_filtered_x10 =
 			(((uint32_t) (ui32_battery_voltage_accumulated_x10000 >> BATTERY_VOLTAGE_FILTER_COEFFICIENT)) / 1000);
 
-	if(uart_get_motor_type() == MOTOR_TSDZ8){
-	  rt_vars.ui16_battery_voltage_filtered_x10 =
-	      battery_voltage_10x_get();
-	}
 	// low pass filter battery current
 	ui16_battery_current_accumulated_x5 -= ui16_battery_current_accumulated_x5
 			>> BATTERY_CURRENT_FILTER_COEFFICIENT;
@@ -664,6 +660,10 @@ void rt_calc_battery_voltage_soc(void) {
 	rt_vars.ui16_battery_voltage_soc_x10 =
 			rt_vars.ui16_battery_voltage_filtered_x10
 					+ ui16_fluctuate_battery_voltage_x10;
+	if(uart_get_motor_type() == MOTOR_TSDZ8){
+	    rt_vars.ui16_battery_voltage_soc_x10 =
+	        battery_voltage_10x_get();
+	}
 }
 
 void rt_calc_wh(void) {
@@ -707,6 +707,7 @@ void reset_wh(void) {
 static void rt_calc_speed(void) {
   float circ_in_m = 0.0f;
   float rotations = 0.0f;
+  static uint16_t speed;
 
   if(uart_get_motor_type() != MOTOR_TSDZ8) {
     return;
@@ -725,7 +726,9 @@ static void rt_calc_speed(void) {
     rotations = rotations * circ_in_m;
 
     // Calculate the speed km per hour x 10
-    rt_vars.ui16_wheel_speed_x10 = rotations * 36;
+    speed = rotations * 36;
+    if(speed <= rt_vars.ui8_wheel_max_speed*10)
+      rt_vars.ui16_wheel_speed_x10 = speed;
   } else {
     rt_vars.ui16_wheel_speed_x10 = 0;
   }
