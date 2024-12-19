@@ -343,7 +343,7 @@ static bool draw_fault_states(ui_vars_t *ui)
 	      e2 = "lowV";
 	    else if(ui->ui8_error_states == 9)
 	      e2 = "overV";
-	    else if(ui->ui8_error_states == 10 || ui_vars.ui8_speed_sensor_err)
+	    else if(ui->ui8_error_states == 10)// || ui_vars.ui8_speed_sensor_err)
 	      e2 = "hall";
 	    else
 	      return false;

@@ -651,24 +651,26 @@ void rt_low_pass_filter_pedal_power(void) {
 void rt_calc_battery_voltage_soc(void) {
 	uint16_t ui16_fluctuate_battery_voltage_x10;
 
-	// calculate flutuate voltage, that depends on the current and battery pack resistance
-	ui16_fluctuate_battery_voltage_x10 =
-			(uint16_t) ((((uint32_t) rt_vars.ui16_battery_pack_resistance_x1000)
-					* ((uint32_t) rt_vars.ui16_battery_current_filtered_x5))
-					/ ((uint32_t) 500));
-	// now add fluctuate voltage value
-	rt_vars.ui16_battery_voltage_soc_x10 =
-			rt_vars.ui16_battery_voltage_filtered_x10
-					+ ui16_fluctuate_battery_voltage_x10;
 	if(uart_get_motor_type() == MOTOR_TSDZ8){
 	    rt_vars.ui16_battery_voltage_soc_x10 =
 	        battery_voltage_10x_get();
+	    rt_vars.ui16_full_battery_power_filtered_x50 = rt_vars.ui16_battery_voltage_soc_x10 * rt_vars.ui16_battery_current_filtered_x5;
+	}else{
+	  // calculate flutuate voltage, that depends on the current and battery pack resistance
+	  ui16_fluctuate_battery_voltage_x10 =
+	      (uint16_t) ((((uint32_t) rt_vars.ui16_battery_pack_resistance_x1000)
+	          * ((uint32_t) rt_vars.ui16_battery_current_filtered_x5))
+	          / ((uint32_t) 500));
+	  // now add fluctuate voltage value
+	  rt_vars.ui16_battery_voltage_soc_x10 =
+	      rt_vars.ui16_battery_voltage_filtered_x10
+	          + ui16_fluctuate_battery_voltage_x10;
 	}
 }
 
 void rt_calc_wh(void) {
 	static uint8_t ui8_1s_timer_counter = 0;
-	uint32_t ui32_temp = 0;
+	static uint32_t ui32_temp = 0;
 
 	if (m_reset_wh_flag == false) {
     if (rt_vars.ui16_full_battery_power_filtered_x50 > 0) {
@@ -1050,7 +1052,12 @@ void copy_rt_to_ui_vars(void) {
       rt_vars.ui16_motor_current_filtered_x5;
 	ui_vars.ui16_full_battery_power_filtered_x50 =
 			rt_vars.ui16_full_battery_power_filtered_x50;
-	ui_vars.ui16_battery_power = rt_vars.ui16_battery_power_filtered;
+	if(uart_get_motor_type() == MOTOR_TSDZ8){
+	  ui_vars.ui16_battery_power = rt_vars.ui16_full_battery_power_filtered_x50/50;
+	}else{
+	  ui_vars.ui16_battery_power = rt_vars.ui16_battery_power_filtered;
+	}
+
 	ui_vars.ui16_pedal_power = rt_vars.ui16_pedal_power_filtered;
 	ui_vars.ui16_battery_voltage_soc_x10 = rt_vars.ui16_battery_voltage_soc_x10;
 	ui_vars.ui32_wh_sum_x5 = rt_vars.ui32_wh_sum_x5;
