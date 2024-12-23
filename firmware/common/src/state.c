@@ -1828,23 +1828,77 @@ void password_check(void) {
 	//}
 }
 
-void cooling_down(void){
-  if (ui_vars.ui8_assist_level){
-    if (is_cooling_down) {
-             static int cooldown_counter = 0;
-             cooldown_counter++;
-             if (cooldown_counter >= cooldown_time) {
-                 ui_vars.ui8_assist_level = ui_vars.ui8_assist_level + 1;
-                 is_cooling_down = false;
-                 cooldown_counter = 0;
-             }
-      }else {
-           if (time_counter[ui_vars.ui8_assist_level-1] >= max_time[ui_vars.ui8_assist_level-1]) {
-               ui_vars.ui8_assist_level = ui_vars.ui8_assist_level - 1;
-               is_cooling_down = true;
-               time_counter[ui_vars.ui8_assist_level] = 0;
-           }else
-             time_counter[ui_vars.ui8_assist_level-1]++;
-       }
-  }
+void cooling_down(void) {
+    static uint8_t level_memorized;  // Memorized level before downshifting
+    static int cooldown_counter = 0;  // Cooldown counter
+
+    // If there's an active assist level or cooling is ongoing
+    if (ui_vars.ui8_assist_level || is_cooling_down) {
+
+        if (ui_vars.ui8_assist_level) {  // Ensure there's a valid assist level
+            if (is_cooling_down) {  // If in cooling state
+                cooldown_counter++;  // Increment cooldown counter
+
+                // If the current assist level time exceeds the max time, downshift
+                if (time_counter[ui_vars.ui8_assist_level - 1] >= max_time[ui_vars.ui8_assist_level - 1]) {
+                    // Downshift
+                    ui_vars.ui8_assist_level--;
+                    // Reset the cooldown counter
+                    cooldown_counter = 0;  // Start cooldown timer from 0
+                    // No need to reset the time_counter of the original level
+                }
+
+                // If the cooldown time is reached, restore the original level
+                if (cooldown_counter >= cooldown_time) {
+                    // Cooling completed, restore the original level
+                    is_cooling_down = false;
+                    cooldown_counter = 0;
+
+                    // Clear the time counters for all levels above the current level
+                    for (int i = ui_vars.ui8_assist_level; i < ASSIST_LEVEL_NUMBER; i++) {
+                        time_counter[i] = 0;
+                    }
+                    // Restore the original level
+                    ui_vars.ui8_assist_level = level_memorized;
+                }
+
+                // During cooling, continue incrementing the time counter for the current level
+                time_counter[ui_vars.ui8_assist_level - 1]++;
+            } else {
+                // If not in cooling state, update the assist level timer normally
+                if (time_counter[ui_vars.ui8_assist_level - 1] >= max_time[ui_vars.ui8_assist_level - 1]) {
+                    // Exceeded max time, start cooldown
+                    is_cooling_down = true;
+                    // Set the cooldown counter to 0
+                    cooldown_counter = 0;
+                    // Memorize the current level before downshifting
+                    level_memorized = ui_vars.ui8_assist_level;
+                    // Downshift
+                    ui_vars.ui8_assist_level--;
+                    // No need to reset the time_counter of the original level
+                } else {
+                    // Normally, increment the time counter for the current level
+                    time_counter[ui_vars.ui8_assist_level - 1]++;
+                }
+            }
+        }
+
+        // If no active assist level (ui_vars.ui8_assist_level == 0), but still cooling down
+        if (ui_vars.ui8_assist_level == 0 && is_cooling_down) {
+            cooldown_counter++;  // Continue incrementing the cooldown counter
+
+            // If the cooldown time is reached, restore the original level
+            if (cooldown_counter >= cooldown_time) {
+                is_cooling_down = false;
+                cooldown_counter = 0;
+
+                // Clear the time counters for all levels above the current level
+                for (int i = ui_vars.ui8_assist_level; i < ASSIST_LEVEL_NUMBER; i++) {
+                    time_counter[i] = 0;
+                }
+                // Restore the original level
+                ui_vars.ui8_assist_level = level_memorized;
+            }
+        }
+    }
 }

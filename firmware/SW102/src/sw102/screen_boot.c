@@ -12,7 +12,7 @@ const
 #include "logo_syklo.xbm"
 const
 #include "font_2nd.xbm"
-DEFINE_FONT(2sd, "./0123456789Wehikmnr", 3, 11, 18, 22, 29, 37, 44, 51, 58, 65, 72, 79, 90, 96, 102, 105, 111, 120, 126);
+DEFINE_FONT(2sd, "./0123456789Wehikmnr", 3, 11, 18, 22, 29, 36, 44, 51, 58, 65, 72, 79, 90, 96, 102, 105, 111, 120, 126);
 
 DEFINE_IMAGE(logo);
 DEFINE_IMAGE(logo_anim);
