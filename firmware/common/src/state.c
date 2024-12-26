@@ -295,7 +295,7 @@ void rt_send_tx_package(frame_type_t type) {
       }
 
       // wheel max speed
-      if (rt_vars.ui8_street_mode_enabled)
+      if (rt_vars.ui8_street_mode_enabled && rt_vars.ui8_street_mode_enabled)
       {
         ui8_usart1_tx_buffer[9] = rt_vars.ui8_street_mode_speed_limit;
       }
@@ -552,7 +552,7 @@ void rt_send_tx_package_tsdz8(frame_type_t type) {
       // Test params 2
       ui8_usart1_tx_buffer[4] = 0x00;
       // Speed Limit
-      if (rt_vars.ui8_street_mode_enabled)
+      if (rt_vars.ui8_street_mode_function_enabled && rt_vars.ui8_street_mode_enabled)
       {
         ui8_usart1_tx_buffer[5] = rt_vars.ui8_street_mode_speed_limit;
       }
