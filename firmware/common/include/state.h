@@ -577,6 +577,10 @@ void reset_wh(void);
 
 extern uint8_t ui8_g_battery_soc;
 
+extern uint8_t ui8_g_screen_init_flag;
+
+extern uint8_t ui8_configuration_flag;
+
 extern tsdz2_firmware_version_t g_tsdz2_firmware_version;
 
 extern volatile motor_init_status_t ui8_g_motor_init_status;

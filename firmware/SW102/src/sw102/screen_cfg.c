@@ -71,6 +71,7 @@ static void cfg_list_button(void *_it, int but, int increment)
 	if(but & ONOFF_CLICK) {
 		sstack_pop();
 		if(!sstack_current) {
+		  ui8_configuration_flag = 0;
 			showScreen(&screen_main);
 			mclick_counter = 0;
 			return;

@@ -477,6 +477,7 @@ static void main_button(int but)
 	
 	if(but & M_LONG_CLICK) {
 		// enter cfg screen
+	  ui8_configuration_flag = 1;
 		showScreen(&screen_cfg);
 	}
 }

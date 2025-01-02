@@ -22,7 +22,7 @@
 #include "nrf_drv_wdt.h"
 #include "nrf_power.h"
 #include "timer.h"
-
+#include "state.h"
 #include "ui.h"
 #include "gfx.h"
 extern const struct screen screen_boot;
@@ -194,6 +194,7 @@ int main(void)
   /* eeprom_init AFTER ble_init! */
   eeprom_init();
 
+  ui8_g_screen_init_flag = 1;
   showScreen(&screen_boot);
 
 //  watchdog_start();

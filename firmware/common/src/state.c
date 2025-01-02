@@ -50,6 +50,8 @@ static uint8_t ui8_m_usart1_received_first_package = 0;
 uint8_t ui8_throttle_legal = 0;
 uint8_t ui8_cruise_legal = 0;
 uint8_t ui8_g_battery_soc;
+uint8_t ui8_g_screen_init_flag;
+uint8_t ui8_configuration_flag = 0;
 volatile uint8_t ui8_g_motorVariablesStabilized = 0;
 
 volatile uint8_t m_get_tsdz2_firmware_version; // true if we are simulating a motor (and therefore not talking on serial at all)
@@ -1240,12 +1242,18 @@ void copy_rt_to_ui_vars(void) {
   }
   ui_vars.ui8_pedal_torque_ADC_step_calc_x100 = rt_vars.ui8_pedal_torque_ADC_step_calc_x100;
   // verify password
+  if(ui8_g_screen_init_flag) {
+      rt_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_street_mode_throttle_enabled;
+      rt_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_street_mode_cruise_enabled;
+  }
+
 	if(ui_vars.ui8_password_changed) {
 		ui_vars.ui8_password_enabled = 1;
 	}
 
 	if(((ui_vars.ui8_confirm_password)&&(ui_vars.ui8_password_confirmed))
-	  ||((!ui_vars.ui8_password_enabled)&&(!ui_vars.ui8_password_changed))) {
+	  ||((!ui_vars.ui8_password_enabled)&&(!ui_vars.ui8_password_changed))
+	  ||(ui8_g_screen_init_flag)) {
 	  rt_vars.ui8_wheel_max_speed = ui_vars.wheel_max_speed_x10 / 10;
 		rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
 		rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui16_target_max_battery_power / 25;
@@ -1260,7 +1268,7 @@ void copy_rt_to_ui_vars(void) {
 			ui_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_throttle_feature_enabled;
 		if(ui_vars.ui8_cruise_feature_enabled < ui_vars.ui8_street_mode_cruise_enabled)
 			ui_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_cruise_feature_enabled;
-
+		ui8_g_screen_init_flag = 0;
 	}
 	else {
 	  ui_vars.wheel_max_speed_x10 = rt_vars.ui8_wheel_max_speed * 10;
@@ -1747,7 +1755,7 @@ void batteryResistance(void) {
 
 void password_check(void) {
 	// password check
-	if(ui_vars.ui8_password_enabled) {
+	if((ui8_configuration_flag)&&(ui_vars.ui8_password_enabled)) {
 		switch (ui_vars.ui8_confirm_password) {
 			case LOGOUT:
 				if((ui_vars.ui8_wait_confirm_password)
