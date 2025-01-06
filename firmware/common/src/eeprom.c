@@ -399,6 +399,8 @@ void eeprom_init_variables(void) {
 
 	// copy data final variables
 	//add variables here
+	ui_vars->ui16_saved_password = m_eeprom_data.ui16_saved_password;
+	ui_vars->ui8_password_changed = m_eeprom_data.ui8_password_changed;
 	ui_vars->ui8_motor_version = m_eeprom_data.ui8_motor_version;
 	ui_vars->ui8_screen_size = m_eeprom_data.ui8_screen_size;
 	ui_vars->ui8_battery_soc_percent_calculation = m_eeprom_data.ui8_battery_soc_percent_calculation;
@@ -725,6 +727,8 @@ void eeprom_init_variables(void) {
 void eeprom_write_variables(void) {
 	ui_vars_t *ui_vars = get_ui_vars();
 	//add variables here
+	m_eeprom_data.ui16_saved_password = ui_vars->ui16_saved_password;
+	m_eeprom_data.ui8_password_changed = ui_vars->ui8_password_changed;
 	m_eeprom_data.ui8_motor_version = ui_vars->ui8_motor_version;
 	m_eeprom_data.ui8_screen_size = ui_vars->ui8_screen_size;
 	m_eeprom_data.ui8_battery_soc_percent_calculation = ui_vars->ui8_battery_soc_percent_calculation;
