@@ -416,7 +416,7 @@ static void main_idle()
 		}
 	}
 
-	if(!ui->ui8_street_mode_enabled) {
+	if(ui->ui8_street_mode_function_enabled && (!ui->ui8_street_mode_enabled)) {
 		//draw_hline(0, 64, 13);
 		//draw_hline(0, 64, 115);
 	  img_draw(&img_offroad_icon, 19, 116);

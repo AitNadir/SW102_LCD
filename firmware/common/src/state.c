@@ -216,7 +216,7 @@ void rt_send_tx_package(frame_type_t type) {
   uint8_t crc_len = 3; // minimum is 3
   uint8_t *ui8_usart1_tx_buffer = uart_get_tx_buffer();
   uint8_t ui8_temp;
-  const uint8_t assist_level_walk[5] = {25, 30, 35, 40, 50};
+  const uint8_t assist_level_walk = 40;//250 for test mode, 40 for general mode
   /************************************************************************************************/
   // send tx package
   // start up byte
@@ -245,7 +245,7 @@ void rt_send_tx_package(frame_type_t type) {
             //ui8_usart1_tx_buffer[7] = 0;
       }
       // walk assist parameter
-      ui8_usart1_tx_buffer[7] = assist_level_walk[3];
+      ui8_usart1_tx_buffer[7] = assist_level_walk;
 
       ui8_usart1_tx_buffer[8] = rt_vars.ui8_motor_current_control_mode + 1;
 
@@ -287,7 +287,7 @@ void rt_send_tx_package(frame_type_t type) {
           (ui8_cruise_legal & 1) << 7);
 
       // battery power limit
-      if (rt_vars.ui8_street_mode_enabled)
+      if (rt_vars.ui8_street_mode_function_enabled && rt_vars.ui8_street_mode_enabled)
       {
         ui8_usart1_tx_buffer[6] = rt_vars.ui8_street_mode_power_limit_div25;
       }
@@ -1150,10 +1150,6 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_calibration_feature_enabled = ui_vars.ui8_torque_sensor_calibration_feature_enabled;
   rt_vars.ui8_torque_sensor_calibration_pedal_ground = ui_vars.ui8_torque_sensor_calibration_pedal_ground;
 
-  if(!ui_vars.ui8_street_mode_function_enabled){
-    rt_vars.ui8_street_mode_enabled = 1;
-    ui_vars.ui8_street_mode_enabled = rt_vars.ui8_street_mode_enabled;
-  }
   rt_vars.ui8_street_mode_enabled = ui_vars.ui8_street_mode_enabled;
   rt_vars.ui8_street_mode_speed_limit = ui_vars.ui8_street_mode_speed_limit;
   ui_vars.ui8_street_mode_power_limit_div25 = ui_vars.ui16_street_mode_power_limit / 25;
