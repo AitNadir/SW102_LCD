@@ -731,7 +731,7 @@ static void rt_calc_speed(void) {
 
     // Calculate the speed km per hour x 10
     speed = rotations * 36;
-    if(speed <= rt_vars.ui8_wheel_max_speed*10)
+    if(speed <= 500)
       rt_vars.ui16_wheel_speed_x10 = speed;
   } else {
     rt_vars.ui16_wheel_speed_x10 = 0;
