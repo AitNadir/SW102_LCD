@@ -74,7 +74,7 @@ volatile uint8_t ui8_speedsensorerr_counter = 40;
 
 tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 
-const uint16_t max_time[] = {36000, 54000, 54000, 33000, 18000};
+const uint16_t max_time[] = {36000, 54000, 54000, 33000, 3000};
 const uint16_t cooldown_time = 3000; // Cooldown of 5 minutes (in seconds)
 const uint32_t runtime_limit = 144000; // 4-hour runtime limit
 
@@ -1832,7 +1832,7 @@ void password_check(void) {
 	//}
 }
 
-void cooling_down(void) {
+/*void cooling_down(void) {
     static uint8_t level_memorized;  // Memorized level before downshifting
     static int cooldown_counter = 0;  // Cooldown counter
 
@@ -1920,5 +1920,37 @@ void cooling_down(void) {
               }
           }
       }
+    }
+}*/
+
+void cooling_down(void) {
+    static int cooldown_counter = 0;  // Cooldown counter
+
+    // Only assist level 5 requires a timer
+    if (ui_vars.ui8_assist_level == 5 || is_cooling_down) {
+        if (is_cooling_down && ui_vars.ui8_assist_level < 5) {
+            cooldown_counter++;  // Increment the cooldown counter
+
+            // If cooldown time has been reached, exit cooldown mode
+            if (cooldown_counter >= cooldown_time) {
+                is_cooling_down = false;
+                cooldown_counter = 0;
+                time_counter[4] = 0;
+            }
+        } else {
+            if (ui_vars.ui8_assist_level == 5){
+              // Check if assist level 5 has timed out
+              if (time_counter[4] >= max_time[4]) {
+                  // Timeout, enter cooldown mode
+                  is_cooling_down = true;
+                  // Downshift
+                  ui_vars.ui8_assist_level--;
+              } else {
+                  // Increment the time counter for assist level 5
+                  if(ui_vars.ui8_assist_level == 5)
+                    time_counter[4]++;
+              }
+            }
+        }
     }
 }
