@@ -74,8 +74,8 @@ volatile uint8_t ui8_speedsensorerr_counter = 40;
 
 tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 
-const uint16_t max_time[] = {36000, 54000, 54000, 33000, 3000};
-const uint16_t cooldown_time = 3000; // Cooldown of 5 minutes (in seconds)
+const uint16_t max_time[] = {36000, 54000, 54000, 33000, 2100};
+const uint16_t cooldown_time = 3900; // Cooldown of 6.5 minutes (in seconds)
 const uint32_t runtime_limit = 144000; // 4-hour runtime limit
 
 // Global variables
