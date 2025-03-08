@@ -1279,14 +1279,16 @@ void copy_rt_to_ui_vars(void) {
 	}
 	rt_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a_offset;
   rt_vars.ui8_wheel_perimeter_in1Byte = (uint8_t)((rt_vars.ui16_wheel_perimeter / 10) - 100);//1000mm~3000mm ==> 0~200
-  rt_vars.ui8_battery_low_voltage_cut_off_x10_in1Byte = (uint8_t)(rt_vars.ui16_battery_low_voltage_cut_off_x10 - 290);//2.9~4.3V ==> 0~140
-  rt_vars.ui8_battery_voltage_reset_wh_counter_x10_in1Byte = (uint8_t)(rt_vars.ui16_battery_voltage_reset_wh_counter_x10 - 400);//4V~6V ==> 0~200
-  rt_vars.ui8_wheel_speed_x5 = (uint8_t)(rt_vars.ui16_wheel_speed_x10 / 2);
+  rt_vars.ui8_battery_low_voltage_cut_off_x10_in1Byte = (uint8_t)(rt_vars.ui16_battery_low_voltage_cut_off_x10 - 290);//29~43V ==> 0~140
+  rt_vars.ui8_battery_voltage_reset_wh_counter_x10_in1Byte = (uint8_t)(rt_vars.ui16_battery_voltage_reset_wh_counter_x10 - 400);//40V~60V ==> 0~200
   rt_vars.ui8_energy_consumption_per_distance_x10 = (uint8_t)(rt_vars.ui16_energy_consumption_per_distance_x100 / 10);//maximum 20Wh/km *10
   rt_vars.ui8_battery_power_in1Byte = (uint8_t)(rt_vars.ui16_battery_power / 10);//precision 10W.
   rt_vars.ui8_battery_pack_resistance_x100 = (uint8_t)(rt_vars.ui16_battery_pack_resistance_x1000 / 10);//0~1000mohm ==>0~100 * (10mohm)
-  rt_vars.ui8_battery_power_loss_in1Byte = (uint8_t)(rt_vars.ui16_battery_power_loss / 2);//0~1000W ==> 0~250 * (2W)
-  rt_vars.ui16_odokilometer_x10 = (uint16_t)(rt_vars.ui32_odometer_x10 / 1000);//precision 0.1km
+  rt_vars.ui8_battery_power_loss_in1Byte = (uint8_t)(rt_vars.ui16_battery_power_loss);//0~250W
+  rt_vars.ui32_odokilometer_x10 = rt_vars.ui32_odometer_x10 / 1000;//precision 0.1km
+  rt_vars.ui8_battery_voltage_soc_x10_in1Byte = (uint8_t)(rt_vars.ui16_battery_voltage_soc_x10 - 300);//30V~55V ==> 0~250
+  rt_vars.ui8_battery_soc_percent_calculation = ui_vars.ui8_battery_soc_percent_calculation;//"auto", "Wh", "volts"
+  rt_vars.ui8_battery_soc_enable  = ui_vars.ui8_battery_soc_enable;
 }
 
 /// must be called from main() idle loop

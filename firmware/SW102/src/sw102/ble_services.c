@@ -800,24 +800,31 @@ void send_bluetooth1(rt_vars_t *rt_vars) {
  static uint8_t data_array[BLE_NUS_MAX_DATA_LEN]; // 19 bytes max
 
    data_array[0] = 0x01;
+   //Bike
    data_array[1] = rt_vars->ui8_wheel_max_speed + 1;
-   data_array[2] = rt_vars->ui8_wheel_perimeter_in1Byte + 1;
+   data_array[2] = rt_vars->ui8_wheel_perimeter_in1Byte + 1;//1000mm~3000mm ==> 0~200
+   //Battery
    data_array[3] = rt_vars->ui8_battery_max_current + 1;
-   data_array[4] = rt_vars->ui8_battery_low_voltage_cut_off_x10_in1Byte + 1;
-   data_array[5] = rt_vars->ui8_battery_voltage_reset_wh_counter_x10_in1Byte + 1;
-   data_array[6] = (rt_vars->ui8_motor_type|
-                   rt_vars->ui8_field_weakening << 1|
-                   rt_vars->ui8_assist_whit_error_enabled << 2|
-                   rt_vars->ui8_walk_assist_feature_enabled << 3|
-                   rt_vars->ui8_walk_assist << 4|
-                   rt_vars->ui8_street_mode_function_enabled << 5|
-                   rt_vars->ui8_street_mode_enabled << 6) + 1;
-   data_array[7] = rt_vars->ui8_motor_max_current + 1;
-   data_array[8] = rt_vars->ui8_motor_acceleration_adjustment + 1;
-   data_array[9] = rt_vars->ui8_motor_deceleration_adjustment + 1;
-   data_array[10] = rt_vars->ui8_motor_current_control_mode + 1;
-   data_array[11] = rt_vars->ui8_motor_version + 1;
-   data_array[12] = rt_vars->ui8_lcd_power_off_time_minutes + 1;
+   data_array[4] = rt_vars->ui8_battery_low_voltage_cut_off_x10_in1Byte + 1;//2.9~4.3V ==> 0~140
+   data_array[5] = rt_vars->ui8_battery_pack_resistance_x100 + 1;//0~1000mohm ==>0~100 * (10mohm)
+   data_array[6] = rt_vars->ui8_battery_voltage_soc_x10_in1Byte + 1;//30V~55V ==> 0~250
+   data_array[7] = rt_vars->ui8_battery_power_loss_in1Byte + 1;//0~250W
+   //SOC
+   data_array[8] = rt_vars->ui8_battery_voltage_reset_wh_counter_x10_in1Byte + 1;//40V~60V ==> 0~200
+   data_array[9] = (uint8_t) ((rt_vars->ui32_wh_x10_100_percent >> 8) & 0xff) + 1;//total capacity
+   data_array[10] = (uint8_t) (rt_vars->ui32_wh_x10_100_percent & 0xff) + 1;//precision 0.1Wh
+   data_array[11] = (uint8_t) ((rt_vars->ui32_wh_x10 >> 8) & 0xff) + 1;//used Wh
+   data_array[12] = (uint8_t) (rt_vars->ui32_wh_x10 & 0xff) + 1;//precision 0.1Wh
+   //Motor
+   data_array[13] = rt_vars->ui8_motor_max_current + 1;
+   data_array[14] = rt_vars->ui8_motor_acceleration_adjustment + 1;
+   data_array[15] = rt_vars->ui8_motor_deceleration_adjustment + 1;
+   //Assist
+   data_array[16] = rt_vars->ui8_motor_current_control_mode + 1;
+   data_array[17] = rt_vars->ui8_assist_level + 1;
+   //Street mode
+   data_array[18] = rt_vars->ui8_street_mode_speed_limit + 1;
+   data_array[19];
 
      ble_nus_string_send(&m_nus, data_array, strlen(data_array));
 }
@@ -826,53 +833,35 @@ void send_bluetooth2(rt_vars_t *rt_vars) {
  static uint8_t data_array[BLE_NUS_MAX_DATA_LEN]; // 19 bytes max
 
    data_array[0] = 0x02;
-   data_array[1] = rt_vars->ui8_wheel_speed_x5 + 1;
-   data_array[2] = rt_vars->ui8_motor_max_current + 1;
-   data_array[3] = rt_vars->ui8_screen_size + 1;
-
-   data_array[4] = rt_vars->ui8_assist_level + 1;
-   data_array[5] = rt_vars->ui8_lights_configuration + 1;
-   data_array[6] = (uint8_t) (rt_vars->ui16_odokilometer_x10 >> 8) + 1;
-   data_array[7] = (uint8_t) (rt_vars->ui16_odokilometer_x10 & 0xff) + 1;
-
+   //Various
+   data_array[1] = (uint8_t) (rt_vars->ui32_odokilometer_x10 >> 16) + 1;
+   data_array[2] = (uint8_t) ((rt_vars->ui32_odokilometer_x10 >> 8) & 0xff) + 1;
+   data_array[3] = (uint8_t) (rt_vars->ui32_odokilometer_x10 & 0xff) + 1;//precision 0.1km
+   data_array[4] = rt_vars->ui8_lcd_power_off_time_minutes + 1;
+   //Error
+   data_array[5] = rt_vars->ui8_error_states + 1;//plz check the error states table
+   //Main screen
+   data_array[6] = (uint8_t) (rt_vars->ui16_wheel_speed_x10 >> 16) + 1;
+   data_array[7] = (uint8_t) ((rt_vars->ui16_wheel_speed_x10 >> 8) & 0xff) + 1;//precision 0.1km/h
    data_array[8] = rt_vars->ui8_energy_consumption_per_distance_x10 + 1;
-   data_array[9] = rt_vars->ui8_battery_power_in1Byte + 1;
-   data_array[10] = rt_vars->ui8_assist_whit_error_enabled + 1;
-   data_array[11] = rt_vars->ui8_street_mode_enabled_on_startup + 1;
-   data_array[12] = rt_vars->ui8_street_mode_speed_limit + 1;
+   data_array[9] = rt_vars->ui8_battery_power_in1Byte + 1;//precision 10W.
+   //1 bit states combined
+   data_array[10] = (rt_vars->ui8_throttle_feature_enabled|//"disable", "6km/h only"
+                   rt_vars->ui8_assist_whit_error_enabled << 1|//disable, enable
+                   (rt_vars->ui8_battery_soc_enable & 2) << 2|//"none", "charge %", "voltage"
+                   (rt_vars->ui8_battery_soc_enable & 1) << 3|
+                   (rt_vars->ui8_battery_soc_percent_calculation & 2) << 4|//"auto", "Wh", "volts"
+                   (rt_vars->ui8_battery_soc_percent_calculation & 1) << 5|
+                   rt_vars->ui8_motor_type << 6|//"48V", "36V"
+                   rt_vars->ui8_field_weakening << 7) + 1;//disable, enable
+   data_array[11] = (rt_vars->ui8_screen_size|//"small", "big"
+                   (rt_vars->ui8_motor_version & 2) << 1|//"Z2", "Z8", "TS85"
+                   (rt_vars->ui8_motor_version & 1) << 2|
+                   rt_vars->ui8_street_mode_function_enabled << 3|//disable, enable
+                   rt_vars->ui8_street_mode_enabled << 4|//off, on
+                   rt_vars->ui8_street_mode_enabled_on_startup << 5) + 1;//"no change", "activate"
+   data_array[12] = FIRMWARE_VERSION + 1;//firmware version
 
 
      ble_nus_string_send(&m_nus, data_array, strlen(data_array));
 }
-
-void send_bluetooth3(rt_vars_t *rt_vars) {
-    static uint8_t data_array[BLE_NUS_MAX_DATA_LEN]; // 19 bytes max
-
-    data_array[0] = 0x03;
-    data_array[1] = rt_vars->ui8_battery_pack_resistance_x100 + 1;
-    data_array[2] = (uint8_t) (rt_vars->ui16_battery_voltage_soc_x10 >> 8) + 1;
-    data_array[3] = (uint8_t) (rt_vars->ui16_battery_voltage_soc_x10 & 0xff) + 1;
-    data_array[4] = rt_vars->ui8_battery_power_loss_in1Byte + 1;
-    data_array[5] = (uint8_t) (rt_vars->ui32_wh_x10_100_percent >> 24) + 1;
-    data_array[6] = (uint8_t) ((rt_vars->ui32_wh_x10_100_percent >> 16) & 0xff) + 1;
-    data_array[7] = (uint8_t) ((rt_vars->ui32_wh_x10_100_percent >> 8) & 0xff) + 1;
-    data_array[8] = (uint8_t) (rt_vars->ui32_wh_x10_100_percent & 0xff) + 1;
-    data_array[9] = (uint8_t) (rt_vars->ui32_wh_x10 >> 24) + 1;
-    data_array[10] = (uint8_t) ((rt_vars->ui32_wh_x10 >> 16) & 0xff) + 1;
-    data_array[11] = (uint8_t) ((rt_vars->ui32_wh_x10 >> 8) & 0xff) + 1;
-    data_array[12] = (uint8_t) (rt_vars->ui32_wh_x10 & 0xff) + 1;
-
-    // Send the data (15 bytes used, 4 remaining bytes)
-    ble_nus_string_send(&m_nus, data_array, strlen(data_array));
-}
-
-/*void send_bluetooth4(rt_vars_t *rt_vars) {
-    static uint8_t data_array[BLE_NUS_MAX_DATA_LEN]; // 19 bytes max
-
-    data_array[0] = 0x04;
-
-
-
-    // Send the data (19 bytes used)
-    ble_nus_string_send(&m_nus, data_array, strlen(data_array));
-}*/

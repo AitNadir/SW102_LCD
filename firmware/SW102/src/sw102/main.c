@@ -297,7 +297,7 @@ static void gui_timer_timeout(void *p_context)
 
       send_bluetooth1(&rt_vars);
       send_bluetooth2(&rt_vars);
-      send_bluetooth3(&rt_vars);
+      //send_bluetooth3(&rt_vars);
       //send_bluetooth4(&rt_vars);
 
   }

@@ -8,6 +8,9 @@ extern volatile uint8_t ui8_battery_soc_index;
 extern volatile uint8_t ui8_voltage_ready_counter;
 extern volatile uint8_t ui8_screenmain_ready_counter;
 
+// Firmware version
+#define FIRMWARE_VERSION      1
+
 // Torque sensor calibration from main.h v20.1C.4 TSDZ2-OSF
 #define ADC_TORQUE_SENSOR_CALIBRATION_OFFSET    	6
 #define ADC_TORQUE_SENSOR_MIDDLE_OFFSET_ADJ			20
@@ -138,15 +141,17 @@ typedef struct rt_vars_struct {
 	uint32_t ui32_wh_x10;
 	uint32_t ui32_wheel_speed_sensor_tick_counter_offset;
     //add variables here
+	uint8_t ui8_battery_soc_enable;
 	uint8_t ui8_wheel_perimeter_in1Byte;
 	uint8_t ui8_battery_low_voltage_cut_off_x10_in1Byte;
 	uint8_t ui8_battery_voltage_reset_wh_counter_x10_in1Byte;
 	uint8_t ui8_battery_power_in1Byte;
 	uint8_t ui8_battery_power_loss_in1Byte;
+	uint8_t ui8_battery_voltage_soc_x10_in1Byte;
 	uint8_t ui8_battery_pack_resistance_x100;
-	uint8_t ui8_wheel_speed_x5;
 	uint8_t ui8_energy_consumption_per_distance_x10;
-	uint16_t ui16_odokilometer_x10;
+	uint32_t ui32_odokilometer_x10;
+	uint8_t ui8_battery_soc_percent_calculation;
 	uint8_t ui8_screen_size;
 	uint16_t ui16_battery_pack_resistance_estimated_x1000;
 	uint8_t ui8_street_mode_enabled_on_startup;
