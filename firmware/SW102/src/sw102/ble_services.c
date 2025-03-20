@@ -113,6 +113,116 @@ static void gap_params_init(void)
  */
 static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
 {
+  ui_vars_t *ui = get_ui_vars();
+  uint8_t received_data[length];
+  memcpy(received_data, p_data, length);
+
+  if (length > 1)
+  {
+    switch(received_data[0]){
+      case BLE_RESET:
+        break;
+
+      case BLE_SET_MAXSPEED:
+        ui->wheel_max_speed_x10 = (received_data[1]<<8)|received_data[2];
+        break;
+
+      case BLE_SET_WHEEL:
+        ui->ui16_wheel_perimeter = (received_data[1]<<8)|received_data[2];
+        break;
+
+      case BLE_SET_BATTERY_CURRENT:
+        ui->ui8_battery_max_current = received_data[1];
+        break;
+
+      case BLE_SET_VOLTAGE_LOWCUTOFF:
+        ui->ui16_battery_low_voltage_cut_off_x10 = (received_data[1]<<8)|received_data[2];
+        break;
+
+      case BLE_SET_PACK_RESISTANCE:
+        ui->ui16_battery_pack_resistance_x1000 = (received_data[1]<<8)|received_data[2];
+        break;
+
+      case BLE_SET_VOLTAGE_FULLRESET:
+        ui->ui16_battery_voltage_reset_wh_counter_x10 = (received_data[1]<<8)|received_data[2];
+        break;
+
+      case BLE_SET_TOTAL_CAPACITY:
+        ui->ui32_wh_x10_100_percent = (received_data[1]<<8)|received_data[2];
+        break;
+
+      case BLE_SET_MAXSPEED_STREET:
+        ui->ui8_street_mode_speed_limit = received_data[1];
+        break;
+
+      case BLE_SET_MOTOR_CURRENT:
+        ui->ui8_motor_max_current = received_data[1];
+        break;
+
+      case BLE_SET_MOTOR_ACCELERATION:
+        ui->ui8_motor_acceleration_adjustment = received_data[1];
+        break;
+
+      case BLE_SET_MOTOR_DECELERATION:
+        ui->ui8_motor_deceleration_adjustment = received_data[1];
+        break;
+
+      case BLE_SET_AUTO_POWEROFF:
+        ui->ui8_lcd_power_off_time_minutes = received_data[1];
+        break;
+
+      case BLE_OPTIONS:
+        switch(received_data[1]){
+          case 0:
+            ui->ui8_assist_whit_error_enabled = received_data[2];
+            break;
+          case 1:
+            ui->ui8_throttle_feature_enabled = received_data[2];
+            break;
+          case 2://display battery
+            ui->ui8_battery_soc_enable = received_data[2];
+            break;
+          case 3:
+            ui->ui8_battery_soc_percent_calculation = received_data[2];
+            break;
+          case 4://motor voltage option
+            ui->ui8_motor_type = received_data[2];
+            break;
+          case 5:
+            ui->ui8_field_weakening = received_data[2];
+            break;
+          case 6:
+            ui->ui8_motor_current_control_mode = received_data[2];
+            break;
+          case 7:
+            if(ui->ui8_assist_level > 0)
+              ui->ui8_assist_level--;
+            break;
+          case 8:
+            if(ui->ui8_assist_level < 5)
+              ui->ui8_assist_level++;
+            break;
+          case 9:
+            ui->ui8_street_mode_function_enabled = received_data[2];
+            break;
+          case 10:
+            ui->ui8_street_mode_enabled = received_data[2];
+            break;
+          case 11:
+            ui->ui8_street_mode_enabled_on_startup = received_data[2];
+            break;
+          case 12:
+            ui->ui8_screen_size = received_data[2];
+            break;
+          default:
+            break;
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
  // fixme
 }
 
@@ -805,7 +915,7 @@ void send_bluetooth1(rt_vars_t *rt_vars) {
    data_array[2] = rt_vars->ui8_wheel_perimeter_in1Byte + 1;//1000mm~3000mm ==> 0~200
    //Battery
    data_array[3] = rt_vars->ui8_battery_max_current + 1;
-   data_array[4] = rt_vars->ui8_battery_low_voltage_cut_off_x10_in1Byte + 1;//2.9~4.3V ==> 0~140
+   data_array[4] = rt_vars->ui8_battery_low_voltage_cut_off_x10_in1Byte + 1;//29~43V ==> 0~140
    data_array[5] = rt_vars->ui8_battery_pack_resistance_x100 + 1;//0~1000mohm ==>0~100 * (10mohm)
    data_array[6] = rt_vars->ui8_battery_voltage_soc_x10_in1Byte + 1;//30V~55V ==> 0~250
    data_array[7] = rt_vars->ui8_battery_power_loss_in1Byte + 1;//0~250W
