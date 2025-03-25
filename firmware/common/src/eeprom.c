@@ -23,6 +23,8 @@ static eeprom_data_t m_eeprom_data;
 const eeprom_data_t m_eeprom_data_defaults = {
   .eeprom_version = EEPROM_VERSION,
   //add variables here
+  .ui16_battery_voltage_calibrate_percent_x10 = DEFAULT_VALUE_BATTERY_VOLTAGE_CALIBRATE_PERCENT_X10,
+  .ui8_battery_soc_auto_reset = DEFAULT_VALUE_BATTERY_SOC_RESET,
   .ui8_motor_version = DEFAULT_VALUE_MOTOR_VERSION,
   .ui8_screen_size = DEFAULT_VALUE_SCREEN_SIZE,
   .ui8_battery_soc_percent_calculation = DEFAULT_VALUE_SOC_PERCENT_CALC,
@@ -399,6 +401,8 @@ void eeprom_init_variables(void) {
 
 	// copy data final variables
 	//add variables here
+  ui_vars->ui16_battery_voltage_calibrate_percent_x10 = m_eeprom_data.ui16_battery_voltage_calibrate_percent_x10;
+  ui_vars->ui8_battery_soc_auto_reset = m_eeprom_data.ui8_battery_soc_auto_reset;
 	ui_vars->ui16_saved_password = m_eeprom_data.ui16_saved_password;
 	ui_vars->ui8_password_changed = m_eeprom_data.ui8_password_changed;
 	ui_vars->ui8_motor_version = m_eeprom_data.ui8_motor_version;
@@ -727,6 +731,8 @@ void eeprom_init_variables(void) {
 void eeprom_write_variables(void) {
 	ui_vars_t *ui_vars = get_ui_vars();
 	//add variables here
+  m_eeprom_data.ui16_battery_voltage_calibrate_percent_x10 = ui_vars->ui16_battery_voltage_calibrate_percent_x10;
+  m_eeprom_data.ui8_battery_soc_auto_reset = ui_vars->ui8_battery_soc_auto_reset;
 	m_eeprom_data.ui16_saved_password = ui_vars->ui16_saved_password;
 	m_eeprom_data.ui8_password_changed = ui_vars->ui8_password_changed;
 	m_eeprom_data.ui8_motor_version = ui_vars->ui8_motor_version;

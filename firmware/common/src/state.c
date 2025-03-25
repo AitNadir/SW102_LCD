@@ -600,7 +600,10 @@ void rt_low_pass_filter_battery_voltage_current_power(void) {
 			((uint32_t) rt_vars.ui16_adc_battery_voltage * ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000);
 
 	rt_vars.ui16_battery_voltage_filtered_x10 =
-			(((uint32_t) (ui32_battery_voltage_accumulated_x10000 >> BATTERY_VOLTAGE_FILTER_COEFFICIENT)) / 1000);
+      (uint16_t)(((uint32_t) (ui32_battery_voltage_accumulated_x10000 >> BATTERY_VOLTAGE_FILTER_COEFFICIENT))
+            / ((uint32_t) 1000)
+            * ((uint32_t) rt_vars.ui16_battery_voltage_calibrate_percent_x10)
+            / ((uint32_t) 1000));
 
 	// low pass filter battery current
 	ui16_battery_current_accumulated_x5 -= ui16_battery_current_accumulated_x5
@@ -945,6 +948,24 @@ uint8_t rt_first_time_management(void) {
 	return ui8_status;
 }
 
+void battery_soc_reset(void){
+  if(ui_vars.ui16_battery_voltage_soc_x10 < ui_vars.ui16_battery_voltage_reset_wh_counter_x10) {
+        reset_wh();
+        ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
+          * ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
+  //#ifndef SW102
+        // reset total Wh and charge cycles if battery capacity = 0
+        //if(!rt_vars.ui32_wh_x10_100_percent) {
+        //  ui_vars.ui32_wh_x10_total_offset = 0;
+        //  rt_vars.ui16_battery_charge_cycles_x10 = 0;
+        //}
+  //#ifndef SW102
+        // reset trip Wh
+        ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
+        ui32_wh_x10_reset_trip_a = 0;
+  }
+}
+
 void rt_calc_battery_soc(void) {
 	uint32_t ui32_temp;
 
@@ -970,39 +991,27 @@ void rt_calc_battery_soc(void) {
         / (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10)));
 
       if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_AUTO) { // Auto
-        if((!ui8_battery_soc_init_flag)
-          &&(ui8_g_battery_soc > 15)
-          &&(((100 - ui8_battery_soc_used[ui8_battery_soc_index]) < (ui8_g_battery_soc - 15))
-          ||((100 - ui8_battery_soc_used[ui8_battery_soc_index]) > (ui8_g_battery_soc + 15)))) {
-          if(ui_vars.ui16_battery_voltage_soc_x10 < ui_vars.ui16_battery_voltage_reset_wh_counter_x10) {
-                reset_wh();
-                ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
-                  * ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
-          //#ifndef SW102
-                // reset total Wh and charge cycles if battery capacity = 0
-                //if(!rt_vars.ui32_wh_x10_100_percent) {
-                //  ui_vars.ui32_wh_x10_total_offset = 0;
-                //  rt_vars.ui16_battery_charge_cycles_x10 = 0;
-                //}
-          //#ifndef SW102
-                // reset trip Wh
-                ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
-                ui32_wh_x10_reset_trip_a = 0;
+        if(!ui8_battery_soc_init_flag){
+          uint8_t ui8_battery_soc_auto_reset_low = ui_vars.ui8_battery_soc_auto_reset;
+          if(ui8_g_battery_soc < ui_vars.ui8_battery_soc_auto_reset) {
+            ui8_battery_soc_auto_reset_low = ui8_g_battery_soc;
+          }
+          if(((100 - ui8_battery_soc_used[ui8_battery_soc_index]) < (ui8_g_battery_soc - ui8_battery_soc_auto_reset_low))
+          ||((100 - ui8_battery_soc_used[ui8_battery_soc_index]) > (ui8_g_battery_soc + ui_vars.ui8_battery_soc_auto_reset))) {
+            battery_soc_reset();
           }
         }
       }
       else if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_VOLTS) { // Volts
-        if(ui_vars.ui16_battery_voltage_soc_x10 < ui_vars.ui16_battery_voltage_reset_wh_counter_x10) {
-                        reset_wh();
-                        ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
-                          * ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
-                        ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
-                        ui32_wh_x10_reset_trip_a = 0;
-        }
+        battery_soc_reset();
       }
 
       ui8_battery_soc_init_flag = 1;
 
+  }
+  if(ui_vars.ui8_configuration_battery_soc_reset){
+    ui_vars.ui8_configuration_battery_soc_reset = 0;
+    battery_soc_reset();
   }
 }
 
@@ -1289,6 +1298,8 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_battery_voltage_soc_x10_in1Byte = (uint8_t)(rt_vars.ui16_battery_voltage_soc_x10 - 300);//30V~55V ==> 0~250
   rt_vars.ui8_battery_soc_percent_calculation = ui_vars.ui8_battery_soc_percent_calculation;//"auto", "Wh", "volts"
   rt_vars.ui8_battery_soc_enable  = ui_vars.ui8_battery_soc_enable;
+  rt_vars.ui8_battery_soc_auto_reset = ui_vars.ui8_battery_soc_auto_reset;
+  rt_vars.ui16_battery_voltage_calibrate_percent_x10 = ui_vars.ui16_battery_voltage_calibrate_percent_x10;
 }
 
 /// must be called from main() idle loop
