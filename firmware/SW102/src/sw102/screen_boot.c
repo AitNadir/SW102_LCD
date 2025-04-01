@@ -38,6 +38,12 @@ static void boot_idle()
 		      ui->ui8_error_states & 32)
 		    break;
 		  else{
+		    if (ui->ui8_street_mode_function_enabled)
+		    {
+		      // check to see if should be enable at startup
+		      if (ui->ui8_street_mode_enabled_on_startup)
+		        ui->ui8_street_mode_enabled = 1;
+		    }
 		    showScreen(&screen_main);
 		          return;
 

@@ -20,7 +20,7 @@ void buttons_clear_all_events(void)
 
 // 20ms
 
-#define LONGCLICK_THRESHOLD (3000/20)
+#define LONGCLICK_THRESHOLD (1000/20)
 
 void buttons_clock(void)
 {
@@ -41,8 +41,13 @@ void buttons_clock(void)
 
 		if(state & bit) {
 			hold[i]++;
-			if(hold[i] == LONGCLICK_THRESHOLD)
-				events |= ONOFF_LONG_CLICK<<i;
+      if (i == 0) {
+          if (hold[i] == LONGCLICK_THRESHOLD * 3)
+              events |= ONOFF_LONG_CLICK ;
+      } else {
+          if (hold[i] == LONGCLICK_THRESHOLD)
+              events |= ONOFF_LONG_CLICK << i;
+      }
 		}
 
 		if(release & bit) {
