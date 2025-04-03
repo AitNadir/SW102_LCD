@@ -1177,6 +1177,7 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
+  rt_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled;
   rt_vars.ui8_screen_size = ui_vars.ui8_screen_size;
   rt_vars.ui16_battery_pack_resistance_estimated_x1000 = ui_vars.ui16_battery_pack_resistance_estimated_x1000;
   rt_vars.ui8_street_mode_enabled_on_startup = ui_vars.ui8_street_mode_enabled_on_startup;
@@ -1948,31 +1949,38 @@ void password_check(void) {
 void cooling_down(void) {
     static int cooldown_counter = 0;  // Cooldown counter
 
-    // Only assist level 5 requires a timer
-    if (ui_vars.ui8_assist_level == 5 || is_cooling_down) {
-        if (is_cooling_down && ui_vars.ui8_assist_level < 5) {
-            cooldown_counter++;  // Increment the cooldown counter
+    if (ui_vars.ui8_cooling_down_enabled) {
+      // Only assist level 5 requires a timer
+      if (ui_vars.ui8_assist_level == 5 || is_cooling_down) {
+          if (is_cooling_down && ui_vars.ui8_assist_level < 5) {
+              cooldown_counter++;  // Increment the cooldown counter
 
-            // If cooldown time has been reached, exit cooldown mode
-            if (cooldown_counter >= cooldown_time) {
-                is_cooling_down = false;
-                cooldown_counter = 0;
-                time_counter[4] = 0;
-            }
-        } else {
-            if (ui_vars.ui8_assist_level == 5){
-              // Check if assist level 5 has timed out
-              if (time_counter[4] >= max_time[4]) {
-                  // Timeout, enter cooldown mode
-                  is_cooling_down = true;
-                  // Downshift
-                  ui_vars.ui8_assist_level--;
-              } else {
-                  // Increment the time counter for assist level 5
-                  if(ui_vars.ui8_assist_level == 5)
-                    time_counter[4]++;
+              // If cooldown time has been reached, exit cooldown mode
+              if (cooldown_counter >= cooldown_time) {
+                  is_cooling_down = false;
+                  cooldown_counter = 0;
+                  time_counter[4] = 0;
+                  rt_vars.cooldown_disabled_time = 0;
               }
-            }
-        }
+              rt_vars.cooldown_enabled_time = cooldown_counter / 20;
+          } else {
+              if (ui_vars.ui8_assist_level == 5){
+                // Check if assist level 5 has timed out
+                if (time_counter[4] >= max_time[4]) {
+                    // Timeout, enter cooldown mode
+                    is_cooling_down = true;
+                    // Downshift
+                    ui_vars.ui8_assist_level--;
+                } else {
+                    // Increment the time counter for assist level 5
+                    if(ui_vars.ui8_assist_level == 5){
+                      time_counter[4]++;
+                      rt_vars.cooldown_disabled_time = time_counter[4] / 20;
+                    }
+                }
+              }
+          }
+      }
     }
+
 }

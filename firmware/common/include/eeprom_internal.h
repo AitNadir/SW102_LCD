@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x70
-#define EEPROM_VERSION 0x70
+#define EEPROM_MIN_COMPAT_VERSION 0x71
+#define EEPROM_VERSION 0x71
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -26,6 +26,7 @@ typedef struct {
 typedef struct eeprom_data {
 	uint8_t eeprom_version; // Used to detect changes in eeprom encoding, if != EEPROM_VERSION we will not use it
     //add variables here
+  uint8_t ui8_cooling_down_enabled;
   uint16_t ui16_battery_voltage_calibrate_percent_x10;
 	uint8_t ui8_battery_soc_auto_reset;
 	uint16_t ui16_saved_password;
