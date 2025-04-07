@@ -6,7 +6,7 @@
 extern const struct screen screen_main;
 
 static void do_reset_trip_a(const struct configtree_t *ign);
-static void do_reset_trip_b(const struct configtree_t *ign);
+//static void do_reset_trip_b(const struct configtree_t *ign);
 static void do_set_Z2motor(const struct configtree_t *ign);
 static void do_set_Z8motor(const struct configtree_t *ign);
 static void do_set_TS85motor(const struct configtree_t *ign);
@@ -71,6 +71,8 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 		//{ "Min current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_motor_current_min_adc), 0, "steps", 0, 13 }},
 		{ "Field weakening", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_field_weakening), disable_enable } },
     { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled), disable_enable } },
+    { "Cooldown disabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_cooldown_disabled_time), 0, "s" }},
+    { "Cooldown enabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_cooldown_enabled_time), 0, "s" }},
 		{},
 	}}},
 	//{ "Torque sensor", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
@@ -253,6 +255,8 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     //{ "Min current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_motor_current_min_adc), 0, "steps", 0, 13 }},
     //{ "Field weakening", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_field_weakening), disable_enable } },
     { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled), disable_enable } },
+    { "Cooldown disabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_cooldown_disabled_time), 0, "s" }},
+    { "Cooldown enabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_cooldown_enabled_time), 0, "s" }},
     {},
   }}},
   { "Street mode", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {

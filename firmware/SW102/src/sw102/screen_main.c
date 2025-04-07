@@ -434,7 +434,7 @@ static void main_idle()
 		if(!(display_mode == ModeBigScreen)){
 	    draw_hline(1, 63, 72);
 	    draw_power_indicator(ui);
-	    graph_paint(gd, 1, 114, 59, 50, 114-72);
+	    graph_paint(gd, 1, 114, 59, 42, 114-72);
 	    draw_2nd_field(ui, 56);
 		}
 	}

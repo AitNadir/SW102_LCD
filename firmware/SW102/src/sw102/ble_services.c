@@ -976,8 +976,8 @@ void send_bluetooth2(rt_vars_t *rt_vars) {
                    rt_vars->ui8_cooling_down_enabled << 6) + 1;//disable, enable
    data_array[12] = FIRMWARE_VERSION + 1;//firmware version
    //cooling down time
-   data_array[13] = rt_vars->cooldown_disabled_time + 1;
-   data_array[14] = rt_vars->cooldown_enabled_time + 1;
+   data_array[13] = rt_vars->ui8_cooldown_disabled_time / 2 + 1;
+   data_array[14] = rt_vars->ui16_cooldown_enabled_time / 2 + 1;
 
 
      ble_nus_string_send(&m_nus, data_array, strlen(data_array));

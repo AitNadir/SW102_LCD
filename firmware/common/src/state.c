@@ -1177,6 +1177,8 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
+  ui_vars.ui8_cooldown_disabled_time = rt_vars.ui8_cooldown_disabled_time;
+  ui_vars.ui16_cooldown_enabled_time = rt_vars.ui16_cooldown_enabled_time;
   rt_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled;
   rt_vars.ui8_screen_size = ui_vars.ui8_screen_size;
   rt_vars.ui16_battery_pack_resistance_estimated_x1000 = ui_vars.ui16_battery_pack_resistance_estimated_x1000;
@@ -1960,9 +1962,9 @@ void cooling_down(void) {
                   is_cooling_down = false;
                   cooldown_counter = 0;
                   time_counter[4] = 0;
-                  rt_vars.cooldown_disabled_time = 0;
+                  rt_vars.ui8_cooldown_disabled_time = 0;
               }
-              rt_vars.cooldown_enabled_time = cooldown_counter / 20;
+              rt_vars.ui16_cooldown_enabled_time = cooldown_counter / 10;
           } else {
               if (ui_vars.ui8_assist_level == 5){
                 // Check if assist level 5 has timed out
@@ -1975,7 +1977,7 @@ void cooling_down(void) {
                     // Increment the time counter for assist level 5
                     if(ui_vars.ui8_assist_level == 5){
                       time_counter[4]++;
-                      rt_vars.cooldown_disabled_time = time_counter[4] / 20;
+                      rt_vars.ui8_cooldown_disabled_time = time_counter[4] / 10;
                     }
                 }
               }
