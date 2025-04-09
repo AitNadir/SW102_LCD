@@ -602,8 +602,8 @@ void rt_low_pass_filter_battery_voltage_current_power(void) {
 	rt_vars.ui16_battery_voltage_filtered_x10 =
       (uint16_t)(((uint32_t) (ui32_battery_voltage_accumulated_x10000 >> BATTERY_VOLTAGE_FILTER_COEFFICIENT))
             / ((uint32_t) 1000)
-            * ((uint32_t) rt_vars.ui16_battery_voltage_calibrate_percent_x10)
-            / ((uint32_t) 1000));
+            * ((uint32_t) rt_vars.ui8_battery_voltage_calibrate_percent)
+            / ((uint32_t) 100));
 
 	// low pass filter battery current
 	ui16_battery_current_accumulated_x5 -= ui16_battery_current_accumulated_x5
@@ -1177,9 +1177,18 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   //add variables here
+  if(ui_vars.ui8_flag_reset_trip){
+    ui_vars.ui32_wh_x10_trip_a_offset = 0;
+    ui32_wh_x10_reset_trip_a = ui32_wh_x10_since_power_on;
+    rt_vars.ui32_trip_a_distance_x1000 = 0;
+    rt_vars.ui32_trip_a_time = 0;
+    rt_vars.ui16_trip_a_avg_speed_x10 = 0;
+    rt_vars.ui16_trip_a_max_speed_x10 = 0;
+    ui_vars.ui8_flag_reset_trip = 0;
+  }
+  rt_vars.ui16_saved_password = ui_vars.ui16_saved_password;
   ui_vars.ui8_cooldown_disabled_time = rt_vars.ui8_cooldown_disabled_time;
   ui_vars.ui16_cooldown_enabled_time = rt_vars.ui16_cooldown_enabled_time;
-  rt_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled;
   rt_vars.ui8_screen_size = ui_vars.ui8_screen_size;
   rt_vars.ui16_battery_pack_resistance_estimated_x1000 = ui_vars.ui16_battery_pack_resistance_estimated_x1000;
   rt_vars.ui8_street_mode_enabled_on_startup = ui_vars.ui8_street_mode_enabled_on_startup;
@@ -1266,6 +1275,7 @@ void copy_rt_to_ui_vars(void) {
 		rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
 		rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui16_target_max_battery_power / 25;
 		rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
+	  rt_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled;
 		if(ui_vars.ui8_throttle_feature_enabled){
 		  rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled + 1;
 		}else
@@ -1283,6 +1293,7 @@ void copy_rt_to_ui_vars(void) {
 		ui_vars.ui16_wheel_perimeter = rt_vars.ui16_wheel_perimeter;
 		ui_vars.ui16_target_max_battery_power = rt_vars.ui8_target_max_battery_power_div25 * 25;
 		ui_vars.ui8_assist_whit_error_enabled = rt_vars.ui8_assist_whit_error_enabled;
+		ui_vars.ui8_cooling_down_enabled = rt_vars.ui8_cooling_down_enabled;
 		if(rt_vars.ui8_throttle_feature_enabled){
 		  ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled - 1;
 		}else
@@ -1302,7 +1313,7 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_battery_soc_percent_calculation = ui_vars.ui8_battery_soc_percent_calculation;//"auto", "Wh", "volts"
   rt_vars.ui8_battery_soc_enable  = ui_vars.ui8_battery_soc_enable;
   rt_vars.ui8_battery_soc_auto_reset = ui_vars.ui8_battery_soc_auto_reset;
-  rt_vars.ui16_battery_voltage_calibrate_percent_x10 = ui_vars.ui16_battery_voltage_calibrate_percent_x10;
+  rt_vars.ui8_battery_voltage_calibrate_percent = ui_vars.ui8_battery_voltage_calibrate_percent;
 }
 
 /// must be called from main() idle loop

@@ -36,6 +36,9 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 		{ "Assist with error", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_assist_whit_error_enabled), disable_enable }},
 		{ "Throttle", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_throttle_feature_enabled), (const char*[]){ "disable", "6km/h only", 0 } }},
 		//{ "Cruise", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cruise_feature_enabled), (const char*[]){ "disable", "pedaling", "w/o pedaling", 0 } }},
+    { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled), disable_enable } },
+    { "Cooldown disabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_cooldown_disabled_time), 0, "s" }},
+    { "Cooldown enabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_cooldown_enabled_time), 0, "s" }},
 		{ "Password enable", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_password_enabled), disable_enable }},
 		{ "Password", F_NUMERIC, .numeric = &(const struct cfgnumeric_t){ PTRSIZE(ui_vars.ui16_entered_password), 0, "", 1000, 9999 }},
 		{ "Confirm", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_confirm_password), (const char*[]){ "logout", "login", "wait", "change", 0 } }},
@@ -44,7 +47,7 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 	{ "Battery", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
 		{ "Max current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_battery_max_current), 0, "A", 1, 20 }},
  		{ "Cut-off voltage", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_low_voltage_cut_off_x10), 1, "V", 290, 430 }},
- 		{ "Voltage cal %", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_voltage_calibrate_percent_x10), 1, "%", 950, 1050 }},
+ 		{ "Voltage cal %", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_battery_voltage_calibrate_percent), 0, "%", 50, 150 }},
 		{ "Resistance", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_pack_resistance_x1000), 0, "mohm", 0, 1000 }},
 		{ "Voltage", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_voltage_soc_x10), 1, "V" }},
 		//{ "Est. resistance", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_pack_resistance_estimated_x1000), 0, "mohm" }},
@@ -70,9 +73,6 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 		//{ "Control mode", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_motor_current_control_mode), (const char*[]){ "power", "torque", "cadence", "eMTB", "hybrid", 0}}},
 		//{ "Min current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_motor_current_min_adc), 0, "steps", 0, 13 }},
 		{ "Field weakening", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_field_weakening), disable_enable } },
-    { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled), disable_enable } },
-    { "Cooldown disabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_cooldown_disabled_time), 0, "s" }},
-    { "Cooldown enabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_cooldown_enabled_time), 0, "s" }},
 		{},
 	}}},
 	//{ "Torque sensor", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
@@ -220,6 +220,9 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     //{ "Assist with error", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_assist_whit_error_enabled), disable_enable }},
     //{ "Throttle", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_throttle_feature_enabled), (const char*[]){ "disable", "6km/h only", 0 } }},
     //{ "Cruise", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cruise_feature_enabled), (const char*[]){ "disable", "pedaling", "w/o pedaling", 0 } }},
+    { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled), disable_enable } },
+    { "Cooldown disabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_cooldown_disabled_time), 0, "s" }},
+    { "Cooldown enabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_cooldown_enabled_time), 0, "s" }},
     { "Password enable", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_password_enabled), disable_enable }},
     { "Password", F_NUMERIC, .numeric = &(const struct cfgnumeric_t){ PTRSIZE(ui_vars.ui16_entered_password), 0, "", 1000, 9999 }},
     { "Confirm", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_confirm_password), (const char*[]){ "logout", "login", "wait", "change", 0 } }},
@@ -228,7 +231,7 @@ static const struct configtree_t cfgroot_tsdz8[] = {
   { "Battery", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
     { "Max current", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_battery_max_current), 0, "A", 1, 20 }},
     { "Cut-off voltage", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_low_voltage_cut_off_x10), 1, "V", 290, 430 }},
-    { "Voltage cal %", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_voltage_calibrate_percent_x10), 1, "%", 950, 1050 }},
+    { "Voltage cal %", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_battery_voltage_calibrate_percent), 0, "%", 50, 150 }},
     { "Resistance", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_pack_resistance_x1000), 0, "mohm", 0, 1000 }},
     { "Voltage", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_voltage_soc_x10), 1, "V" }},
     //{ "Est. resistance", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_pack_resistance_estimated_x1000), 0, "mohm" }},
@@ -347,13 +350,7 @@ const struct scroller_config cfg_calibration = { 20, 26, 36, 0, 76, (const struc
 
 static void do_reset_trip_a(const struct configtree_t *ign)
 {
-  ui_vars.ui32_wh_x10_trip_a_offset = 0;
-  ui32_wh_x10_reset_trip_a = ui32_wh_x10_since_power_on;
-	// FIXME is accessing rt_vars safe here?
-	rt_vars.ui32_trip_a_distance_x1000 = 0;
-	rt_vars.ui32_trip_a_time = 0;
-	rt_vars.ui16_trip_a_avg_speed_x10 = 0;
-	rt_vars.ui16_trip_a_max_speed_x10 = 0;
+  ui_vars.ui8_flag_reset_trip = 1;
 	sstack_pop();
 }
 
@@ -381,7 +378,7 @@ static void do_set_Z2motor(const struct configtree_t *ign)
 static void do_set_Z8motor(const struct configtree_t *ign)
 {
   ui_vars.ui8_battery_max_current = 23;
-  ui_vars.ui16_battery_low_voltage_cut_off_x10 = 420;
+  ui_vars.ui16_battery_low_voltage_cut_off_x10 = 400;
   ui_vars.ui16_battery_voltage_reset_wh_counter_x10 = 544;
   ui_vars.ui8_motor_type = 0;
   ui_vars.ui8_motor_max_current = 23;

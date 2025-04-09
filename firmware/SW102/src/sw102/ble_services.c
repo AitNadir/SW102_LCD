@@ -121,6 +121,7 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
   {
     switch(received_data[0]){
       case BLE_RESET:
+        ui->ui8_flag_reset_trip = received_data[1];
         break;
 
       case BLE_SET_MAXSPEED:
@@ -171,6 +172,14 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
         ui->ui8_lcd_power_off_time_minutes = received_data[1];
         break;
 
+      case BLE_SET_VOLTAGE_CALIBRATE:
+        ui->ui8_battery_voltage_calibrate_percent = received_data[1];
+        break;
+
+      case BLE_SET_AUTO_RESET:
+        ui->ui8_battery_soc_auto_reset = received_data[1];
+        break;
+
       case BLE_OPTIONS:
         switch(received_data[1]){
           case 0:
@@ -216,6 +225,9 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
             break;
           case 13:
             ui->ui8_cooling_down_enabled = received_data[2];
+            break;
+          case 14:
+            ui->ui8_configuration_battery_soc_reset = received_data[2];
             break;
           default:
             break;
@@ -978,7 +990,9 @@ void send_bluetooth2(rt_vars_t *rt_vars) {
    //cooling down time
    data_array[13] = rt_vars->ui8_cooldown_disabled_time / 2 + 1;
    data_array[14] = rt_vars->ui16_cooldown_enabled_time / 2 + 1;
-
+   //password
+   data_array[15] = (uint8_t) ((rt_vars->ui16_saved_password >> 8) & 0xff) + 1;
+   data_array[16] = (uint8_t) (rt_vars->ui16_saved_password & 0xff) + 1;
 
      ble_nus_string_send(&m_nus, data_array, strlen(data_array));
 }

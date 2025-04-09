@@ -17,7 +17,9 @@
 #define BLE_SET_MOTOR_ACCELERATION     10
 #define BLE_SET_MOTOR_DECELERATION     11
 #define BLE_SET_AUTO_POWEROFF          12
-#define BLE_OPTIONS                    13
+#define BLE_SET_VOLTAGE_CALIBRATE      13
+#define BLE_SET_AUTO_RESET             14
+#define BLE_OPTIONS                    15
 
 void ble_init(void);
 void send_bluetooth1(rt_vars_t *rt_vars);
