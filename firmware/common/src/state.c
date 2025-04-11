@@ -658,7 +658,8 @@ void rt_calc_battery_voltage_soc(void) {
 
 	if(uart_get_motor_type() == MOTOR_TSDZ8){
 	    rt_vars.ui16_battery_voltage_soc_x10 =
-	        battery_voltage_10x_get();
+	        battery_voltage_10x_get() * ((uint16_t) rt_vars.ui8_battery_voltage_calibrate_percent)
+          / ((uint16_t) 100);
 	    rt_vars.ui16_full_battery_power_filtered_x50 = rt_vars.ui16_battery_voltage_soc_x10 * rt_vars.ui16_battery_current_filtered_x5;
 	}else{
 	  // calculate flutuate voltage, that depends on the current and battery pack resistance
