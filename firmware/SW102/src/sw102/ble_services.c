@@ -42,7 +42,7 @@
 #define CENTRAL_LINK_COUNT              0                                           /**< Number of central links used by the application. When changing this number remember to adjust the RAM settings*/
 #define PERIPHERAL_LINK_COUNT           1                                           /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
 
-#define DEVICE_NAME                     "OS-EBike"                                  /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "SYKLOMOTOR"                                  /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME               "https://github.com/OpenSource-EBike-firmware"
 
 #define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 100 ms). */
@@ -224,7 +224,8 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
             ui->ui8_screen_size = received_data[2];
             break;
           case 13:
-            ui->ui8_cooling_down_enabled = received_data[2];
+            ui->ui8_cooling_down_enabled_z2 = received_data[2];
+            ui->ui8_cooling_down_enabled_z8 = received_data[2];
             break;
           case 14:
             ui->ui8_configuration_battery_soc_reset = received_data[2];

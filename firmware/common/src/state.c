@@ -1269,38 +1269,50 @@ void copy_rt_to_ui_vars(void) {
 		ui_vars.ui8_password_enabled = 1;
 	}
 
-	if(((ui_vars.ui8_confirm_password)&&(ui_vars.ui8_password_confirmed))
-	  ||((!ui_vars.ui8_password_enabled)&&(!ui_vars.ui8_password_changed))
-	  ||(ui8_g_screen_init_flag)) {
-	  rt_vars.ui8_wheel_max_speed = ui_vars.wheel_max_speed_x10 / 10;
-		rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
-		rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui16_target_max_battery_power / 25;
-		rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
-	  rt_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled;
-		if(ui_vars.ui8_throttle_feature_enabled){
-		  rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled + 1;
-		}else
-		  rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
-		rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
+	if(uart_get_motor_type() != MOTOR_NONE){
+	  if(((ui_vars.ui8_confirm_password)&&(ui_vars.ui8_password_confirmed))
+	    ||((!ui_vars.ui8_password_enabled)&&(!ui_vars.ui8_password_changed))
+	    ||(ui8_g_screen_init_flag)) {
+	    rt_vars.ui8_wheel_max_speed = ui_vars.wheel_max_speed_x10 / 10;
+	    rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
+	    rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui16_target_max_battery_power / 25;
+	    rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
+	    if(uart_get_motor_type() == MOTOR_TSDZ8){
+	      ui_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled_z8;
+	      ui_vars.ui8_cooling_down_enabled_z2 = ui_vars.ui8_cooling_down_enabled_z8;
+	    }else{
+	      ui_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled_z2;
+	      ui_vars.ui8_cooling_down_enabled_z8 = ui_vars.ui8_cooling_down_enabled_z2;
+	    }
+	    rt_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled;
+	    if(ui_vars.ui8_throttle_feature_enabled){
+	      rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled + 1;
+	    }else
+	      rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled;
+	    rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
 
-		if(ui_vars.ui8_throttle_feature_enabled < ui_vars.ui8_street_mode_throttle_enabled)
-			ui_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_throttle_feature_enabled;
-		if(ui_vars.ui8_cruise_feature_enabled < ui_vars.ui8_street_mode_cruise_enabled)
-			ui_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_cruise_feature_enabled;
-		ui8_g_screen_init_flag = 0;
+	    if(ui_vars.ui8_throttle_feature_enabled < ui_vars.ui8_street_mode_throttle_enabled)
+	      ui_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_throttle_feature_enabled;
+	    if(ui_vars.ui8_cruise_feature_enabled < ui_vars.ui8_street_mode_cruise_enabled)
+	      ui_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_cruise_feature_enabled;
+	    ui8_g_screen_init_flag = 0;
+	  }
+	  else {
+	    ui_vars.wheel_max_speed_x10 = rt_vars.ui8_wheel_max_speed * 10;
+	    ui_vars.ui16_wheel_perimeter = rt_vars.ui16_wheel_perimeter;
+	    ui_vars.ui16_target_max_battery_power = rt_vars.ui8_target_max_battery_power_div25 * 25;
+	    ui_vars.ui8_assist_whit_error_enabled = rt_vars.ui8_assist_whit_error_enabled;
+	    ui_vars.ui8_cooling_down_enabled = rt_vars.ui8_cooling_down_enabled;
+	    ui_vars.ui8_cooling_down_enabled_z8 = ui_vars.ui8_cooling_down_enabled;
+	    ui_vars.ui8_cooling_down_enabled_z2 = ui_vars.ui8_cooling_down_enabled;
+	    if(rt_vars.ui8_throttle_feature_enabled){
+	      ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled - 1;
+	    }else
+	      ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled;
+	    ui_vars.ui8_cruise_feature_enabled = rt_vars.ui8_cruise_feature_enabled;
+	  }
 	}
-	else {
-	  ui_vars.wheel_max_speed_x10 = rt_vars.ui8_wheel_max_speed * 10;
-		ui_vars.ui16_wheel_perimeter = rt_vars.ui16_wheel_perimeter;
-		ui_vars.ui16_target_max_battery_power = rt_vars.ui8_target_max_battery_power_div25 * 25;
-		ui_vars.ui8_assist_whit_error_enabled = rt_vars.ui8_assist_whit_error_enabled;
-		ui_vars.ui8_cooling_down_enabled = rt_vars.ui8_cooling_down_enabled;
-		if(rt_vars.ui8_throttle_feature_enabled){
-		  ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled - 1;
-		}else
-		  ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled;
-		ui_vars.ui8_cruise_feature_enabled = rt_vars.ui8_cruise_feature_enabled;
-	}
+
 	rt_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a_offset;
   rt_vars.ui8_wheel_perimeter_in1Byte = (uint8_t)((rt_vars.ui16_wheel_perimeter / 10) - 100);//1000mm~3000mm ==> 0~200
   rt_vars.ui8_battery_low_voltage_cut_off_x10_in1Byte = (uint8_t)(rt_vars.ui16_battery_low_voltage_cut_off_x10 - 290);//29~43V ==> 0~140
@@ -1963,7 +1975,7 @@ void password_check(void) {
 void cooling_down(void) {
     static int cooldown_counter = 0;  // Cooldown counter
 
-    if (ui_vars.ui8_cooling_down_enabled) {
+    if (rt_vars.ui8_cooling_down_enabled) {
       // Only assist level 5 requires a timer
       if (ui_vars.ui8_assist_level == 5 || is_cooling_down) {
           if (is_cooling_down && ui_vars.ui8_assist_level < 5) {

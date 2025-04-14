@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x72
-#define EEPROM_VERSION 0x72
+#define EEPROM_MIN_COMPAT_VERSION 0x73
+#define EEPROM_VERSION 0x73
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -26,7 +26,8 @@ typedef struct {
 typedef struct eeprom_data {
 	uint8_t eeprom_version; // Used to detect changes in eeprom encoding, if != EEPROM_VERSION we will not use it
     //add variables here
-  uint8_t ui8_cooling_down_enabled;
+  uint8_t ui8_cooling_down_enabled_z2;
+  uint8_t ui8_cooling_down_enabled_z8;
   uint8_t ui8_battery_voltage_calibrate_percent;
 	uint8_t ui8_battery_soc_auto_reset;
 	uint16_t ui16_saved_password;
@@ -214,6 +215,7 @@ typedef struct eeprom_data {
 // *************************************************************************** //
 // EEPROM memory variables default values
 //add variables here
+#define DEFAULT_VALUE_COOLDOWN_ENABLE_Z8                            1 //enabled
 #define DEFAULT_VALUE_BATTERY_VOLTAGE_CALIBRATE_PERCENT_X10         100 // 50%~150%
 #define DEFAULT_VALUE_BATTERY_SOC_RESET                             15 // 0~100%
 #define DEFAULT_VALUE_MOTOR_VERSION                                 0 //0 for Z2, 1 for Z8, 2 for TS85
