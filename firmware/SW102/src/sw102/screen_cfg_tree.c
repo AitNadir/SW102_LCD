@@ -376,7 +376,7 @@ static void do_set_Z8motor(const struct configtree_t *ign)
 {
   ui_vars.ui8_battery_max_current = 23;
   ui_vars.ui16_battery_low_voltage_cut_off_x10 = 400;
-  ui_vars.ui16_battery_voltage_reset_wh_counter_x10 = 544;
+  ui_vars.ui16_battery_voltage_reset_wh_counter_x10 = 540;
   ui_vars.ui8_motor_type = 0;
   ui_vars.ui8_motor_max_current = 23;
   ui_vars.ui8_motor_version = 1;
@@ -392,7 +392,7 @@ static void do_set_TS85motor(const struct configtree_t *ign)
   ui_vars.ui8_motor_type = 1;
   ui_vars.ui8_motor_max_current = 15;
   ui_vars.ui8_motor_version = 2;
-  ui_vars.ui32_wh_x10_100_percent = 3000;
+  ui_vars.ui32_wh_x10_100_percent = 2500;
   sstack_pop();
 }
 

@@ -125,10 +125,12 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
         break;
 
       case BLE_SET_MAXSPEED:
+        ui8_g_screen_init_flag = 1;
         ui->wheel_max_speed_x10 = (received_data[1]<<8)|received_data[2];
         break;
 
       case BLE_SET_WHEEL:
+        ui8_g_screen_init_flag = 1;
         ui->ui16_wheel_perimeter = (received_data[1]<<8)|received_data[2];
         break;
 
@@ -183,9 +185,11 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
       case BLE_OPTIONS:
         switch(received_data[1]){
           case 0:
+            ui8_g_screen_init_flag = 1;
             ui->ui8_assist_whit_error_enabled = received_data[2];
             break;
           case 1:
+            ui8_g_screen_init_flag = 1;
             ui->ui8_throttle_feature_enabled = received_data[2];
             break;
           case 2://display battery
@@ -224,6 +228,7 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
             ui->ui8_screen_size = received_data[2];
             break;
           case 13:
+            ui8_g_screen_init_flag = 1;
             ui->ui8_cooling_down_enabled_z2 = received_data[2];
             ui->ui8_cooling_down_enabled_z8 = received_data[2];
             break;

@@ -14,8 +14,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x73
-#define EEPROM_VERSION 0x73
+#define EEPROM_MIN_COMPAT_VERSION 0x74
+#define EEPROM_VERSION 0x74
 
 typedef struct {
   graph_auto_max_min_t auto_max_min;
@@ -281,11 +281,11 @@ typedef struct eeprom_data {
 //Existing default value
 #define DEFAULT_VALUE_ASSIST_LEVEL                                  0
 #define DEFAULT_VALUE_NUMBER_OF_ASSIST_LEVELS                       20
-#define DEFAULT_VALUE_WHEEL_PERIMETER                               2060 // 27.5'' wheel: 2060mm perimeter
+#define DEFAULT_VALUE_WHEEL_PERIMETER                               2150 // 27.5'' wheel: 2150mm perimeter
 #define DEFAULT_VALUE_WHEEL_MAX_SPEED                               25
 #define DEFAULT_VALUE_UNITS_TYPE                                    0 // 0 = km/h
 #define DEFAULT_VALUE_WH_X10_OFFSET                                 0
-#define DEFAULT_VALUE_HW_X10_100_PERCENT                            2880 // default to a battery of 288 Wh for 36V battery
+#define DEFAULT_VALUE_HW_X10_100_PERCENT                            5000 // default to a battery of 500 Wh for Z2
 #define DEAFULT_VALUE_SHOW_NUMERIC_BATTERY_SOC                      1 // SOC
 #define DEAFULT_VALUE_TIME_FIELD                                    1 // 1 i show clock
 #define DEFAULT_VALUE_BATTERY_MAX_CURRENT                           15 // 15 amps
@@ -365,7 +365,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_MOTOR_TEMPERATURE_FEATURE_ENABLE              0
 #define DEFAULT_VALUE_MOTOR_TEMPERATURE_MIN_VALUE_LIMIT             75 // 75 degrees celsius
 #define DEFAULT_VALUE_MOTOR_TEMPERATURE_MAX_VALUE_LIMIT             85 // 85 degrees celsius
-#define DEFAULT_VALUE_BATTERY_VOLTAGE_RESET_WH_COUNTER_X10          414 // 36v battery, 41.4 volts at fully charged
+#define DEFAULT_VALUE_BATTERY_VOLTAGE_RESET_WH_COUNTER_X10          415 // Z2, 41.5 volts at fully charged
 #define DEFAULT_VALUE_LCD_POWER_OFF_TIME                            60 // 60 minutes, each unit 1 minute
 #ifdef SW102
 #define DEFAULT_VALUE_LCD_BACKLIGHT_ON_BRIGHTNESS                   100 // 8 = 40%
@@ -374,7 +374,7 @@ typedef struct eeprom_data {
 #define DEFAULT_VALUE_LCD_BACKLIGHT_ON_BRIGHTNESS                   15 // 100 = 100%
 #define DEFAULT_VALUE_LCD_BACKLIGHT_OFF_BRIGHTNESS                  100
 #endif
-#define DEFAULT_VALUE_BATTERY_PACK_RESISTANCE                       300 // 52v battery, 14S3P measured 300 milli ohms
+#define DEFAULT_VALUE_BATTERY_PACK_RESISTANCE                       150 // 150 milli ohms
 #define DEFAULT_VALUE_OFFROAD_FEATURE_ENABLED                       0
 #define DEFAULT_VALUE_OFFROAD_MODE_ENABLED_ON_STARTUP               0
 #define DEFAULT_VALUE_OFFROAD_SPEED_LIMIT                           25
