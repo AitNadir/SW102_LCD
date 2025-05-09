@@ -972,8 +972,8 @@ void send_bluetooth2(rt_vars_t *rt_vars) {
    //Error
    data_array[5] = rt_vars->ui8_error_states + 1;//plz check the error states table
    //Main screen
-   data_array[6] = (uint8_t) (rt_vars->ui16_wheel_speed_x10 >> 16) + 1;
-   data_array[7] = (uint8_t) ((rt_vars->ui16_wheel_speed_x10 >> 8) & 0xff) + 1;//precision 0.1km/h
+   data_array[6] = (uint8_t) ((rt_vars->ui16_wheel_speed_x10 >> 8) & 0xff) + 1;
+   data_array[7] = (uint8_t) (rt_vars->ui16_wheel_speed_x10 & 0xff) + 1;//precision 0.1km/h
    data_array[8] = rt_vars->ui8_energy_consumption_per_distance_x10 + 1;
    data_array[9] = rt_vars->ui8_battery_power_in1Byte + 1;//precision 10W.
    //1 bit states combined
