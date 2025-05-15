@@ -1277,13 +1277,6 @@ void copy_rt_to_ui_vars(void) {
 	    rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
 	    rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui16_target_max_battery_power / 25;
 	    rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
-	    if(uart_get_motor_type() == MOTOR_TSDZ8){
-	      ui_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled_z8;
-	      ui_vars.ui8_cooling_down_enabled_z2 = ui_vars.ui8_cooling_down_enabled_z8;
-	    }else{
-	      ui_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled_z2;
-	      ui_vars.ui8_cooling_down_enabled_z8 = ui_vars.ui8_cooling_down_enabled_z2;
-	    }
 	    rt_vars.ui8_cooling_down_enabled = ui_vars.ui8_cooling_down_enabled;
 	    if(ui_vars.ui8_throttle_feature_enabled){
 	      rt_vars.ui8_throttle_feature_enabled = ui_vars.ui8_throttle_feature_enabled + 1;
@@ -1303,8 +1296,6 @@ void copy_rt_to_ui_vars(void) {
 	    ui_vars.ui16_target_max_battery_power = rt_vars.ui8_target_max_battery_power_div25 * 25;
 	    ui_vars.ui8_assist_whit_error_enabled = rt_vars.ui8_assist_whit_error_enabled;
 	    ui_vars.ui8_cooling_down_enabled = rt_vars.ui8_cooling_down_enabled;
-	    ui_vars.ui8_cooling_down_enabled_z8 = ui_vars.ui8_cooling_down_enabled;
-	    ui_vars.ui8_cooling_down_enabled_z2 = ui_vars.ui8_cooling_down_enabled;
 	    if(rt_vars.ui8_throttle_feature_enabled){
 	      ui_vars.ui8_throttle_feature_enabled = rt_vars.ui8_throttle_feature_enabled - 1;
 	    }else

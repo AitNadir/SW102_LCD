@@ -331,8 +331,6 @@ typedef struct ui_vars_struct {
     //add variables here
 	uint8_t ui8_flag_reset_trip;
   uint8_t ui8_cooling_down_enabled;
-  uint8_t ui8_cooling_down_enabled_z2;
-  uint8_t ui8_cooling_down_enabled_z8;
   uint8_t ui8_cooldown_disabled_time;
   uint16_t ui16_cooldown_enabled_time;
   uint8_t ui8_battery_voltage_calibrate_percent;

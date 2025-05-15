@@ -23,7 +23,6 @@ static eeprom_data_t m_eeprom_data;
 const eeprom_data_t m_eeprom_data_defaults = {
   .eeprom_version = EEPROM_VERSION,
   //add variables here
-  .ui8_cooling_down_enabled_z8 = DEFAULT_VALUE_COOLDOWN_ENABLE_Z8,
   .ui8_battery_voltage_calibrate_percent = DEFAULT_VALUE_BATTERY_VOLTAGE_CALIBRATE_PERCENT_X10,
   .ui8_battery_soc_auto_reset = DEFAULT_VALUE_BATTERY_SOC_RESET,
   .ui8_motor_version = DEFAULT_VALUE_MOTOR_VERSION,
@@ -402,8 +401,7 @@ void eeprom_init_variables(void) {
 
 	// copy data final variables
 	//add variables here
-	ui_vars->ui8_cooling_down_enabled_z2 = m_eeprom_data.ui8_cooling_down_enabled_z2;
-  ui_vars->ui8_cooling_down_enabled_z8 = m_eeprom_data.ui8_cooling_down_enabled_z8;
+	ui_vars->ui8_cooling_down_enabled = m_eeprom_data.ui8_cooling_down_enabled;
   ui_vars->ui8_battery_voltage_calibrate_percent = m_eeprom_data.ui8_battery_voltage_calibrate_percent;
   ui_vars->ui8_battery_soc_auto_reset = m_eeprom_data.ui8_battery_soc_auto_reset;
 	ui_vars->ui16_saved_password = m_eeprom_data.ui16_saved_password;
@@ -734,8 +732,7 @@ void eeprom_init_variables(void) {
 void eeprom_write_variables(void) {
 	ui_vars_t *ui_vars = get_ui_vars();
 	//add variables here
-  m_eeprom_data.ui8_cooling_down_enabled_z2 = ui_vars->ui8_cooling_down_enabled_z2;
-  m_eeprom_data.ui8_cooling_down_enabled_z8 = ui_vars->ui8_cooling_down_enabled_z8;
+  m_eeprom_data.ui8_cooling_down_enabled = ui_vars->ui8_cooling_down_enabled;
   m_eeprom_data.ui8_battery_voltage_calibrate_percent = ui_vars->ui8_battery_voltage_calibrate_percent;
   m_eeprom_data.ui8_battery_soc_auto_reset = ui_vars->ui8_battery_soc_auto_reset;
 	m_eeprom_data.ui16_saved_password = ui_vars->ui16_saved_password;

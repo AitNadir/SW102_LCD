@@ -229,8 +229,7 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
             break;
           case 13:
             ui8_g_screen_init_flag = 1;
-            ui->ui8_cooling_down_enabled_z2 = received_data[2];
-            ui->ui8_cooling_down_enabled_z8 = received_data[2];
+            ui->ui8_cooling_down_enabled = received_data[2];
             break;
           case 14:
             ui->ui8_configuration_battery_soc_reset = received_data[2];

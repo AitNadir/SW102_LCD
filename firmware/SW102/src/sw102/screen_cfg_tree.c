@@ -36,7 +36,7 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 		{ "Assist with error", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_assist_whit_error_enabled), disable_enable }},
 		{ "Throttle", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_throttle_feature_enabled), (const char*[]){ "disable", "6km/h only", 0 } }},
 		//{ "Cruise", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cruise_feature_enabled), (const char*[]){ "disable", "pedaling", "w/o pedaling", 0 } }},
-    { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled_z2), disable_enable } },
+    { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled), disable_enable } },
     { "Cooldown disabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_cooldown_disabled_time), 0, "s" }},
     { "Cooldown enabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_cooldown_enabled_time), 0, "s" }},
 		{ "Password enable", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_password_enabled), disable_enable }},
@@ -220,7 +220,7 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     //{ "Assist with error", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_assist_whit_error_enabled), disable_enable }},
     //{ "Throttle", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_throttle_feature_enabled), (const char*[]){ "disable", "6km/h only", 0 } }},
     //{ "Cruise", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cruise_feature_enabled), (const char*[]){ "disable", "pedaling", "w/o pedaling", 0 } }},
-    { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled_z8), disable_enable } },
+    { "Cooling down", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_cooling_down_enabled), disable_enable } },
     { "Cooldown disabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_cooldown_disabled_time), 0, "s" }},
     { "Cooldown enabled time", F_NUMERIC|F_RO, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_cooldown_enabled_time), 0, "s" }},
     { "Password enable", F_OPTIONS, .options = &(const struct cfgoptions_t) { PTRSIZE(ui_vars.ui8_password_enabled), disable_enable }},
@@ -381,6 +381,7 @@ static void do_set_Z8motor(const struct configtree_t *ign)
   ui_vars.ui8_motor_max_current = 23;
   ui_vars.ui8_motor_version = 1;
   ui_vars.ui32_wh_x10_100_percent = 7000;
+  ui_vars.ui8_cooling_down_enabled = 1;
   sstack_pop();
 }
 
