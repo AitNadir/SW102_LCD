@@ -549,7 +549,7 @@ void rt_send_tx_package_tsdz8(frame_type_t type) {
       // Test params 1
       ui8_usart1_tx_buffer[2] = 0x00;
       // Wheel diameter
-      f_wheel_diameter = (float)(rt_vars.ui16_wheel_perimeter) / 79.756f; // Convert circumference to diameter in inches
+      f_wheel_diameter = (float)(rt_vars.ui16_wheel_perimeter) / 79.796f; // Convert circumference to diameter in inches
       ui8_usart1_tx_buffer[3] = roundf(f_wheel_diameter);
       // Test params 2
       ui8_usart1_tx_buffer[4] = 0x00;
@@ -1303,6 +1303,16 @@ void copy_rt_to_ui_vars(void) {
 	    ui_vars.ui8_cruise_feature_enabled = rt_vars.ui8_cruise_feature_enabled;
 	  }
 	}
+
+  // verify speed limit
+  if(ui_vars.ui8_street_mode_speed_limit > (ui_vars.wheel_max_speed_x10 / 10))
+    ui_vars.ui8_street_mode_speed_limit = (ui_vars.wheel_max_speed_x10 / 10);
+
+  // verify throttle & cruise in street mode
+  if(ui_vars.ui8_street_mode_throttle_enabled > ui_vars.ui8_throttle_feature_enabled)
+    ui_vars.ui8_street_mode_throttle_enabled = rt_vars.ui8_street_mode_throttle_enabled;
+  if(ui_vars.ui8_street_mode_cruise_enabled > ui_vars.ui8_cruise_feature_enabled)
+    ui_vars.ui8_street_mode_cruise_enabled = rt_vars.ui8_street_mode_cruise_enabled;
 
 	rt_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a_offset;
   rt_vars.ui8_wheel_perimeter_in1Byte = (uint8_t)((rt_vars.ui16_wheel_perimeter / 10) - 100);//1000mm~3000mm ==> 0~200
