@@ -556,11 +556,11 @@ void rt_send_tx_package_tsdz8(frame_type_t type) {
       // Speed Limit
       if (rt_vars.ui8_street_mode_function_enabled && rt_vars.ui8_street_mode_enabled)
       {
-        ui8_usart1_tx_buffer[5] = rt_vars.ui8_street_mode_speed_limit;
+        ui8_usart1_tx_buffer[5] = floorf((float)rt_vars.ui8_street_mode_speed_limit * 1.1f);
       }
       else
       {
-        ui8_usart1_tx_buffer[5] = rt_vars.ui8_wheel_max_speed;
+        ui8_usart1_tx_buffer[5] = floorf((float)rt_vars.ui8_wheel_max_speed * 1.1f);
       }
 	    break;
 
