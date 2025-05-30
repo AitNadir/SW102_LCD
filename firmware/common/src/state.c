@@ -1012,6 +1012,10 @@ void rt_calc_battery_soc(void) {
   }
   if(ui_vars.ui8_configuration_battery_soc_reset){
     ui_vars.ui8_configuration_battery_soc_reset = 0;
+    ui8_battery_soc_index =  (uint8_t) ((uint16_t) (100
+      - ((ui_vars.ui16_battery_voltage_soc_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10) * 100)
+      / (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10)));
+
     battery_soc_reset();
   }
 }
