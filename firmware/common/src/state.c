@@ -672,6 +672,8 @@ void rt_calc_battery_voltage_soc(void) {
 	      rt_vars.ui16_battery_voltage_filtered_x10
 	          + ui16_fluctuate_battery_voltage_x10;
 	}
+	if(rt_vars.ui16_battery_voltage_soc_x10 > ui_vars.ui16_battery_voltage_reset_wh_counter_x10)
+	  rt_vars.ui16_battery_voltage_soc_x10 = ui_vars.ui16_battery_voltage_reset_wh_counter_x10;
 }
 
 void rt_calc_wh(void) {
@@ -950,7 +952,6 @@ uint8_t rt_first_time_management(void) {
 }
 
 void battery_soc_reset(void){
-  if(ui_vars.ui16_battery_voltage_soc_x10 < ui_vars.ui16_battery_voltage_reset_wh_counter_x10) {
         reset_wh();
         ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
           * ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
@@ -964,7 +965,6 @@ void battery_soc_reset(void){
         // reset trip Wh
         ui_vars.ui32_wh_x10_trip_a_offset = ui_vars.ui32_wh_x10_trip_a;
         ui32_wh_x10_reset_trip_a = 0;
-  }
 }
 
 void rt_calc_battery_soc(void) {
@@ -987,36 +987,34 @@ void rt_calc_battery_soc(void) {
   if(ui8_voltage_ready_counter)
       ui8_voltage_ready_counter--;
   if(!ui8_voltage_ready_counter) {
-      ui8_battery_soc_index =  (uint8_t) ((uint16_t) (100
-        - ((ui_vars.ui16_battery_voltage_soc_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10) * 100)
-        / (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10)));
-
-      if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_AUTO) { // Auto
-        if(!ui8_battery_soc_init_flag){
-          uint8_t ui8_battery_soc_auto_reset_low = ui_vars.ui8_battery_soc_auto_reset;
-          if(ui8_g_battery_soc < ui_vars.ui8_battery_soc_auto_reset) {
-            ui8_battery_soc_auto_reset_low = ui8_g_battery_soc;
-          }
-          if(((100 - ui8_battery_soc_used[ui8_battery_soc_index]) < (ui8_g_battery_soc - ui8_battery_soc_auto_reset_low))
-          ||((100 - ui8_battery_soc_used[ui8_battery_soc_index]) > (ui8_g_battery_soc + ui_vars.ui8_battery_soc_auto_reset))) {
-            battery_soc_reset();
-          }
-        }
-      }
-      else if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_VOLTS) { // Volts
-        battery_soc_reset();
-      }
-
-      ui8_battery_soc_init_flag = 1;
-
-  }
-  if(ui_vars.ui8_configuration_battery_soc_reset){
-    ui_vars.ui8_configuration_battery_soc_reset = 0;
     ui8_battery_soc_index =  (uint8_t) ((uint16_t) (100
       - ((ui_vars.ui16_battery_voltage_soc_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10) * 100)
       / (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10)));
+    if(ui8_battery_soc_index > 99) // Prevent list index out of range
+      ui8_battery_soc_index = 99;
 
-    battery_soc_reset();
+    if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_AUTO) { // Auto
+      if(!ui8_battery_soc_init_flag){
+        uint8_t ui8_battery_soc_auto_reset_low = ui_vars.ui8_battery_soc_auto_reset;
+        if(ui8_g_battery_soc < ui_vars.ui8_battery_soc_auto_reset) {
+          ui8_battery_soc_auto_reset_low = ui8_g_battery_soc;
+        }
+        if(((100 - ui8_battery_soc_used[ui8_battery_soc_index]) < (ui8_g_battery_soc - ui8_battery_soc_auto_reset_low))
+        ||((100 - ui8_battery_soc_used[ui8_battery_soc_index]) > (ui8_g_battery_soc + ui_vars.ui8_battery_soc_auto_reset))) {
+          battery_soc_reset();
+        }
+      }
+    }
+    else if(ui_vars.ui8_battery_soc_percent_calculation == SOC_CALC_VOLTS) { // Volts
+      battery_soc_reset();
+    }
+
+    ui8_battery_soc_init_flag = 1;
+
+    if(ui_vars.ui8_configuration_battery_soc_reset){ // Manual reset
+      ui_vars.ui8_configuration_battery_soc_reset = 0;
+      battery_soc_reset();
+    }
   }
 }
 
