@@ -234,6 +234,9 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
           case 14:
             ui->ui8_configuration_battery_soc_reset = received_data[2];
             break;
+          case 15:
+            eeprom_init_defaults();
+            break;
           default:
             break;
         }

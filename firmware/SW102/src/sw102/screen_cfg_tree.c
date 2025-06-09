@@ -60,7 +60,7 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 		{ "Reset voltage", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_voltage_reset_wh_counter_x10), 1, "V", 400, 600 }},
 		{ "Total capacity", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui32_wh_x10_100_percent), 1, "Wh", 0, 9990, 100 }},
 		{ "Used Wh", F_NUMERIC|F_CALLBACK,  .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_wh_x10), 1, "Wh", 0, 9990, 100 }, do_set_wh }},
-		//{ "Manual reset", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_configuration_battery_soc_reset), (const char*[]){ "no", "yes", 0}}},
+		{ "Manual reset", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_configuration_battery_soc_reset), (const char*[]){ "no", "yes", 0}}},
     { "Auto reset %", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_battery_soc_auto_reset), 0, "%", 0, 100 }},
 		{},
 	}}},
@@ -182,10 +182,10 @@ static const struct configtree_t cfgroot_tsdz2[] = {
 		{ "Odometer", F_NUMERIC|F_CALLBACK, .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_odometer_x10), 1, "km", 0, UINT32_MAX }, do_set_odometer }},
 		{ "Auto power off", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lcd_power_off_time_minutes), 0, "min", 0, 255 }},
 		{ "Reset BLE peers", F_BUTTON, .action = do_reset_ble },
-		{ "Reset all settings", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
-			{ "Confirm reset all", F_BUTTON, .action = do_reset_all },
-			{}
-		}}},
+		//{ "Reset all settings", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
+		//	{ "Confirm reset all", F_BUTTON, .action = do_reset_all },
+		//	{}
+		//}}},
 		{}
 	}}},
 	{ "Technical", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 36, 0, 128, (const struct configtree_t[]) {
@@ -244,7 +244,7 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     { "Reset voltage", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui16_battery_voltage_reset_wh_counter_x10), 1, "V", 400, 600 }},
     { "Total capacity", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui32_wh_x10_100_percent), 1, "Wh", 0, 9990, 100 }},
     { "Used Wh", F_NUMERIC|F_CALLBACK,  .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_wh_x10), 1, "Wh", 0, 9990, 100 }, do_set_wh }},
-    //{ "Manual reset", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_configuration_battery_soc_reset), (const char*[]){ "no", "yes", 0}}},
+    { "Manual reset", F_OPTIONS, .options = &(const struct cfgoptions_t){ PTRSIZE(ui_vars.ui8_configuration_battery_soc_reset), (const char*[]){ "no", "yes", 0}}},
     { "Auto reset %", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_battery_soc_auto_reset), 0, "%", 0, 100 }},
     {},
   }}},
@@ -287,10 +287,10 @@ static const struct configtree_t cfgroot_tsdz8[] = {
     { "Odometer", F_NUMERIC|F_CALLBACK, .numeric_cb = &(const struct cfgnumeric_cb_t) { { PTRSIZE(ui_vars.ui32_odometer_x10), 1, "km", 0, UINT32_MAX }, do_set_odometer }},
     { "Auto power off", F_NUMERIC, .numeric = &(const struct cfgnumeric_t) { PTRSIZE(ui_vars.ui8_lcd_power_off_time_minutes), 0, "min", 0, 255 }},
     { "Reset BLE peers", F_BUTTON, .action = do_reset_ble },
-    { "Reset all settings", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
-      { "Confirm reset all", F_BUTTON, .action = do_reset_all },
-      {}
-    }}},
+    //{ "Reset all settings", F_SUBMENU, .submenu = &(const struct scroller_config){ 20, 58, 18, 0, 128, (const struct configtree_t[]) {
+    //  { "Confirm reset all", F_BUTTON, .action = do_reset_all },
+    //  {}
+    //}}},
     {}
   }}},
   {}
