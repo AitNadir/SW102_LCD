@@ -981,15 +981,15 @@ void send_bluetooth2(rt_vars_t *rt_vars) {
    //1 bit states combined
    data_array[10] = (rt_vars->ui8_throttle_feature_enabled|//"disable", "6km/h only"
                    rt_vars->ui8_assist_whit_error_enabled << 1|//disable, enable
-                   (rt_vars->ui8_battery_soc_enable & 2) << 2|//"none", "charge %", "voltage"
-                   (rt_vars->ui8_battery_soc_enable & 1) << 3|
-                   (rt_vars->ui8_battery_soc_percent_calculation & 2) << 4|//"auto", "Wh", "volts"
-                   (rt_vars->ui8_battery_soc_percent_calculation & 1) << 5|
+                   (rt_vars->ui8_battery_soc_enable & 1) << 2|//"none", "charge %", "voltage"
+                   (rt_vars->ui8_battery_soc_enable & 2) << 2|
+                   (rt_vars->ui8_battery_soc_percent_calculation & 1) << 4|//"auto", "Wh", "volts"
+                   (rt_vars->ui8_battery_soc_percent_calculation & 2) << 4|
                    rt_vars->ui8_motor_type << 6|//"48V", "36V"
                    rt_vars->ui8_field_weakening << 7) + 1;//disable, enable
    data_array[11] = (rt_vars->ui8_screen_size|//"small", "big"
-                   (rt_vars->ui8_motor_version & 2) << 1|//"Z2", "Z8", "TS85"
-                   (rt_vars->ui8_motor_version & 1) << 2|
+                   (rt_vars->ui8_motor_version & 1) << 1|//"Z2", "Z8", "TS85"
+                   (rt_vars->ui8_motor_version & 2) << 1|
                    rt_vars->ui8_street_mode_function_enabled << 3|//disable, enable
                    rt_vars->ui8_street_mode_enabled << 4|//off, on
                    rt_vars->ui8_street_mode_enabled_on_startup << 5|//"no change", "activate"

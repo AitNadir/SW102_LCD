@@ -1193,6 +1193,7 @@ void copy_rt_to_ui_vars(void) {
     rt_vars.ui16_trip_a_max_speed_x10 = 0;
     ui_vars.ui8_flag_reset_trip = 0;
   }
+  rt_vars.ui8_motor_version = ui_vars.ui8_motor_version;
   rt_vars.ui16_saved_password = ui_vars.ui16_saved_password;
   ui_vars.ui8_cooldown_disabled_time = rt_vars.ui8_cooldown_disabled_time;
   ui_vars.ui16_cooldown_enabled_time = rt_vars.ui16_cooldown_enabled_time;
