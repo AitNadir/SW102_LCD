@@ -156,7 +156,6 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_battery_voltage_soc_x10_in1Byte;
 	uint8_t ui8_battery_pack_resistance_x100;
 	uint8_t ui8_energy_consumption_per_distance_x10;
-	uint32_t ui32_odokilometer_x10;
 	uint8_t ui8_battery_soc_percent_calculation;
 	uint8_t ui8_screen_size;
 	uint16_t ui16_battery_pack_resistance_estimated_x1000;

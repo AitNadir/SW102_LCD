@@ -967,9 +967,9 @@ void send_bluetooth2(rt_vars_t *rt_vars) {
 
    data_array[0] = 0x02;
    //Various
-   data_array[1] = (uint8_t) (rt_vars->ui32_odokilometer_x10 >> 16) + 1;
-   data_array[2] = (uint8_t) ((rt_vars->ui32_odokilometer_x10 >> 8) & 0xff) + 1;
-   data_array[3] = (uint8_t) (rt_vars->ui32_odokilometer_x10 & 0xff) + 1;//precision 0.1km
+   data_array[1] = (uint8_t) (rt_vars->ui32_odometer_x10 >> 16) + 1;
+   data_array[2] = (uint8_t) ((rt_vars->ui32_odometer_x10 >> 8) & 0xff) + 1;
+   data_array[3] = (uint8_t) (rt_vars->ui32_odometer_x10 & 0xff) + 1;//precision 0.1km
    data_array[4] = rt_vars->ui8_lcd_power_off_time_minutes + 1;
    //Error
    data_array[5] = rt_vars->ui8_error_states + 1;//plz check the error states table
