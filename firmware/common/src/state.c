@@ -71,6 +71,8 @@ volatile uint8_t ui8_battery_soc_index = 0;
 
 volatile uint8_t ui8_screenmain_ready_counter = 20;
 volatile uint8_t ui8_speedsensorerr_counter = 40;
+volatile uint32_t tick_counter = 0;
+volatile uint32_t cycle_counter = 0;
 
 tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 
@@ -1366,9 +1368,6 @@ void communications(void) {
   frame_type_t ui8_frame;
   uint8_t process_frame = 0;
   uint16_t ui16_temp;
-  uint32_t ui32_ms_per_rotation_x100;
-  uint16_t delta_tick_per100ms_x1000;
-  static uint16_t ui16_remain = 0;
 
   const uint8_t *p_rx_buffer = uart_get_rx_buffer_rdy();
 
@@ -1382,19 +1381,12 @@ void communications(void) {
       if(uart_get_motor_type() == MOTOR_TSDZ8) {
         g_motor_init_state = MOTOR_INIT_READY;
         ui8_battery_level = (uint8_t)p_rx_buffer[1];
-        uint32_t tick_counter = ((uint16_t)p_rx_buffer[7] << 8) | p_rx_buffer[6];
+        tick_counter = ((uint16_t)p_rx_buffer[7] << 8) | p_rx_buffer[6];
         if (tick_counter >= 1750) {
           tick_counter = 0;
         }
         rt_vars.ui16_time_units = tick_counter;
-        //calculate tick counter for tsdz8
-        ui32_ms_per_rotation_x100 = tick_counter * 204;
-        delta_tick_per100ms_x1000 = (uint16_t)(100 * 100000 / ui32_ms_per_rotation_x100);
-        ui16_remain += delta_tick_per100ms_x1000;
-        if(ui16_remain >= 1000){
-          rt_vars.ui32_wheel_speed_sensor_tick_counter += ui16_remain / 1000;
-          ui16_remain = ui16_remain % 1000;
-        }
+        rt_vars.ui32_wheel_speed_sensor_tick_counter = cycle_counter;
         rt_vars.ui8_battery_current_x5 = p_rx_buffer[4];
         if(ui8_speedsensorerr_counter){
           if ((!rt_vars.ui16_wheel_speed_x10)&&(rt_vars.ui8_battery_current_x5 > 5))
