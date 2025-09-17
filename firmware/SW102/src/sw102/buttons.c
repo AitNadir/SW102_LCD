@@ -42,7 +42,7 @@ void buttons_clock(void)
 		if(state & bit) {
 			hold[i]++;
       if (i == 0) {
-          if (hold[i] == LONGCLICK_THRESHOLD * 3)
+          if (hold[i] == LONGCLICK_THRESHOLD * 3 / 2)
               events |= ONOFF_LONG_CLICK ;
       } else {
           if (hold[i] == LONGCLICK_THRESHOLD)

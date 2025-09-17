@@ -69,7 +69,7 @@ volatile uint8_t ui8_battery_soc_used[100] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 
 // table tested with Samsung 50GB, voltage reset Wh = 4.15 x num.cells, voltage cut-off = 2.90 x num.cells
 volatile uint8_t ui8_battery_soc_index = 0;
 
-volatile uint8_t ui8_screenmain_ready_counter = 20;
+volatile uint8_t ui8_screenmain_ready_counter = 15;
 volatile uint8_t ui8_speedsensorerr_counter = 40;
 volatile uint32_t tick_counter = 0;
 volatile uint32_t cycle_counter = 0;
