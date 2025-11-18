@@ -62,10 +62,10 @@ volatile uint8_t motor_check_counter = 0;
 
 static uint8_t ui8_battery_soc_init_flag = 0;
 volatile uint8_t ui8_voltage_ready_counter = 60;
-volatile uint8_t ui8_battery_soc_used[100] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 4, 6, 8, 9, 11, 12, 14, 17,
-    18, 18, 19, 19, 20, 21, 22, 22, 23, 24, 25, 27, 28, 30, 31, 32, 33, 35, 36, 38, 39, 40, 41, 43, 44, 45, 46,
-    48, 49, 50, 52, 53, 54, 55, 56, 57, 59, 61, 62, 63, 64, 66, 68, 69, 70, 72, 73, 74, 76, 77, 78, 80, 81, 82,
-    84, 85, 86, 88, 89, 90, 91, 93, 94, 95, 96, 96, 96, 97, 97, 97, 98, 98, 99, 100, 100, 100, 100, 100 };
+volatile uint8_t ui8_battery_soc_used[100] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11,
+    12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 39,
+    40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
+    69, 70, 72, 73, 75, 77, 79, 82, 84, 87, 96, 97, 97, 98, 98, 98, 99, 99, 99, 99, 100, 100, 100, 100, 100 };
 // table tested with Samsung 50GB, voltage reset Wh = 4.15 x num.cells, voltage cut-off = 2.90 x num.cells
 volatile uint8_t ui8_battery_soc_index = 0;
 
@@ -1110,7 +1110,13 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui32_wh_x10_100_percent = ui_vars.ui32_wh_x10_100_percent;
 	rt_vars.ui32_wh_x10_offset = ui_vars.ui32_wh_x10_offset;
 	rt_vars.ui16_battery_pack_resistance_x1000 = ui_vars.ui16_battery_pack_resistance_x1000;
-	rt_vars.ui8_assist_level = ui_vars.ui8_assist_level;
+	if (rt_vars.ui8_speed_sensor_err) {
+	  rt_vars.ui8_assist_level = 0;
+	  ui_vars.ui8_assist_level = rt_vars.ui8_assist_level;
+	}else{
+	  rt_vars.ui8_assist_level = ui_vars.ui8_assist_level;
+	}
+
 	for (uint8_t i = 0; i < ASSIST_LEVEL_NUMBER; i++) {
 	  rt_vars.ui16_assist_level_factor[i] = ui_vars.ui16_assist_level_factor[i];
 	}
