@@ -658,17 +658,17 @@ void rt_low_pass_filter_pedal_power(void) {
 void rt_calc_battery_voltage_soc(void) {
 	uint16_t ui16_fluctuate_battery_voltage_x10;
 
+  // calculate flutuate voltage, that depends on the current and battery pack resistance
+  ui16_fluctuate_battery_voltage_x10 =
+      (uint16_t) ((((uint32_t) rt_vars.ui16_battery_pack_resistance_x1000)
+          * ((uint32_t) rt_vars.ui16_battery_current_filtered_x5))
+          / ((uint32_t) 500));
 	if(uart_get_motor_type() == MOTOR_TSDZ8){
 	    rt_vars.ui16_battery_voltage_soc_x10 =
 	        battery_voltage_10x_get() * ((uint16_t) rt_vars.ui8_battery_voltage_calibrate_percent)
-          / ((uint16_t) 100);
+          / ((uint16_t) 100) + ui16_fluctuate_battery_voltage_x10;
 	    rt_vars.ui16_full_battery_power_filtered_x50 = rt_vars.ui16_battery_voltage_soc_x10 * rt_vars.ui16_battery_current_filtered_x5;
 	}else{
-	  // calculate flutuate voltage, that depends on the current and battery pack resistance
-	  ui16_fluctuate_battery_voltage_x10 =
-	      (uint16_t) ((((uint32_t) rt_vars.ui16_battery_pack_resistance_x1000)
-	          * ((uint32_t) rt_vars.ui16_battery_current_filtered_x5))
-	          / ((uint32_t) 500));
 	  // now add fluctuate voltage value
 	  rt_vars.ui16_battery_voltage_soc_x10 =
 	      rt_vars.ui16_battery_voltage_filtered_x10
@@ -975,6 +975,7 @@ void battery_soc_reset(void){
 
 void rt_calc_battery_soc(void) {
 	uint32_t ui32_temp;
+	static uint16_t ui16_count;
 
 	ui32_temp = rt_vars.ui32_wh_x10 * 100;
 
@@ -1016,6 +1017,11 @@ void rt_calc_battery_soc(void) {
     }
 
     ui8_battery_soc_init_flag = 1;
+    ui16_count++;
+    if (ui16_count == 300){
+      battery_soc_reset();
+      ui16_count = 0;
+    }
 
     if(ui_vars.ui8_configuration_battery_soc_reset){ // Manual reset
       ui_vars.ui8_configuration_battery_soc_reset = 0;
