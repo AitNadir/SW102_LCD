@@ -68,6 +68,11 @@ volatile uint8_t ui8_battery_soc_used[100] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 
     69, 70, 72, 73, 75, 77, 79, 82, 84, 87, 96, 97, 97, 98, 98, 98, 99, 99, 99, 99, 100, 100, 100, 100, 100 };
 // table tested with Samsung 50GB, voltage reset Wh = 4.15 x num.cells, voltage cut-off = 2.90 x num.cells
 volatile uint8_t ui8_battery_soc_index = 0;
+// table with 30s list of current samples
+volatile uint16_t ma_buffer[30] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0};
+volatile uint8_t ma_index = 0;
+volatile uint32_t ma_sum = 0;    // 32-bit for safety if values large
 
 volatile uint8_t ui8_screenmain_ready_counter = 15;
 volatile uint8_t ui8_speedsensorerr_counter = 40;
@@ -593,6 +598,9 @@ void rt_low_pass_filter_battery_voltage_current_power(void) {
 	static uint32_t ui32_battery_voltage_accumulated_x10000 = 0;
 	static uint16_t ui16_battery_current_accumulated_x5 = 0;
   static uint16_t ui16_motor_current_accumulated_x5 = 0;
+  static uint16_t ui16_30s_delay = 30;
+  static uint16_t ui16_count = 0;
+  static uint16_t ui16_battery_current_filtered_x5 = 0;
 
 	// low pass filter battery voltage
 	ui32_battery_voltage_accumulated_x10000 -=
@@ -606,15 +614,44 @@ void rt_low_pass_filter_battery_voltage_current_power(void) {
             / ((uint32_t) 1000)
             * ((uint32_t) rt_vars.ui8_battery_voltage_calibrate_percent)
             / ((uint32_t) 100));
+  // low pass filter battery current
+  ui16_battery_current_accumulated_x5 -= ui16_battery_current_accumulated_x5
+      >> BATTERY_CURRENT_FILTER_COEFFICIENT;
+  ui16_battery_current_accumulated_x5 +=
+      (uint16_t) rt_vars.ui8_battery_current_x5;
+  ui16_battery_current_filtered_x5 =
+      ui16_battery_current_accumulated_x5
+          >> BATTERY_CURRENT_FILTER_COEFFICIENT;
 
-	// low pass filter battery current
-	ui16_battery_current_accumulated_x5 -= ui16_battery_current_accumulated_x5
-			>> BATTERY_CURRENT_FILTER_COEFFICIENT;
-	ui16_battery_current_accumulated_x5 +=
-			(uint16_t) rt_vars.ui8_battery_current_x5;
-	rt_vars.ui16_battery_current_filtered_x5 =
-			ui16_battery_current_accumulated_x5
-					>> BATTERY_CURRENT_FILTER_COEFFICIENT;
+  if (ui16_30s_delay) {
+     rt_vars.ui16_battery_current_filtered_x5 = ui16_battery_current_filtered_x5;
+     if (ui16_count < 10) {
+       ui16_count++;
+     }else {
+       // subtract oldest, add newest
+       ma_sum -= ma_buffer[ma_index];
+       ma_buffer[ma_index] = ui16_battery_current_filtered_x5;
+       ma_sum += ma_buffer[ma_index];
+       ma_index++;
+       if (ma_index >= 30) ma_index = 0;
+       ui16_30s_delay--;
+       ui16_count = 0;
+     }
+  }else {
+    if (ui16_count < 10) {
+      ui16_count++;
+    }else {
+      // subtract oldest, add newest
+      ma_sum -= ma_buffer[ma_index];
+      ma_buffer[ma_index] = ui16_battery_current_filtered_x5;
+      ma_sum += ma_buffer[ma_index];
+      ma_index++;
+      if (ma_index >= 30) ma_index = 0;
+      rt_vars.ui16_battery_current_filtered_x5 = (uint16_t)(ma_sum/30);
+      ui16_count = 0;
+    }
+  }
+
 
   // low pass filter motor current
   ui16_motor_current_accumulated_x5 -= ui16_motor_current_accumulated_x5
