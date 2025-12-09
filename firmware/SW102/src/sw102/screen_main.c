@@ -327,8 +327,10 @@ static bool draw_fault_states(ui_vars_t *ui)
 	extern const struct font font_full;
 	const char *e1="", *e2 = "";
 	if(uart_get_motor_type() == MOTOR_TSDZ8){
-	  if(ui->ui8_error_states == 1)
-	    e2 = "temperature";
+	  if(ui_vars.ui8_speed_sensor_err)
+	    e2 = "Z8E12";
+	    else if(ui->ui8_error_states == 1)
+	      e2 = "temperature";
 	    else if(ui->ui8_error_states == 2)
 	      e2 = "short";
 	    else if(ui->ui8_error_states == 4)
@@ -343,7 +345,7 @@ static bool draw_fault_states(ui_vars_t *ui)
 	      e2 = "lowV";
 	    else if(ui->ui8_error_states == 9)
 	      e2 = "overV";
-	    else if(ui->ui8_error_states == 10 || ui_vars.ui8_speed_sensor_err)
+	    else if(ui->ui8_error_states == 10)
 	      e2 = "hall";
 	    else
 	      return false;
@@ -399,7 +401,7 @@ static void main_idle()
 	clear_all();
 
 	if(!mclick_counter){
-	  if(ui->ui8_screen_size){
+	  if(ui->ui8_screen_size && (!ui_vars.ui8_speed_sensor_err)){
 	    display_mode = ModeBigScreen;
 	  }else{
 	    display_mode = ModeOdometer;

@@ -1849,6 +1849,7 @@ void batteryResistance(void) {
 void password_check(void) {
 	// password check
 	if((ui8_configuration_flag)&&(ui_vars.ui8_password_enabled)) {
+	  ui_vars.ui8_password_changed = 1;
 		switch (ui_vars.ui8_confirm_password) {
 			case LOGOUT:
 				if((ui_vars.ui8_wait_confirm_password)
@@ -1903,7 +1904,6 @@ void password_check(void) {
 					ui_vars.ui8_wait_confirm_password = 0;
 					ui_vars.ui8_password_first_time = 0;
 					ui_vars.ui8_password_confirmed = 1;
-					ui_vars.ui8_password_changed = 1;
 				}
 				else {
 					ui_vars.ui8_confirm_password = LOGOUT;
